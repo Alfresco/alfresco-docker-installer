@@ -61,7 +61,7 @@ Deployment is provided for Docker Compose, so following dependencies must be sat
 Default values for options can be specified in the command line, using a `--name=value` pattern. When an options is specified in the command line, the question is not prompted to the user, so you can generate a Docker Compose template with no user interaction.
 
 ```
-$ yo alfresco-docker-compose --acsVersion=6.1
+$ yo alfresco-docker-installer --acsVersion=6.1
 ```
 
 **Parameter names reference**
