@@ -12,6 +12,8 @@ This project generates a Docker Compose template ready to be used including foll
 * LDAP service for identification (based in OpenLDAP)
 * Several addons available
 
+>> This generator creates a base Docker Template with the configuration selected, but you should review volumes, configuration, modules & tuning parameters before using this composition in Production environments.
+
 ## Installation
 
 This program has following dependencies:
@@ -33,28 +35,97 @@ Once Node.js is installed, you can install [Yeoman](http://yeoman.io) as a modul
 $ npm install -g yo
 ```
 
+And finally, you can install this generator:
+
+```bash
+$ npm install --global generator-alfresco-docker-installer
+```
+
 Deployment is provided for Docker Compose, so following dependencies must be satisfied by the server used to run the generated configuration:
 
 * Docker
 * Docker Compose
 
+You can install *Docker Desktop* for Windows or Mac and *Docker Server* for Linux.
 
-## Configuring options
+https://docs.docker.com/install/
+
+You need also to add *Docker Compose* program to your installation.
+
+https://docs.docker.com/compose/install/
+
+
+## Building
+
+The module is available at **npm**:
+
+https://www.npmjs.com/package/generator-alfresco-docker-installer
+
+If you want to build it locally, you need an environment with Node.js and Yeoman. And from the root folder of the project, just type:
+
+```bash
+$ npm link
+```
+
+## Running
+
+Create a folder where Docker Compose template files are going to be produced and run the generator.
+
+```
+$ mkdir docker-compose
+$ cd docker-compose
+
+$ yo alfresco-docker-installer
+```
+
+Several options are provided in order to build the configuration.
 
 ```
 ? Which Alfresco version do you want to use? 6.1
-? How may GB RAM are available for Alfresco (8 is minimum required)? 8
-? Do you want to use MariaDB instead of PostgreSQL? No
-? Are you using different languages (this is the most common scenario)? Yes
-? Do you want to create an internal SMTP server? No
-? Do you want to create an internal LDAP server? No
-? Select the addons to be installed:
-  JavaScript Console 0.6
-  Order of the Bee Support Tools 1.0.0.0
-  Share Site Creators 0.0.7
-  Simple OCR 2.3.1
-  ESign Cert 1.8.2
 ```
+
+Currently only Alfresco Community 6.1 is supported.
+
+```
+? How may GB RAM are available for Alfresco (8 is minimum required)? 8
+```
+
+Alfresco platform could work with less than 8 GB RAM, but it's recommended to provide at least 8 GB in your Docker server. This generator will limit the amount of memory for every service in order to match your resources.
+
+```
+? Do you want to use MariaDB instead of PostgreSQL? No
+```
+
+Alfresco uses PostgreSQL by default, but alternatively `MariaDB` can be used as database.
+
+```
+? Are you using different languages (this is the most common scenario)? Yes
+```
+
+By default, many organisations are storing document in different languages or the users are accessing the platform with browser configured in different languages. If this is your case, enable this configuration.
+
+```
+? Do you want to create an internal SMTP server? No
+```
+
+This service provides an internal SMTP server (for outgoing emails) based in a Postfix Relay. If you want to use your own mail server, you can configure it manually after the generation of the Docker Compose template.
+
+```
+? Do you want to create an internal LDAP server? No
+```
+
+This service provides an internal OpenLDAP server (for authentication). If you want to use your own LDAP or AD server, you can configure it manually after the generation of the Docker Compose template.
+
+```
+? Select the addons to be installed:
+  JavaScript Console 0.6                 : https://github.com/share-extras/js-console
+  Order of the Bee Support Tools 1.0.0.0 : https://github.com/OrderOfTheBee/ootbee-support-tools
+  Share Site Creators 0.0.7              : https://github.com/jpotts/share-site-creators
+  Simple OCR 2.3.1                       : https://github.com/keensoft/alfresco-simple-ocr
+  ESign Cert 1.8.2                       : https://github.com/keensoft/alfresco-esign-cert
+```
+
+A small catalog of trusted *addons* is provided by default, but you can be installed any other using the deployment folders.
 
 ## Passing parameters from command line
 
@@ -66,21 +137,21 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 
 **Parameter names reference**
 
-`--acsVersion`: currently only accepting 6.1
-`--ram`: number of GB available for Docker
-`--mariadb`: true or false
-`--crossLocale`: true or false
-`--smtp`: true or false
-`--ldap`: true or false
-`--addons`: list of addons to be installed: js-console, ootbee-support-tools, share-site-creators, simple-ocr, esign-cert
+* `--acsVersion`: currently only accepting 6.1
+* `--ram`: number of GB available for Docker
+* `--mariadb`: true or false
+* `--crossLocale`: true or false
+* `--smtp`: true or false
+* `--ldap`: true or false
+* `--addons`: list of addons to be installed: js-console, ootbee-support-tools, share-site-creators, simple-ocr, esign-cert
 
 
 ## Using Docker Compose
 
-Once the files have been generated, just start Docker Compose.
+Once the files have been generated, review that configuration is what you expected and add or modify any other settings. After that, just start Docker Compose.
 
 ```
-$ docker-compose up --build --force-recreate
+$ docker-compose up --build --force-recreate -d
 ```
 
 You can shutdown it at any moment using following command.
@@ -89,14 +160,90 @@ You can shutdown it at any moment using following command.
 $ docker-compose down
 ```
 
-**URLs**
+Following folder structure is generated when Docker Compose is running. Depending on the configuration selected, some folders cannot be available in your server.
 
-*HTTP*
+```
+├── alfresco                > DOCKER
+│   ├── Dockerfile          > Docker Image for Alfresco Repository
+│   ├── bin                 > [OCR] Shell script to communicate with OCR Service
+│   ├── modules             > Deployment directory for addons
+│   │   ├── amps            > Repository addons with AMP format
+│   │   └── jars            > Repository addons with JAR format
+│   └── ssh                 > [OCR] Shared key to communicate with OCR Service
+
+├── config                  > CONFIGURATION
+│   ├── nginx.conf          > Web Proxy configuration
+│   └── nginx.htpasswd      > Password to protect the access to Solr Web Console
+
+├── data                    > DATA STORAGE (it's recommend to perform a backup of this folder)
+│   ├── alf-repo-data       > Content Store for Alfresco Repository
+│   ├── ldap                > [LDAP] Internal database
+│   ├── ocr                 > [OCR] Temporal folder shared between Alfresco Repository and OCR
+│   ├── postgres-data       > Internal storage for database
+│   ├── slap.d              > [LDAP] Control folder
+│   └── solr-data           > Internal storage for SOLR
+
+├── docker-compose.yml      > Main Docker Compose template
+
+├── logs                    > LOGS
+│   ├── alfresco            > Alfresco Repository logs
+│   ├── postgres            > PostgreSQL database logs
+│   └── share               > Share Web Application logs
+
+├── ocrmypdf                > OCR
+│   ├── Dockerfile          > Docker Image for ocrmypdf program
+│   └── assets              > Additional configuration to communicate with Alfresco Repository
+
+├── search                  > SOLR
+│   └── Dockerfile          > Docker Image for SOLR
+
+└── share                   > SHARE
+    ├── Dockerfile          > Docker Image for Share
+    └── modules             > Deployment directory for addons
+        ├── amps            > Share addons with AMP format
+        └── jars            > Share addons with JAR format
+```
+
+## Docker Images
+
+* [alfresco-content-repository-community:6.1.2-ga](https://hub.docker.com/r/alfresco/alfresco-content-repository-community)
+* [alfresco-share:6.1.0](https://hub.docker.com/r/alfresco/alfresco-share)
+* [alfresco-search-services:1.3.0.4](https://hub.docker.com/r/alfresco/alfresco-search-services)
+* [postgres:10.1](https://hub.docker.com/_/postgres)
+* [nginx:stable-alpine](https://hub.docker.com/_/nginx)
+* [mwader/postfix-relay](https://hub.docker.com/r/mwader/postfix-relay)
+* [osixia/openldap](https://hub.docker.com/r/osixia/openldap)
+* [osixia/phpldapadmin](https://hub.docker.com/r/osixia/phpldapadmin)
+* [jbarlow83/ocrmypdf:latest](https://hub.docker.com/r/jbarlow83/ocrmypdf)
+
+## Service URLs
 
 http://localhost
 
+Default credentials
+* user: admin
+* password: admin
+
 http://localhost/share
+
+Default credentials
+* user: admin
+* password: admin
 
 http://localhost/alfresco
 
+Default credentials
+* user: admin
+* password: admin
+
 http://localhost/solr
+
+Default credentials
+* user: admin
+* password: admin
+
+http://localhost:8088
+
+Default credentials
+* user: cn=admin,dc=alfresco,dc=org
+* password: admin
