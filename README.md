@@ -125,7 +125,7 @@ This service provides an internal OpenLDAP server (for authentication). If you w
   ESign Cert 1.8.2                       : https://github.com/keensoft/alfresco-esign-cert
 ```
 
-A small catalog of trusted *addons* is provided by default, but you can be installed any other using the deployment folders.
+A small catalog of trusted *addons* is provided by default, but you can install any other using the deployment folders.
 
 ## Passing parameters from command line
 
