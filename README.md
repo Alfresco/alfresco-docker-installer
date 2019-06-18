@@ -242,6 +242,12 @@ Default credentials
 * user: admin
 * password: admin
 
+http://localhost/api-explorer
+
+Default credentials
+* user: admin
+* password: admin
+
 http://localhost:8088
 
 Default credentials
