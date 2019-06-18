@@ -1,0 +1,16 @@
+{
+  "name": "generator-alfresco-docker-installer",
+  "description": "Alfresco Docker Installer",
+  "main": "generators/index.js",
+  "authors": [
+    "Angel Borroy"
+  ],
+  "license": "LGPL-3.0",
+  "keywords": [
+    "alfresco",
+    "docker-compose",
+    "generator",
+    "yeoman-generator"
+  ],
+  "homepage": "https://github.com/aborroy/alfresco-docker-installer"
+}
