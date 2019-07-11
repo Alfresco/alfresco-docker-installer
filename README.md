@@ -208,7 +208,7 @@ Following folder structure is generated when Docker Compose is running. Dependin
 
 * [alfresco-content-repository-community:6.1.2-ga](https://hub.docker.com/r/alfresco/alfresco-content-repository-community)
 * [alfresco-share:6.1.0](https://hub.docker.com/r/alfresco/alfresco-share)
-* [alfresco-search-services:1.3.0.4](https://hub.docker.com/r/alfresco/alfresco-search-services)
+* [alfresco-search-services:1.3.0.6](https://hub.docker.com/r/alfresco/alfresco-search-services)
 * [postgres:10.1](https://hub.docker.com/_/postgres)
 * [nginx:stable-alpine](https://hub.docker.com/_/nginx)
 * [mwader/postfix-relay](https://hub.docker.com/r/mwader/postfix-relay)
