@@ -17,9 +17,10 @@ module.exports = class extends Generator {
 
     const prompts = [
       {
-        type: 'input',
+        type: 'list',
         name: 'acsVersion',
-        message: 'Which Alfresco version do you want to use?',
+        message: 'Which ACS version do you want to use (6.2 is EA only)?',
+        choices: [ "6.1", "6.2" ],
         default: '6.1'
       },
       {
@@ -131,32 +132,32 @@ module.exports = class extends Generator {
 
     // Copy Docker Image for Repository applying configuration
     this.fs.copyTpl(
-      this.templatePath(this.props.acsVersion + '/alfresco/Dockerfile'),
+      this.templatePath('images/alfresco/Dockerfile'),
       this.destinationPath('alfresco/Dockerfile'),
       {
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false')
       }
     );
     this.fs.copyTpl(
-      this.templatePath(this.props.acsVersion + '/alfresco/modules'),
+      this.templatePath('images/alfresco/modules'),
       this.destinationPath('alfresco/modules')
     );
 
     // Copy Docker Image for Share applying configuration
     this.fs.copyTpl(
-      this.templatePath(this.props.acsVersion + '/share'),
+      this.templatePath('images/share'),
       this.destinationPath('share')
     );
 
     // Copy Docker Image for Search applying configuration
     this.fs.copyTpl(
-      this.templatePath(this.props.acsVersion + '/search'),
+      this.templatePath('images/search'),
       this.destinationPath('search')
     );
 
     // Copy NGINX Configuration
     this.fs.copyTpl(
-      this.templatePath(this.props.acsVersion + '/config'),
+      this.templatePath('images/config'),
       this.destinationPath('config')
     );
 
@@ -208,11 +209,11 @@ module.exports = class extends Generator {
         this.destinationPath('ocrmypdf')
       );
       this.fs.copy(
-        this.templatePath(this.props.acsVersion + '/alfresco/bin'),
+        this.templatePath('images/alfresco/bin'),
         this.destinationPath('alfresco/bin')
       );  
       this.fs.copy(
-        this.templatePath(this.props.acsVersion + '/alfresco/ssh'),
+        this.templatePath('images/alfresco/ssh'),
         this.destinationPath('alfresco/ssh')
       );  
     }
@@ -255,6 +256,10 @@ function getAvailableMemory(props) {
 
   // Content app and Proxy required RAM
   ram = ram - 256 - 128;
+
+  if (props.acsVersion == '6.2') {
+    ram = ram - 2048;
+  }
 
   if (props.smtp) {
     ram = ram - 128;

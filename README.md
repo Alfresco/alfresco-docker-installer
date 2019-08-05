@@ -81,10 +81,10 @@ $ yo alfresco-docker-installer
 Several options are provided in order to build the configuration.
 
 ```
-? Which Alfresco version do you want to use? 6.1
+? Which ACS version do you want to use (6.2 is EA only)? 6.1
 ```
 
-Currently only Alfresco Community 6.1 is supported.
+Currently Alfresco Community 6.1 is final, but 6.2 is stil Early Access. If you are planning a longer evaluation, don't use 6.2 by now.
 
 ```
 ? How may GB RAM are available for Alfresco (8 is minimum required)? 8
@@ -137,7 +137,7 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 
 **Parameter names reference**
 
-* `--acsVersion`: currently only accepting 6.1
+* `--acsVersion`: 6.1 or 6.2 (early access only)
 * `--ram`: number of GB available for Docker
 * `--mariadb`: true or false
 * `--crossLocale`: true or false
@@ -145,6 +145,27 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 * `--ldap`: true or false
 * `--addons`: list of addons to be installed: js-console, ootbee-support-tools, share-site-creators, simple-ocr, esign-cert
 
+## Deploying additional addons
+
+If you want to deploy additional addons, use deployment folders for Alfresco and Share services.
+
+**Alfresco**
+
+```
+├── alfresco
+│   ├── modules             > Deployment directory for addons
+│   │   ├── amps            > Repository addons with AMP format
+│   │   └── jars            > Repository addons with JAR format
+```
+
+**Share**
+
+```
+└── share                   
+    └── modules             > Deployment directory for addons
+        ├── amps            > Share addons with AMP format
+        └── jars            > Share addons with JAR format
+```
 
 ## Using Docker Compose
 
