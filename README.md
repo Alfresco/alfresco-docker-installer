@@ -93,7 +93,7 @@ Currently Alfresco Community 6.1 is final, but 6.2 is stil Early Access. If you 
 Alfresco platform could work with less than 8 GB RAM, but it's recommended to provide at least 8 GB in your Docker server. This generator will limit the amount of memory for every service in order to match your resources.
 
 ```
-What HTTP port do you want to use (all the services are using the same port)?
+? What HTTP port do you want to use (all the services are using the same port)? 80
 ````
 
 HTTP port to be used by every service. If you are running on a Linux computer, you'll need to specify a port greater than 1024 when not starting as `root` user.
