@@ -24,7 +24,9 @@ services:
                 -Dsolr.base.url=/solr
                 -Dindex.subsystem.name=solr6
                 -Dshare.host=localhost
-                -Dalfresco.port=80
+                -Dalfresco.port=<%=port%>
+                -Dshare.host=localhost
+                -Dshare.port=<%=port%>
                 -Daos.baseUrlOverwrite=http://localhost/alfresco/aos
                 -Ddeployment.method=DOCKER_COMPOSE
                 -Dcsrf.filter.enabled=false
@@ -162,10 +164,10 @@ services:
             - share
             - content-app
         volumes:
-            - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
+            - ./config/nginx.conf:/etc/nginx/nginx.conf
             - ./config/nginx.htpasswd:/etc/nginx/conf.d/nginx.htpasswd
         ports:
-            - 80:80    
+            - <%=port%>:<%=port%>    
 
     <% if (smtp == 'true') { %>    
     smtp:

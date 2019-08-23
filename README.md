@@ -93,6 +93,12 @@ Currently Alfresco Community 6.1 is final, but 6.2 is stil Early Access. If you 
 Alfresco platform could work with less than 8 GB RAM, but it's recommended to provide at least 8 GB in your Docker server. This generator will limit the amount of memory for every service in order to match your resources.
 
 ```
+What HTTP port do you want to use (all the services are using the same port)?
+````
+
+HTTP port to be used by every service. If you are running on a Linux computer, you'll need to specify a port greater than 1024 when not starting as `root` user.
+
+```
 ? Do you want to use MariaDB instead of PostgreSQL? No
 ```
 
@@ -238,6 +244,8 @@ Following folder structure is generated when Docker Compose is running. Dependin
 * [jbarlow83/ocrmypdf:latest](https://hub.docker.com/r/jbarlow83/ocrmypdf)
 
 ## Service URLs
+
+These are default URLs, selecting HTTP port 80. If you selected a different port (for instance 8080), the services will be available in http://localhost:8080.
 
 http://localhost
 
