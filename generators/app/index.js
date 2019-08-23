@@ -30,6 +30,12 @@ module.exports = class extends Generator {
         default: '8'
       },
       {
+        type: 'input',
+        name: 'port',
+        message: 'What HTTP port do you want to use (all the services are using the same port)?',
+        default: '80'
+      },
+      {
         type: 'confirm',
         name: 'mariadb',
         message: 'Do you want to use MariaDB instead of PostgreSQL?',
@@ -126,7 +132,8 @@ module.exports = class extends Generator {
         smtp: (this.props.smtp ? 'true' : 'false'),
         ldap: (this.props.ldap ? 'true' : 'false'),
         crossLocale: (this.props.crossLocale ? 'true' : 'false'),
-        ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false')
+        ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
+        port: this.props.port
       }
     );
 
@@ -158,7 +165,10 @@ module.exports = class extends Generator {
     // Copy NGINX Configuration
     this.fs.copyTpl(
       this.templatePath('images/config'),
-      this.destinationPath('config')
+      this.destinationPath('config'),
+      {
+        port: this.props.port
+      }
     );
 
     // Addons
