@@ -5,6 +5,11 @@ ARG TOMCAT_DIR=/usr/local/tomcat
 
 USER root
 
+<%if (https == 'true') { %>
+RUN sed -i '/Connector port="8080"/a scheme="https" secure="true"' /usr/local/tomcat/conf/server.xml && \
+    sed -i '/Connector port="8080"/a proxyName="localhost" proxyPort="<%=port%>"' /usr/local/tomcat/conf/server.xml
+<% } %>
+
 # Install modules and addons
 RUN mkdir -p $TOMCAT_DIR/amps
 COPY modules/amps $TOMCAT_DIR/amps
