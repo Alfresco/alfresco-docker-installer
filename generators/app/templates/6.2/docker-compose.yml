@@ -231,7 +231,9 @@ services:
             - content-app
         volumes:
             - ./config/nginx.conf:/etc/nginx/nginx.conf
-            - ./config/nginx.htpasswd:/etc/nginx/conf.d/nginx.htpasswd
+            - ./config/nginx.htpasswd:/etc/nginx/conf.d/nginx.htpasswd <% if (https = 'true') { %>
+            - ./config/cert/localhost.cer:/etc/nginx/localhost.cer
+            - ./config/cert/localhost.key:/etc/nginx/localhost.key <% } %>
         ports:
             - <%=port%>:<%=port%>
 

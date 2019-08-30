@@ -93,7 +93,13 @@ Currently Alfresco Community 6.1 is final, but 6.2 is stil Early Access. If you 
 Alfresco platform could work with less than 8 GB RAM, but it's recommended to provide at least 8 GB in your Docker server. This generator will limit the amount of memory for every service in order to match your resources.
 
 ```
-? What HTTP port do you want to use (all the services are using the same port)? 80
+Do you want to use HTTPs for Web Proxy?
+```
+
+This option enables HTTPs for every service. Default SSL certificates (public and private) are provided in `config/cert` folder. These certificates are not recommended for prod environments, so it's required to replace these files with your own certificates. 
+
+```
+? What HTTP port do you want to use (all the services are using the same port)? 80 or 443
 ````
 
 HTTP port to be used by every service. If you are running on a Linux computer, you'll need to specify a port greater than 1024 when not starting as `root` user.
@@ -202,6 +208,10 @@ Following folder structure is generated when Docker Compose is running. Dependin
 │   ├── nginx.conf          > Web Proxy configuration
 │   └── nginx.htpasswd      > Password to protect the access to Solr Web Console
 
+├── config/cert             > SSL Certificates (only when using HTTPs)
+│   ├── localhost.cer       > Public part for the SSL Certificate
+│   └── localhost.key       > Private part for the SSL Certificate
+
 ├── data                    > DATA STORAGE (it's recommend to perform a backup of this folder)
 │   ├── alf-repo-data       > Content Store for Alfresco Repository
 │   ├── ldap                > [LDAP] Internal database
@@ -245,7 +255,13 @@ Following folder structure is generated when Docker Compose is running. Dependin
 
 ## Service URLs
 
-These are default URLs, selecting HTTP port 80. If you selected a different port (for instance 8080), the services will be available in http://localhost:8080.
+These are default URLs, selecting HTTP port 80. 
+
+* If you selected a different port (for instance 8080), the services will be available in http://localhost:8080.
+
+* If you selected `https`, the services will be available in https://localhost 
+
+*Default URLs*
 
 http://localhost
 

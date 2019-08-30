@@ -30,10 +30,28 @@ module.exports = class extends Generator {
         default: '8'
       },
       {
+        type: 'confirm',
+        name: 'https',
+        message: 'Do you want to use HTTPs for Web Proxy?',
+        default: false
+      },
+      {
+        when: function (response) {
+          return !response.https;
+        },
         type: 'input',
         name: 'port',
         message: 'What HTTP port do you want to use (all the services are using the same port)?',
         default: '80'
+      },
+      {
+        when: function (response) {
+          return response.https;
+        },
+        type: 'input',
+        name: 'port',
+        message: 'What HTTPs port do you want to use (all the services are using the same port)?',
+        default: '443'
       },
       {
         type: 'confirm',
@@ -133,7 +151,8 @@ module.exports = class extends Generator {
         ldap: (this.props.ldap ? 'true' : 'false'),
         crossLocale: (this.props.crossLocale ? 'true' : 'false'),
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
-        port: this.props.port
+        port: this.props.port,
+        https: (this.props.https ? 'true' : 'false')
       }
     );
 
@@ -153,7 +172,11 @@ module.exports = class extends Generator {
     // Copy Docker Image for Share applying configuration
     this.fs.copyTpl(
       this.templatePath('images/share'),
-      this.destinationPath('share')
+      this.destinationPath('share'),
+      {
+        port: this.props.port,
+        https: (this.props.https ? 'true' : 'false')
+      }
     );
 
     // Copy Docker Image for Search applying configuration
@@ -164,12 +187,19 @@ module.exports = class extends Generator {
 
     // Copy NGINX Configuration
     this.fs.copyTpl(
-      this.templatePath('images/config'),
+      this.templatePath('images/config/nginx'),
       this.destinationPath('config'),
       {
-        port: this.props.port
+        port: this.props.port,
+        https: (this.props.https ? 'true' : 'false')
       }
     );
+    if (this.props.https) {
+      this.fs.copy(
+        this.templatePath('images/config/cert'),
+        this.destinationPath('config/cert')
+      );
+    }
 
     // Addons
     if (this.props.addons.includes('js-console')) {
