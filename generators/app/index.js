@@ -36,6 +36,12 @@ module.exports = class extends Generator {
         default: false
       },
       {
+        type: 'input',
+        name: 'serverName',
+        message: 'What is the name of your server?',
+        default: 'localhost'
+      },
+      {
         when: function (response) {
           return !response.https;
         },
@@ -152,7 +158,8 @@ module.exports = class extends Generator {
         crossLocale: (this.props.crossLocale ? 'true' : 'false'),
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
         port: this.props.port,
-        https: (this.props.https ? 'true' : 'false')
+        https: (this.props.https ? 'true' : 'false'),
+        serverName: this.serverName
       }
     );
 
@@ -175,7 +182,8 @@ module.exports = class extends Generator {
       this.destinationPath('share'),
       {
         port: this.props.port,
-        https: (this.props.https ? 'true' : 'false')
+        https: (this.props.https ? 'true' : 'false'),
+        serverName: this.props.serverName
       }
     );
 

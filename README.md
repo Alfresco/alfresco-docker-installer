@@ -99,8 +99,14 @@ Do you want to use HTTPs for Web Proxy?
 This option enables HTTPs for every service. Default SSL certificates (public and private) are provided in `config/cert` folder. These certificates are not recommended for prod environments, so it's required to replace these files with your own certificates. 
 
 ```
+What is the name of your server?
+```
+
+If you are deploying on a server different than `localhost`, include in this option the name of your server. For instance: `alfresco.com`
+
+```
 ? What HTTP port do you want to use (all the services are using the same port)? 80 or 443
-````
+```
 
 HTTP port to be used by every service. If you are running on a Linux computer, you'll need to specify a port greater than 1024 when not starting as `root` user.
 
@@ -260,6 +266,8 @@ These are default URLs, selecting HTTP port 80.
 * If you selected a different port (for instance 8080), the services will be available in http://localhost:8080.
 
 * If you selected `https`, the services will be available in https://localhost 
+
+* If you included a different server name from `localhost` (for instance `alfresco.com`), the services will be available in http://alfresco.com or https://alfresco.com 
 
 *Default URLs*
 

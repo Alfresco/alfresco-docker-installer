@@ -27,11 +27,11 @@ services:
                 -Dsolr.secureComms=none
                 -Dsolr.base.url=/solr
                 -Dindex.subsystem.name=solr6
-                -Dshare.host=localhost
-                -Dshare.port=<%=port%>
-                -Dalfresco.host=localhost
+                -Dalfresco.host=<%=serverName%>
                 -Dalfresco.port=<%=port%>
-                -Daos.baseUrlOverwrite=http://localhost/alfresco/aos
+                -Dshare.host=<%=serverName%>
+                -Dshare.port=<%=port%>
+                -Daos.baseUrlOverwrite=http<% if (https = 'true') { %>s<%}%>://<%=serverName%>/alfresco/aos
                 -Dmessaging.broker.url="failover:(nio://activemq:61616)?timeout=3000&jms.useCompression=true"
                 -Ddeployment.method=DOCKER_COMPOSE
                 -Dlocal.transform.service.enabled=true
@@ -126,8 +126,6 @@ services:
             REPO_PORT: "8080"
             JAVA_OPTS: "
                 -Xms<%=(ram/8) - 128%>m -Xmx<%=(ram/8) - 128%>m
-                -Dalfresco.host=localhost
-                -Dalfresco.port=8080
                 -Dalfresco.context=alfresco
                 -Dalfresco.protocol=http
                 "
