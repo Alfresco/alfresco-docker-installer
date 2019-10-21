@@ -23,11 +23,11 @@ services:
                 -Dsolr.secureComms=none
                 -Dsolr.base.url=/solr
                 -Dindex.subsystem.name=solr6
-                -Dshare.host=localhost
+                -Dalfresco.host=<%=serverName%>
                 -Dalfresco.port=<%=port%>
-                -Dshare.host=localhost
+                -Dshare.host=<%=serverName%>
                 -Dshare.port=<%=port%>
-                -Daos.baseUrlOverwrite=http://localhost/alfresco/aos
+                -Daos.baseUrlOverwrite=http<% if (https = 'true') { %>s<%}%>://<%=serverName%>/alfresco/aos
                 -Ddeployment.method=DOCKER_COMPOSE
                 -Dcsrf.filter.enabled=false
                 -Dalfresco.restApi.basicAuthScheme=true
@@ -97,8 +97,6 @@ services:
             REPO_PORT: "8080"
             JAVA_OPTS: "
                 -Xms<%=(ram/8) - 128%>m -Xmx<%=(ram/8) - 128%>m
-                -Dalfresco.host=localhost
-                -Dalfresco.port=8080
                 -Dalfresco.context=alfresco
                 -Dalfresco.protocol=http
                 "
