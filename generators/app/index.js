@@ -159,7 +159,7 @@ module.exports = class extends Generator {
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
         port: this.props.port,
         https: (this.props.https ? 'true' : 'false'),
-        serverName: this.serverName
+        serverName: this.props.serverName
       }
     );
 
