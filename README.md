@@ -303,7 +303,7 @@ $ sudo chown -R 33007 data/solr-data
 You could need to adjust also the permissions for `postgres` user inside PostgreSQL Docker Image. By default the UID is 999, but you can perform similar operations as above to guess this number.
 
 ```
-$ sudo chown -R logs
+$ sudo chown -R 999 logs
 ```
 
 Uncomment the lines in your `docker-compose.yml` for the volumes declaration and your Docker Compose should be ready to use. 
