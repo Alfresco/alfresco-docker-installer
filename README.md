@@ -247,6 +247,67 @@ Following folder structure is generated when Docker Compose is running. Dependin
         └── jars            > Share addons with JAR format
 ```
 
+## Docker Volumes
+
+In order to enable persistent storage, several Docker Volumes are configured by default. When using from Linux, some permissions on your local folders need to be set. 
+
+Identifying the right UID for every folder can be obtained by starting Docker Compose without the volumes declaration. Following lines should be commented in `docker-compose.yml` file.
+
+```
+    postgres:
+#        volumes:
+#            - ./data/postgres-data:/var/lib/postgresql/data
+#            - ./logs/postgres:/var/log/postgresql
+
+    solr6:
+#        volumes:
+#            - ./data/solr-data:/opt/alfresco-search-services/data
+
+```
+
+Once the volumes have been commented, start Docker Compose.
+
+```
+$ docker-compose up --build --force-recreate
+```
+
+After that, you can find the SOLR Docker Image and the UID of the user owning data folders (`solr` by default).
+
+```
+$ docker ps
+ded1748f961f    nginx:stable-alpine   tmp_proxy_1
+b01e0abb3c0e    tmp_alfresco          tmp_alfresco_1
+4fef719112ad    postgres:10.1         tmp_postgres_1
+99a4bd6ede52    tmp_share             tmp_share_1
+554236b9bedf    tmp_solr6             tmp_solr6_1
+
+$ docker exec -it tmp_solr6_1 sh
+
+$ cd /opt/alfresco-search-services/
+
+$ ls -la
+drwxr-xr-x 5 solr solr 4096 Nov 21 13:07 data
+
+$ id -u solr
+33007
+```
+
+Stop Docker Container and set the right permissions on your host folder.
+
+```
+$ docker-compose down
+
+$ sudo chown -R 33007 data/solr-data
+```
+
+You could need to adjust also the permissions for `postgres` user inside PostgreSQL Docker Image. By default the UID is 999, but you can perform similar operations as above to guess this number.
+
+```
+$ sudo chown -R logs
+```
+
+Uncomment the lines in your `docker-compose.yml` for the volumes declaration and your Docker Compose should be ready to use. 
+
 ## Docker Images
 
 * [alfresco-content-repository-community:6.1.2-ga](https://hub.docker.com/r/alfresco/alfresco-content-repository-community)
