@@ -19,7 +19,7 @@ module.exports = class extends Generator {
       {
         type: 'list',
         name: 'acsVersion',
-        message: 'Which ACS version do you want to use (6.2 is EA only)?',
+        message: 'Which ACS version do you want to use?',
         choices: [ "6.1", "6.2" ],
         default: '6.1'
       },

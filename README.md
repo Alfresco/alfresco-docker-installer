@@ -81,10 +81,10 @@ $ yo alfresco-docker-installer
 Several options are provided in order to build the configuration.
 
 ```
-? Which ACS version do you want to use (6.2 is EA only)? 6.1
+? Which ACS version do you want to use? 6.1
 ```
 
-Currently Alfresco Community 6.1 is final, but 6.2 is stil Early Access. If you are planning a longer evaluation, don't use 6.2 by now.
+You can use Alfresco 6.1 or 6.2
 
 ```
 ? How may GB RAM are available for Alfresco (8 is minimum required)? 8
