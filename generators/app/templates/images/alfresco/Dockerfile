@@ -55,3 +55,7 @@ RUN set -x && \
     sed -i '/^\s*SendEnv/ d' /etc/ssh/ssh_config && \
     chmod 600 /root/.ssh/id_rsa
 <% } %>
+
+<% if (ftp == 'true') { %>
+EXPOSE 2121 2433 2434
+<% } %>

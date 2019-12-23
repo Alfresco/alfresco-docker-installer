@@ -61,6 +61,12 @@ module.exports = class extends Generator {
       },
       {
         type: 'confirm',
+        name: 'ftp',
+        message: 'Do you want to use FTP (port 2121)?',
+        default: false
+      },
+      {
+        type: 'confirm',
         name: 'mariadb',
         message: 'Do you want to use MariaDB instead of PostgreSQL?',
         default: false
@@ -159,6 +165,7 @@ module.exports = class extends Generator {
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
         port: this.props.port,
         https: (this.props.https ? 'true' : 'false'),
+        ftp: (this.props.ftp ? 'true' : 'false'),
         serverName: this.props.serverName
       }
     );
@@ -168,7 +175,8 @@ module.exports = class extends Generator {
       this.templatePath('images/alfresco/Dockerfile'),
       this.destinationPath('alfresco/Dockerfile'),
       {
-        ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false')
+        ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
+        ftp: (this.props.ftp ? 'true' : 'false'),
       }
     );
     this.fs.copyTpl(

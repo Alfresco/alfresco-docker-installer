@@ -111,6 +111,12 @@ If you are deploying on a server different than `localhost`, include in this opt
 HTTP port to be used by every service. If you are running on a Linux computer, you'll need to specify a port greater than 1024 when not starting as `root` user.
 
 ```
+? Do you want to use FTP (port 2121)? No
+```
+
+Enable configuration for FTP, using by default port 2121.
+
+```
 ? Do you want to use MariaDB instead of PostgreSQL? No
 ```
 

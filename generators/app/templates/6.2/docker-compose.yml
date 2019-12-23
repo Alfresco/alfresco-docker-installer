@@ -34,6 +34,11 @@ services:
                 -Daos.baseUrlOverwrite=http<% if (https = 'true') { %>s<%}%>://<%=serverName%>/alfresco/aos
                 -Dmessaging.broker.url="failover:(nio://activemq:61616)?timeout=3000&jms.useCompression=true"
                 -Ddeployment.method=DOCKER_COMPOSE
+                -Dcsrf.filter.enabled=false <% if (ftp == 'true') { %>
+                -Dftp.enabled=true
+                -Dftp.port=2121
+                -Dftp.dataPortFrom=2433
+                -Dftp.dataPortTo=2434 <% } %>
                 -Dlocal.transform.service.enabled=true
                 -DlocalTransform.pdfrenderer.url=http://alfresco-pdf-renderer:8090/
                 -DlocalTransform.imagemagick.url=http://imagemagick:8090/
@@ -74,7 +79,12 @@ services:
             - ./logs/alfresco:/usr/local/tomcat/logs <% if (ocr == 'true') { %>
             - ./data/ocr/input:/ocr_input
             - ./data/ocr/output:/ocr_output <% } %>
-
+        <% if (ftp == 'true') { %>
+        ports:
+            - 2121:2121
+            - 2433:2433
+            - 2434:2434 <% } %>
+    
     alfresco-pdf-renderer:
         image: alfresco/alfresco-pdf-renderer:${TRANSFORM_ENGINE_TAG}
         mem_limit: 512m

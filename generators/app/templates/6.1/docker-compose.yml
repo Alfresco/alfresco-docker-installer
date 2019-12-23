@@ -29,7 +29,11 @@ services:
                 -Dshare.port=<%=port%>
                 -Daos.baseUrlOverwrite=http<% if (https = 'true') { %>s<%}%>://<%=serverName%>/alfresco/aos
                 -Ddeployment.method=DOCKER_COMPOSE
-                -Dcsrf.filter.enabled=false
+                -Dcsrf.filter.enabled=false <% if (ftp == 'true') { %>
+                -Dftp.enabled=true
+                -Dftp.port=2121
+                -Dftp.dataPortFrom=2433
+                -Dftp.dataPortTo=2434 <% } %>
                 -Dalfresco.restApi.basicAuthScheme=true
                 -Dmessaging.subsystem.autoStart=false
                 -Dauthentication.protection.enabled=false
@@ -58,7 +62,12 @@ services:
             - ./logs/alfresco:/usr/local/tomcat/logs <% if (ocr == 'true') { %>
             - ./data/ocr/input:/ocr_input
             - ./data/ocr/output:/ocr_output <% } %>
-
+        <% if (ftp == 'true') { %>
+        ports:
+            - 2121:2121
+            - 2433:2433
+            - 2434:2434 <% } %>
+    
     solr6:
         build:
           context: ./search
