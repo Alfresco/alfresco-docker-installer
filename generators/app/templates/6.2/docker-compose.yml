@@ -25,7 +25,7 @@ services:
                 -Dsolr.host=solr6
                 -Dsolr.port=8983
                 -Dsolr.secureComms=none
-                -Dsolr.base.url=/solr
+                -Dsolr.baseUrl=/solr
                 -Dindex.subsystem.name=solr6
                 -Dalfresco.host=<%=serverName%>
                 -Dalfresco.port=<%=port%>
