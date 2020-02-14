@@ -21,7 +21,7 @@ services:
                 -Ddb.url=jdbc:mysql://mariadb/alfresco?useUnicode=yes\&characterEncoding=UTF-8 <% } %>
                 -Dsolr.host=solr6
                 -Dsolr.secureComms=none
-                -Dsolr.base.url=/solr
+                -Dsolr.baseUrl=/solr
                 -Dindex.subsystem.name=solr6
                 -Dalfresco.host=<%=serverName%>
                 -Dalfresco.port=<%=port%>
