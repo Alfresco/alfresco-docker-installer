@@ -25,9 +25,11 @@ services:
                 -Dindex.subsystem.name=solr6
                 -Dalfresco.host=<%=serverName%>
                 -Dalfresco.port=<%=port%>
+                <% if (https == 'true') { %>-Dalfresco.protocol=https <%}%>
                 -Dshare.host=<%=serverName%>
                 -Dshare.port=<%=port%>
-                -Daos.baseUrlOverwrite=http<% if (https = 'true') { %>s<%}%>://<%=serverName%>/alfresco/aos
+                <% if (https == 'true') { %>-Dshare.protocol=https <%}%>
+                -Daos.baseUrlOverwrite=http<% if (https == 'true') { %>s<%}%>://<%=serverName%>/alfresco/aos
                 -Ddeployment.method=DOCKER_COMPOSE
                 -Dcsrf.filter.enabled=false <% if (ftp == 'true') { %>
                 -Dftp.enabled=true
