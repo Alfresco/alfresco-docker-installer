@@ -90,7 +90,7 @@ docker-compose up -d --build
 if [[ $WAIT == "true" ]]; then
   echo "http://${HOST_IP:-localhost}:${HOST_PORT:-8080}/$URL_FRAGMENT/"
   echo "Waiting for the app ..."
-  wait-on "http://localhost:${HOST_PORT}/alfresco/" -t 1000000 -i 10000 -v
+  node_modules/wait-on/bin/wait-on "http://localhost:${HOST_PORT}/alfresco/" -t 1000000 -i 10000 -v
   if [ $? == 1 ]; then
     echo "Waiting failed -> exit 1"
     exit 1

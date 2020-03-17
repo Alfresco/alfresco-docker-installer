@@ -8,6 +8,10 @@ var banner = require('./banner')
 */
 module.exports = class extends Generator {
 
+  installingLodash() {
+    this.npmInstall(['wait-on'], { 'dev': true });
+  }
+
   // Options to be chosen by the user
   prompting() {
 
@@ -128,10 +132,6 @@ module.exports = class extends Generator {
         default: true
       }
     ];
-
-    installingLodash() {
-      this.npmInstall(['wait-on'], { 'dev': true });
-    }
 
     // Read options from command line parameters
     const filteredPrompts = [];
@@ -295,8 +295,8 @@ module.exports = class extends Generator {
       )
     }
 
-    if (this.propthis.props.startscript === 'true') {
-      this.fs.copy(
+    if (this.props.startscript) {
+      this.fs.copyTpl(
         this.templatePath('scripts/start.sh'),
         this.destinationPath('start.sh'),
         {

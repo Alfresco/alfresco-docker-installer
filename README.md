@@ -213,6 +213,24 @@ You can shutdown it at any moment using following command.
 $ docker-compose down
 ```
 
+Alternatively if you choose to apply the start script, you can start the deployment with
+
+```
+./start.sh
+```
+
+It will wait until alfresco is reachable and shutdown with
+
+```
+./start.sh -d
+```
+
+More options are available with.
+
+```
+./start.sh -h
+```
+
 Following folder structure is generated when Docker Compose is running. Depending on the configuration selected, some folders cannot be available in your server.
 
 ```
