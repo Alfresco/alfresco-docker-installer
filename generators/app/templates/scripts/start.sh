@@ -58,15 +58,16 @@ while [[ $1 == -* ]]; do
 done
 
 if [ -n "${SET_HOST_IP}" ];then
-  export HOST_IP=${SET_HOST_IP}
+  HOST_IP=${SET_HOST_IP}
 else
   echo "No HOST_IP set, try to figure out on its own ..."
-  export HOST_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
+  HOST_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
 fi
+export HOST_IP=${HOST_IP:-localhost}
 echo "HOST_IP: ${HOST_IP}"
 
-URL_FRAGMENT=""
-export APP_URL="http://${HOST_IP}:${HOST_PORT}/${URL_FRAGMENT}"
+ACA_SERVER_PATH=""
+export APP_URL="http://${HOST_IP}:${HOST_PORT}/${ACA_SERVER_PATH}"
 echo "Content Workspace: ${APP_URL}"
 
 if [[ $KEYCLOAK == "true" ]]; then
@@ -78,7 +79,7 @@ if [[ $KEYCLOAK == "true" ]]; then
   export APP_CONFIG_OAUTH2_SILENT_LOGIN=true
   export APP_CONFIG_OAUTH2_REDIRECT_SILENT_IFRAME_URI="${APP_URL}/assets/silent-refresh.html"
   export APP_CONFIG_OAUTH2_REDIRECT_LOGIN="${APP_URL}/"
-  export APP_CONFIG_OAUTH2_REDIRECT_LOGOUT="/$URL_FRAGMENT/logout"
+  export APP_CONFIG_OAUTH2_REDIRECT_LOGOUT="$ACA_SERVER_PATH/logout"
   # export APP_BASE_SHARE_URL="${APP_URL}#/preview/s"
 
   export AIMS_PROPS="-Dauthentication.chain=identity-service1:identity-service,alfrescoNtlm1:alfrescoNtlm"
@@ -88,9 +89,8 @@ echo "Start docker compose"
 docker-compose up -d --build
 
 if [[ $WAIT == "true" ]]; then
-  echo "http://${HOST_IP:-localhost}:${HOST_PORT:-8080}/$URL_FRAGMENT/"
-  echo "Waiting for the app ..."
-  node_modules/wait-on/bin/wait-on "http://localhost:${HOST_PORT}/alfresco/" -t 1000000 -i 10000 -v
+  echo "Waiting for alfresco to boot ..."
+  node_modules/wait-on/bin/wait-on "http://${HOST_IP}:${HOST_PORT}/alfresco/" -t 1000000 -i 10000 -v
   if [ $? == 1 ]; then
     echo "Waiting failed -> exit 1"
     exit 1
