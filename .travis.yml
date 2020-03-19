@@ -18,15 +18,15 @@ jobs:
         - npm install -g yo
         - npm install --global generator-alfresco-docker-installer
         - npm link
-        - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
+        - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
         - ./start.sh
     - stage: Deploy Test
-      name: Deploy using start script
+      name: Deploy using not start script
       script:
         - npm install -g yo
         - npm install --global generator-alfresco-docker-installer
         - npm link
-        - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
+        - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
         - npm install wait-on
         - docker-compose up -d --build
         - node_modules/wait-on/bin/wait-on "http://localhost:80/alfresco/" -t 1000000
