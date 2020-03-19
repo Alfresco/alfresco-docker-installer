@@ -17,7 +17,7 @@ jobs:
       script:
         - npm install
         - npm link
-        - yo alfresco-docker-installer
+        - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
         - ./start.sh
 
 after_failure:
