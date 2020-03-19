@@ -9,6 +9,13 @@ node_js:
   - v4
 after_script: cat ./coverage/lcov.info | coveralls
 
+before_install:
+  - sudo /etc/init.d/postgresql stop
+  - npm install -g npm@latest
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - sleep 3
+
 stages:
   - name: Deploy Test
 
@@ -31,7 +38,7 @@ jobs:
         - npm link
         - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
         - npm install wait-on
-        - docker-compose up -d --build
+        - docker-compose up --build --force-recreate -d
         - node_modules/wait-on/bin/wait-on "http://localhost:80/alfresco/" -t 500000
 
 after_failure:
