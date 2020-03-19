@@ -6,3 +6,21 @@ node_js:
   - v6
   - v4
 after_script: cat ./coverage/lcov.info | coveralls
+
+stages:
+  - name: Deploy Test
+
+jobs:
+  include:
+    - stage: Deploy Test
+      name: Deploy using start script
+      script:
+        - npm install
+        - npm link
+        - yo alfresco-docker-installer
+        - ./start.sh
+
+after_failure:
+  - alfrescoContainerId=$(docker ps -a | grep 'alfresco-content-repository-community' | awk '{print $1}')
+  - docker logs $alfrescoContainerId > alfresco.log
+  - cat alfresco.log

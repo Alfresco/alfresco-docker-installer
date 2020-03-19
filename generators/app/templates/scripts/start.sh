@@ -59,7 +59,7 @@ else
   echo "No HOST_IP set, try to figure out on its own ..."
   HOST_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
 fi
-export HOST_IP=${HOST_IP:-localhost}
+export HOST_IP=${HOST_IP}
 echo "HOST_IP: ${HOST_IP}"
 
 echo "Start docker compose"
