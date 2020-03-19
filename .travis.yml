@@ -13,15 +13,15 @@ stages:
 jobs:
   include:
     - stage: Deploy Test
-      name: Deploy using start script
+      name: Deploy with start script
       script:
         - npm install -g yo
         - npm install --global generator-alfresco-docker-installer
         - npm link
         - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
-        - ./start.sh
+        - chmod +x start.sh && ./start.sh
     - stage: Deploy Test
-      name: Deploy using not start script
+      name: Deploy without start script
       script:
         - npm install -g yo
         - npm install --global generator-alfresco-docker-installer
