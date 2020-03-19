@@ -34,8 +34,9 @@ jobs:
         - npm install --global generator-alfresco-docker-installer
         - npm link
         - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
+        # remove volume which create a permission denied issue
+        - sed -i '#*.logs/postgres*.#d' ./docker-compose.yml
         - npm install wait-on
-        - sed -i '#logs/postgres#d' ./docker-compose.yml
         # - sudo mkdir /logs && sudo chown -R 999 /logs
         - docker-compose up --build --force-recreate -d
         - node_modules/wait-on/bin/wait-on "http://localhost:80/alfresco/" -t 500000
