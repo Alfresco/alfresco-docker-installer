@@ -76,11 +76,11 @@ services:
                 -Docr.extra.commands="-j1 --author keensoft --rotate-pages -l spa+eng+fra --deskew --clean --skip-text"
                 -Docr.server.os=linux <% } %>
             '
-        volumes:
-            - ./data/alf-repo-data:/usr/local/tomcat/alf_data
-            - ./logs/alfresco:/usr/local/tomcat/logs <% if (ocr == 'true') { %>
-            - ./data/ocr/input:/ocr_input
-            - ./data/ocr/output:/ocr_output <% } %>
+        # volumes:
+        #     - ./data/alf-repo-data:/usr/local/tomcat/alf_data
+        #     - ./logs/alfresco:/usr/local/tomcat/logs <% if (ocr == 'true') { %>
+        #     - ./data/ocr/input:/ocr_input
+        #     - ./data/ocr/output:/ocr_output <% } %>
         <% if (ftp == 'true') { %>
         ports:
             - 2121:2121
@@ -141,8 +141,8 @@ services:
                 -Dalfresco.context=alfresco
                 -Dalfresco.protocol=http
                 "
-        volumes:
-            - ./logs/share:/usr/local/tomcat/logs
+        # volumes:
+        #     - ./logs/share:/usr/local/tomcat/logs
 
     <% if (db == 'postgres') { %>
     postgres:
@@ -160,9 +160,9 @@ services:
               -c log_directory=/var/log/postgresql"
         ports:
             - 5432:5432
-        volumes:
-            - ./data/postgres-data:/var/lib/postgresql/data
-            - ./logs/postgres:/var/log/postgresql
+        # volumes:
+        #     - ./data/postgres-data:/var/lib/postgresql/data
+        #     - ./logs/postgres:/var/log/postgresql
     <% } %> <% if (db == 'mariadb') { %>
     mariadb:
         image: mariadb:latest
@@ -210,8 +210,8 @@ services:
                 -XX:NewSize=<%=(ram/8) - 256%>m
                 -XX:MaxNewSize=<%=(ram/8) - 256%>m
             "
-        volumes:
-            - ./data/solr-data:/opt/alfresco-search-services/data
+        # volumes:
+        #     - ./data/solr-data:/opt/alfresco-search-services/data
 
     activemq:
         image: alfresco/alfresco-activemq:${ACTIVEMQ_TAG}
