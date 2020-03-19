@@ -35,7 +35,7 @@ jobs:
         - npm link
         - yo alfresco-docker-installer --acsVersion=6.2 --ram=4 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
         - npm install wait-on
-        - docker-compose up --build --force-recreate -d
+        - sudo env "PATH=$PATH" docker-compose up --build --force-recreate -d
         - node_modules/wait-on/bin/wait-on "http://localhost:80/alfresco/" -t 500000
 
 after_failure:
