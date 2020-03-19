@@ -12,14 +12,14 @@ stages:
 
 jobs:
   include:
-    - stage: Deploy Test
-      name: Deploy with start script
-      script:
-        - npm install -g yo
-        - npm install --global generator-alfresco-docker-installer
-        - npm link
-        - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
-        - chmod +x start.sh && ./start.sh
+    # - stage: Deploy Test
+    #   name: Deploy with start script
+    #   script:
+    #     - npm install -g yo
+    #     - npm install --global generator-alfresco-docker-installer
+    #     - npm link
+    #     - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
+    #     - chmod +x start.sh && ./start.sh
     - stage: Deploy Test
       name: Deploy without start script
       script:
@@ -29,7 +29,7 @@ jobs:
         - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
         - npm install wait-on
         - docker-compose up -d --build
-        - node_modules/wait-on/bin/wait-on "http://localhost:80/alfresco/" -t 1000000
+        - node_modules/wait-on/bin/wait-on "http://localhost:80/alfresco/" -t 500000
 
 after_failure:
   - alfrescoContainerId=$(docker ps -a | grep 'alfresco-content-repository-community' | awk '{print $1}')
