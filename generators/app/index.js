@@ -130,12 +130,6 @@ module.exports = class extends Generator {
         name: 'startscript',
         message: 'Do you want to use a start script?',
         default: true
-      },
-      {
-        type: 'confirm',
-        name: 'volumes',
-        message: 'Do you want to use local volumes?',
-        default: true
       }
     ];
 
@@ -185,8 +179,7 @@ module.exports = class extends Generator {
         port: this.props.port,
         https: (this.props.https ? 'true' : 'false'),
         ftp: (this.props.ftp ? 'true' : 'false'),
-        serverName: this.props.serverName,
-        volumes: this.props.volumes
+        serverName: this.props.serverName
       }
     );
 
