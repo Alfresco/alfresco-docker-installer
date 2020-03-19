@@ -178,6 +178,8 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 * `--startscript`: true or false
 * `--https`: true or false
 * `--serverName`: localhost default
+* `--port`: 80 default
+* `--ftp`: true or false
 
 ## Deploying additional addons
 
