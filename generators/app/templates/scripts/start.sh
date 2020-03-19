@@ -7,7 +7,7 @@ show_help() {
   echo "-wp or --windows-path convert to Windows path"
   echo "-hi or --host-ip set the host ip"
   echo "-hp or --host-port set the host port. Default 8080"
-  echo "-w or --wait wait for backend. Default true"
+  echo "-wt or --wait-time wait for backend in s. Default 500 s"
   echo "-h or --help"
 }
 
@@ -32,12 +32,12 @@ set_host_port(){
   HOST_PORT=$1
 }
 
-set_wait(){
-  WAIT=$1
+set_wait_time(){
+  WAIT_TIME=$1
 }
 
 # Defaults
-WAIT="true"
+WAIT_TIME=500
 SET_HOST_IP=""
 HOST_PORT="<%=port%>"
 
@@ -46,7 +46,7 @@ while [[ $1 == -* ]]; do
     -h|--help|-\?) show_help; exit 0;;
     -wp|--windows-path)  set_windows_path; shift;;
     -d|--down)  down; shift;;
-    -w|--wait)  set_wait $2; shift 2;;
+    -wt|--wait-time)  set_wait_time $2; shift 2;;
     -hi|--host-ip)  set_host_ip $2; shift 2;;
     -hp|--host-port)  set_host_port $2; shift 2;;
     -*) echo "invalid option: $1" 1>&2; show_help; exit 1;;
@@ -67,7 +67,8 @@ docker-compose up -d --build
 
 if [[ $WAIT == "true" ]]; then
   echo "Waiting for alfresco to boot ..."
-  node_modules/wait-on/bin/wait-on "http://${HOST_IP}:${HOST_PORT}/alfresco/" -t 1000000 -i 10000 -v
+  WAIT_TIME=$(${WAIT_TIME} * 1000)
+  node_modules/wait-on/bin/wait-on "http://${HOST_IP}:${HOST_PORT}/alfresco/" -t "${WAIT_TIME}" -i 10000 -v
   if [ $? == 1 ]; then
     echo "Waiting failed -> exit 1"
     exit 1
