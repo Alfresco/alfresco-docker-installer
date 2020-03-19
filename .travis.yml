@@ -11,34 +11,24 @@ node_js:
 
 before_install:
   - sudo /etc/init.d/postgresql stop
-  - sleep 3
+  - npm install -g yo
+  - npm install --global generator-alfresco-docker-installer
+  - npm link
+  - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
+  # remove volume which create a permission denied issue
+  - sed -i '\|logs/postgres|d' ./docker-compose.yml
 
 stages:
   - name: Deploy Test
 
 jobs:
   include:
-    # - stage: Deploy Test
-    #   name: Deploy with start script
-    #   script:
-    #     - npm install -g yo
-    #     - npm install --global generator-alfresco-docker-installer
-    #     - npm link
-    #     - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
-    #     - chmod +x start.sh && sudo env "PATH=$PATH" ./start.sh
-    # trigger build
+    - stage: Deploy Test
+      name: Deploy with start script
+      script: chmod +x start.sh && ./start.sh -wt 500
     - stage: Deploy Test
       name: Deploy without start script
       script:
-        - npm install -g yo
-        - npm install --global generator-alfresco-docker-installer
-        - npm link
-        - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
-        # remove volume which create a permission denied issue
-        - sed -i '\|logs/postgres|d' ./docker-compose.yml
-        - docker-compose config
-        - npm install wait-on
-        # - sudo mkdir /logs && sudo chown -R 999 /logs
         - docker-compose up --build --force-recreate -d
         - node_modules/wait-on/bin/wait-on "http://localhost:80/alfresco/" -t 500000
 
