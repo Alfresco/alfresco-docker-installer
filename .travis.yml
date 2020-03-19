@@ -35,7 +35,8 @@ jobs:
         - npm link
         - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
         # remove volume which create a permission denied issue
-        - sed -i '#*.logs/postgres*.#d' ./docker-compose.yml
+        - sed -i '\|logs/postgres|d' ./docker-compose.yml
+        - docker-compose config
         - npm install wait-on
         # - sudo mkdir /logs && sudo chown -R 999 /logs
         - docker-compose up --build --force-recreate -d
