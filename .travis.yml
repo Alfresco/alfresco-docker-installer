@@ -20,6 +20,7 @@ jobs:
     #     - npm link
     #     - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=true
     #     - chmod +x start.sh && ./start.sh
+    # trigger build
     - stage: Deploy Test
       name: Deploy without start script
       script:
