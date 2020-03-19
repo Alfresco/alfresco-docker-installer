@@ -161,8 +161,8 @@ services:
         ports:
             - 5432:5432
         volumes:
-            - ./data/postgres-data:/usr/local/data/postgres-data
-            - ./logs/postgres:/usr/local/logs/postgres
+            - ./data/postgres-data:/var/lib/postgresql/data
+            - ./logs/postgres:/var/log/postgresql
     <% } %> <% if (db == 'mariadb') { %>
     mariadb:
         image: mariadb:latest
