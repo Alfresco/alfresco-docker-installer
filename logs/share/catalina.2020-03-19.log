@@ -213,3 +213,8 @@
 19-Mar-2020 21:30:17.220 INFO [main] org.apache.catalina.core.StandardService.startInternal Starting service [Catalina]
 19-Mar-2020 21:30:17.232 INFO [main] org.apache.catalina.core.StandardEngine.startInternal Starting Servlet Engine: Apache Tomcat/8.5.43
 19-Mar-2020 21:30:17.347 INFO [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory [/usr/local/tomcat/webapps/share]
+19-Mar-2020 21:30:48.302 INFO [localhost-startStop-1] org.apache.jasper.servlet.TldScanner.scanJars At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+19-Mar-2020 21:31:21.737 INFO [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory [/usr/local/tomcat/webapps/share] has finished in [64,388] ms
+19-Mar-2020 21:31:21.759 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["http-nio-8080"]
+19-Mar-2020 21:31:21.848 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["ajp-nio-8009"]
+19-Mar-2020 21:31:21.890 INFO [main] org.apache.catalina.startup.Catalina.start Server startup in 65590 ms
