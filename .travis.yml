@@ -25,7 +25,7 @@ jobs:
   include:
     - stage: Deploy Test
       name: Deploy with start script
-      script: chmod +x start.sh && ./start.sh -wt 500
+      script: chmod +x start.sh && ./start.sh
     - stage: Deploy Test
       name: Deploy without start script
       script:
