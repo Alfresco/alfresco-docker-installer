@@ -14,7 +14,7 @@ services:
             - postgres <% } %> <% if (db == 'mariadb') { %>
             - mariadb <% } %>
         environment:
-            JAVA_OPTS : '
+            JAVA_OPTS : '{}
                 -Ddb.driver=org.postgresql.Driver
                 -Ddb.username=alfresco
                 -Ddb.password=alfresco<% if (db == "postgres") { %>
@@ -27,13 +27,13 @@ services:
                 -Dsolr.secureComms=none
                 -Dsolr.baseUrl=/solr
                 -Dindex.subsystem.name=solr6
-                -Dalfresco.host=${HOST_IP}
+                -Dalfresco.host=<%=serverName%>
                 -Dalfresco.port=<%=port%>
                 <% if (https == 'true') { %>-Dalfresco.protocol=https <%}%>
-                -Dshare.host=${HOST_IP}
+                -Dshare.host=<%=serverName%>
                 -Dshare.port=<%=port%>
                 <% if (https == 'true') { %>-Dshare.protocol=https <%}%>
-                -Daos.baseUrlOverwrite=http<% if (https == 'true') { %>s<%}%>://${HOST_IP}/alfresco/aos
+                -Daos.baseUrlOverwrite=http<% if (https == 'true') { %>s<%}%>://<%=serverName%>/alfresco/aos
                 -Dmessaging.broker.url="failover:(nio://activemq:61616)?timeout=3000&jms.useCompression=true"
                 -Ddeployment.method=DOCKER_COMPOSE
                 -Dcsrf.filter.enabled=false <% if (ftp == 'true') { %>

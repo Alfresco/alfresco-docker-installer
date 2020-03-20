@@ -303,7 +303,8 @@ module.exports = class extends Generator {
         this.templatePath('scripts/start.sh'),
         this.destinationPath('start.sh'),
         {
-          port: this.props.port
+          port: this.props.port,
+          serverName: this.props.serverName
         }
       )
     }
