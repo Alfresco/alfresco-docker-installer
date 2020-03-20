@@ -35,6 +35,5 @@ jobs:
 after_failure:
   - docker-compose config
   - docker-compose logs
-  # - alfrescoContainerId=$(docker ps -a | grep 'alfresco-content-repository-community' | awk '{print $1}')
-  # - docker logs $alfrescoContainerId > alfresco.log
-  # - cat alfresco.log
+  - alfrescoContainerId=$(docker ps -a | grep 'alfresco-content-repository-community' | awk '{print $1}')
+  - docker logs $alfrescoContainerId
