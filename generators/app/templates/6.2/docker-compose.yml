@@ -14,7 +14,7 @@ services:
             - postgres <% } %> <% if (db == 'mariadb') { %>
             - mariadb <% } %>
         environment:
-            JAVA_OPTS : '{}
+            JAVA_OPTS : '
                 -Ddb.driver=org.postgresql.Driver
                 -Ddb.username=alfresco
                 -Ddb.password=alfresco<% if (db == "postgres") { %>
