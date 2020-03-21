@@ -157,12 +157,9 @@ module.exports = class extends Generator {
   writing() {
 
     // Docker Compose environment variables values
-    this.fs.copyTpl(
+    this.fs.copy(
       this.templatePath(this.props.acsVersion + '/.env'),
-      this.destinationPath('.env'),
-      {
-        serverName: this.props.serverName
-      }
+      this.destinationPath('.env')
     )
 
     // Copy Docker Compose applying configuration
