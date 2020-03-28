@@ -9,7 +9,7 @@ var banner = require('./banner')
 module.exports = class extends Generator {
 
   installingLodash() {
-    this.npmInstall(['wait-on'], { 'dev': true });
+    this.npmInstall(['wait-on'], { 'save-dev': true });
   }
 
   // Options to be chosen by the user
