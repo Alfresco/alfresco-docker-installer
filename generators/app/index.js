@@ -8,6 +8,10 @@ var banner = require('./banner')
 */
 module.exports = class extends Generator {
 
+  installingLodash() {
+    this.npmInstall(['wait-on'], { 'save-dev': true });
+  }
+
   // Options to be chosen by the user
   prompting() {
 
@@ -98,28 +102,34 @@ module.exports = class extends Generator {
             name: 'JavaScript Console 0.6',
             value: 'js-console',
             checked: true
-          }, 
+          },
           {
             name: 'Order of the Bee Support Tools 1.0.0.0',
             value: 'ootbee-support-tools',
             checked: true
-          }, 
+          },
           {
             name: 'Share Site Creators 0.0.7',
             value: 'share-site-creators',
             checked: true
-          }, 
+          },
           {
             name: 'Simple OCR 2.3.1',
             value: 'simple-ocr',
             checked: false
-          }, 
+          },
           {
             name: 'ESign Cert 1.8.2',
             value: 'esign-cert',
             checked: false
-          }        
+          }
         ]
+      },
+      {
+        type: 'confirm',
+        name: 'startscript',
+        message: 'Do you want to use a start script?',
+        default: true
       }
     ];
 
@@ -130,8 +140,8 @@ module.exports = class extends Generator {
       const option = this.options[prompt.name];
       if (option === undefined) {
         filteredPrompts.push(prompt);
-      } else {      
-        commandProps[prompt.name] = normalize(option, prompt); 
+      } else {
+        commandProps[prompt.name] = normalize(option, prompt);
       }
     }, this);
 
@@ -149,7 +159,7 @@ module.exports = class extends Generator {
     // Docker Compose environment variables values
     this.fs.copy(
       this.templatePath(this.props.acsVersion + '/.env'),
-      this.destinationPath('.env'),
+      this.destinationPath('.env')
     )
 
     // Copy Docker Compose applying configuration
@@ -267,11 +277,11 @@ module.exports = class extends Generator {
       this.fs.copy(
         this.templatePath('images/alfresco/bin'),
         this.destinationPath('alfresco/bin')
-      );  
+      );
       this.fs.copy(
         this.templatePath('images/alfresco/ssh'),
         this.destinationPath('alfresco/ssh')
-      );  
+      );
     }
 
     if (this.props.addons.includes('esign-cert')) {
@@ -285,13 +295,24 @@ module.exports = class extends Generator {
       )
     }
 
+    if (this.props.startscript) {
+      this.fs.copyTpl(
+        this.templatePath('scripts/start.sh'),
+        this.destinationPath('start.sh'),
+        {
+          port: this.props.port,
+          serverName: this.props.serverName
+        }
+      )
+    }
+
   }
 
 };
 
 // Convert parameter string value to boolean value
 function normalize(option, prompt) {
-  
+
   if (prompt.type === 'confirm' && typeof option === 'string') {
     let lc = option.toLowerCase();
     if (lc === 'true' || lc === 'false') {

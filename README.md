@@ -11,6 +11,7 @@ This project generates a Docker Compose template ready to be used including foll
 * Outbound Email service (smtp)
 * LDAP service for identification (based in OpenLDAP)
 * Several addons available
+* Wrapper Script for waiting the alfresco boot to finish
 
 >> This generator creates a base Docker Template with the configuration selected, but you should review volumes, configuration, modules & tuning parameters before using this composition in Production environments.
 
@@ -151,6 +152,12 @@ This service provides an internal OpenLDAP server (for authentication). If you w
 
 A small catalog of trusted *addons* is provided by default, but you can install any other using the deployment folders.
 
+```
+? Do you want to use a start script? Yes
+```
+
+The wrapper script for the docker-compose file allows nice features as a wait for alfresco to finish the boot and much more. Use "./start.sh -h" for more information.
+
 ## Passing parameters from command line
 
 Default values for options can be specified in the command line, using a `--name=value` pattern. When an options is specified in the command line, the question is not prompted to the user, so you can generate a Docker Compose template with no user interaction.
@@ -168,6 +175,11 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 * `--smtp`: true or false
 * `--ldap`: true or false
 * `--addons`: list of addons to be installed: js-console, ootbee-support-tools, share-site-creators, simple-ocr, esign-cert
+* `--startscript`: true or false
+* `--https`: true or false
+* `--serverName`: localhost default
+* `--port`: 80 default
+* `--ftp`: true or false
 
 ## Deploying additional addons
 
@@ -203,6 +215,24 @@ You can shutdown it at any moment using following command.
 
 ```
 $ docker-compose down
+```
+
+Alternatively if you choose to apply the start script, you can start the deployment with
+
+```
+./start.sh
+```
+
+It will wait until alfresco is reachable and shutdown with
+
+```
+./start.sh -d
+```
+
+More options are available with.
+
+```
+./start.sh -h
 ```
 
 Following folder structure is generated when Docker Compose is running. Depending on the configuration selected, some folders cannot be available in your server.
