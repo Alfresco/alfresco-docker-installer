@@ -8,10 +8,6 @@ var banner = require('./banner')
 */
 module.exports = class extends Generator {
 
-  installingLodash() {
-    this.npmInstall(['wait-on'], { 'save-dev': true });
-  }
-
   // Options to be chosen by the user
   prompting() {
 
@@ -129,7 +125,7 @@ module.exports = class extends Generator {
         type: 'confirm',
         name: 'startscript',
         message: 'Do you want to use a start script?',
-        default: true
+        default: false
       }
     ];
 
@@ -296,6 +292,7 @@ module.exports = class extends Generator {
     }
 
     if (this.props.startscript) {
+      this.npmInstall(['wait-on'], { 'save-dev': true });
       this.fs.copyTpl(
         this.templatePath('scripts/start.sh'),
         this.destinationPath('start.sh'),
