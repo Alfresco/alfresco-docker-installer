@@ -56,21 +56,11 @@ You need also to add *Docker Compose* program to your installation.
 https://docs.docker.com/compose/install/
 
 
-## Building
-
-The module is available at **npm**:
-
-https://www.npmjs.com/package/generator-alfresco-docker-installer
-
-If you want to build it locally, you need an environment with Node.js and Yeoman. And from the root folder of the project, just type:
-
-```bash
-$ npm link
-```
-
 ## Running
 
 Create a folder where Docker Compose template files are going to be produced and run the generator.
+
+>>> If you downloaded this project, **dont't** reuse source code folder. Create an empty folder to generate Docker Compose template anywhere.
 
 ```
 $ mkdir docker-compose
@@ -97,7 +87,7 @@ Alfresco platform could work with less than 8 GB RAM, but it's recommended to pr
 Do you want to use HTTPs for Web Proxy?
 ```
 
-This option enables HTTPs for every service. Default SSL certificates (public and private) are provided in `config/cert` folder. These certificates are not recommended for prod environments, so it's required to replace these files with your own certificates. 
+This option enables HTTPs for every service. Default SSL certificates (public and private) are provided in `config/cert` folder. These certificates are not recommended for prod environments, so it's required to replace these files with your own certificates.
 
 ```
 What is the name of your server?
@@ -285,7 +275,7 @@ Following folder structure is generated when Docker Compose is running. Dependin
 
 ## Docker Volumes
 
-In order to enable persistent storage, several Docker Volumes are configured by default. When using from Linux, some permissions on your local folders need to be set. 
+In order to enable persistent storage, several Docker Volumes are configured by default. When using from Linux, some permissions on your local folders need to be set.
 
 Identifying the right UID for every folder can be obtained by starting Docker Compose without the volumes declaration. Following lines should be commented in `docker-compose.yml` file.
 
@@ -342,7 +332,7 @@ You could need to adjust also the permissions for `postgres` user inside Postgre
 $ sudo chown -R 999 logs
 ```
 
-Uncomment the lines in your `docker-compose.yml` for the volumes declaration and your Docker Compose should be ready to use. 
+Uncomment the lines in your `docker-compose.yml` for the volumes declaration and your Docker Compose should be ready to use.
 
 ## Docker Images
 
@@ -358,13 +348,13 @@ Uncomment the lines in your `docker-compose.yml` for the volumes declaration and
 
 ## Service URLs
 
-These are default URLs, selecting HTTP port 80. 
+These are default URLs, selecting HTTP port 80.
 
 * If you selected a different port (for instance 8080), the services will be available in http://localhost:8080.
 
-* If you selected `https`, the services will be available in https://localhost 
+* If you selected `https`, the services will be available in https://localhost
 
-* If you included a different server name from `localhost` (for instance `alfresco.com`), the services will be available in http://alfresco.com or https://alfresco.com 
+* If you included a different server name from `localhost` (for instance `alfresco.com`), the services will be available in http://alfresco.com or https://alfresco.com
 
 *Default URLs*
 
@@ -403,3 +393,17 @@ http://localhost:8088
 Default credentials
 * user: cn=admin,dc=alfresco,dc=org
 * password: admin
+
+## Building
+
+It's not required to build or download this project in order to use it. But this can be done using default *npm* tools.
+
+The module is available at **npm**:
+
+https://www.npmjs.com/package/generator-alfresco-docker-installer
+
+If you want to build it locally, you need an environment with Node.js and Yeoman. And from the root folder of the project, just type:
+
+```bash
+$ npm link
+```
