@@ -232,7 +232,7 @@ services:
     # HTTP proxy to provide HTTP Default port access to services
     # SOLR API and SOLR Web Console are protected to avoid unauthenticated access
     proxy:
-        image: nginx:stable-alpine
+        image: nginx:alpine
         mem_limit: 128m
         depends_on:
             - alfresco
@@ -241,11 +241,35 @@ services:
             - content-app
         volumes:
             - ./config/nginx.conf:/etc/nginx/nginx.conf
-            - ./config/nginx.htpasswd:/etc/nginx/conf.d/nginx.htpasswd <% if (https = 'true') { %>
+            - ./config/nginx.htpasswd:/etc/nginx/conf.d/nginx.htpasswd <% if (https === 'true' && letsencrypt === 'false') { %>
             - ./config/cert/localhost.cer:/etc/nginx/localhost.cer
-            - ./config/cert/localhost.key:/etc/nginx/localhost.key <% } %>
+            - ./config/cert/localhost.key:/etc/nginx/localhost.key <% } %> <% if (letsencrypt === 'false') { %>
         ports:
-            - <%=port%>:<%=port%>
+            - <%=port%>:<%=port%> <% } %> <% if (letsencrypt === 'true') { %>
+        environment:
+            - VIRTUAL_HOST=<%=serverName%>
+            - LETSENCRYPT_HOST=<%=serverName%>
+            - LETSENCRYPT_EMAIL=<%=serverMail%> <% } %>
+
+    <% if (letsencrypt == 'true') { %>
+    nginx-proxy:
+      image: jwilder/nginx-proxy
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - "/etc/nginx/vhost.d"
+        - "/usr/share/nginx/html"
+        - "/var/run/docker.sock:/tmp/docker.sock:ro"
+        - "/etc/nginx/certs"
+
+    letsencrypt-nginx-proxy-companion:
+      image: jrcs/letsencrypt-nginx-proxy-companion
+      volumes:
+        - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      volumes_from:
+        - "nginx-proxy"
+      <% } %>
 
     <% if (smtp == 'true') { %>
     smtp:

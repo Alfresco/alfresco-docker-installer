@@ -1,1 +1,14 @@
 node_modules
+
+# in case you work with link in the root
+/data
+/logs
+/config
+/alfresco
+/share
+/search
+/conf
+/.env
+/docker-compose.yml
+/nginx.tmpl
+/start.sh
