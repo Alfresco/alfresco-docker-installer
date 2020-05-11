@@ -84,13 +84,13 @@ You can use Alfresco 6.1 or 6.2
 Alfresco platform could work with less than 8 GB RAM, but it's recommended to provide at least 8 GB in your Docker server. This generator will limit the amount of memory for every service in order to match your resources.
 
 ```
-Do you want to use HTTPs for Web Proxy?
+? Do you want to use HTTPs for Web Proxy?
 ```
 
 This option enables HTTPs for every service. Default SSL certificates (public and private) are provided in `config/cert` folder. These certificates are not recommended for prod environments, so it's required to replace these files with your own certificates.
 
 ```
-What is the name of your server?
+? What is the name of your server?
 ```
 
 If you are deploying on a server different than `localhost`, include in this option the name of your server. For instance: `alfresco.com`
@@ -143,7 +143,7 @@ This service provides an internal OpenLDAP server (for authentication). If you w
 A small catalog of trusted *addons* is provided by default, but you can install any other using the deployment folders.
 
 ```
-Are you using a Windows host to run Docker?
+? Are you using a Windows host to run Docker?
 ```
 
 When using a Windows host to run Docker, standard [Docker Volumes](https://docs.docker.com/storage/volumes/) are used instead of [Bind Docker Volumes](https://docs.docker.com/storage/bind-mounts/). This options is easier to run in Docker Windows environments.
