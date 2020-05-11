@@ -76,11 +76,15 @@ services:
                 -Docr.extra.commands="-j1 --author keensoft --rotate-pages -l spa+eng+fra --deskew --clean --skip-text"
                 -Docr.server.os=linux <% } %>
             '
-        volumes:
+        volumes: <% if (windows == 'false') { %>
             - ./data/alf-repo-data:/usr/local/tomcat/alf_data
             - ./logs/alfresco:/usr/local/tomcat/logs <% if (ocr == 'true') { %>
             - ./data/ocr/input:/ocr_input
-            - ./data/ocr/output:/ocr_output <% } %>
+            - ./data/ocr/output:/ocr_output <% } %> <% } %> <% if (windows == 'true') { %>
+            - alf-repo-data:/usr/local/tomcat/alf_data
+            - alf-repo-logs:/usr/local/tomcat/logs <% if (ocr == 'true') { %>
+            - alf-repo-ocr-input:/ocr_input
+            - alf-repo-ocr-output:/ocr_output <% } %> <% } %>
         <% if (ftp == 'true') { %>
         ports:
             - 2121:2121
@@ -141,9 +145,10 @@ services:
                 -Dalfresco.context=alfresco
                 -Dalfresco.protocol=http
                 "
-        volumes:
-            - ./logs/share:/usr/local/tomcat/logs
-
+        volumes: <% if (windows == 'false') { %>
+            - ./logs/share:/usr/local/tomcat/logs <% } %> <% if (windows == 'true') { %>
+            - alf-share-logs:/usr/local/tomcat/logs <% } %>
+    
     <% if (db == 'postgres') { %>
     postgres:
         image: postgres:${POSTGRES_TAG}
@@ -160,9 +165,11 @@ services:
               -c log_directory=/var/log/postgresql"
         ports:
             - 5432:5432
-        volumes:
+        volumes: <% if (windows == 'false') { %>
             - ./data/postgres-data:/var/lib/postgresql/data
-            - ./logs/postgres:/var/log/postgresql
+            - ./logs/postgres:/var/log/postgresql <% } %> <% if (windows == 'true') { %>
+            - postgres-data:/var/lib/postgresql/data
+            - postgres-logs:/var/log/postgresql <% } %>
     <% } %> <% if (db == 'mariadb') { %>
     mariadb:
         image: mariadb:latest
@@ -179,9 +186,11 @@ services:
             --max_connections=200
             --innodb-flush-method=O_DIRECT
             --wait_timeout=28800"
-        volumes:
+        volumes: <% if (windows == 'false') { %>
             - ./data/mariadb_data:/var/lib/mysql
-            - ./logs/mariadb:/var/log/mysql
+            - ./logs/mariadb:/var/log/mysql <% } %> <% if (windows == 'true') { %>
+            - mariadb-data:/var/lib/mysql
+            - mariadb-logs:/var/log/mysql <% } %>
         ports:
             - 3306:3306
     <% } %>
@@ -210,8 +219,9 @@ services:
                 -XX:NewSize=<%=(ram/8) - 256%>m
                 -XX:MaxNewSize=<%=(ram/8) - 256%>m
             "
-        volumes:
-            - ./data/solr-data:/opt/alfresco-search-services/data
+        volumes: <% if (windows == 'false') { %>
+            - ./data/solr-data:/opt/alfresco-search-services/data <% } %> <% if (windows == 'true') { %>
+            - solr-data:/opt/alfresco-search-services/data <% } %>
 
     activemq:
         image: alfresco/alfresco-activemq:${ACTIVEMQ_TAG}
@@ -286,7 +296,25 @@ services:
         build: ./ocrmypdf
         mem_limit: 512m
         hostname: ocrmypdf
-        volumes:
+        volumes: <% if (windows == 'false') { %>
             - ./data/ocr/input:/ocr_input
-            - ./data/ocr/output:/ocr_output
+            - ./data/ocr/output:/ocr_output <% } %> <% if (windows == 'true') { %>
+            - ocr-input:/ocr_input
+            - ocr-output:/ocr_output <% } %>
     <% } %>
+
+<% if (windows == 'true') { %>
+volumes:
+    alf-repo-data:
+    alf-repo-logs: <% if (ocr == 'true') { %>
+    alf-repo-ocr-input:
+    alf-repo-ocr-output: <% } %>
+    alf-share-logs: <% if (db == 'postgres') { %>
+    postgres-data:
+    postgres-logs: <% } %> <% if (db == 'mariadb') { %>
+    mariadb-data:
+    mariadb-logs: <% } %>
+    solr-data: <% if (ocr == 'true') { %>
+    ocr-input: 
+    ocr-output: <% } %>
+<% } %>    
