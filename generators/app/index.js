@@ -60,6 +60,24 @@ module.exports = class extends Generator {
         default: '443'
       },
       {
+        when: function (response) {
+          return response.https && response.port;
+        },
+        type: 'confirm',
+        name: 'letsencrypt',
+        message: 'Do you want to lets manage Lets Encrypt the SSL certificate lifecycle? You will need to provide your domain and email',
+        default: false
+      },
+      {
+        when: function (response) {
+          return response.letsencrypt;
+        },
+        type: 'input',
+        name: 'serverMail',
+        message: 'Domain mail for the SSL certificate',
+        default: 'admin@example.com'
+      },
+      {
         type: 'confirm',
         name: 'ftp',
         message: 'Do you want to use FTP (port 2121)?',
@@ -171,8 +189,10 @@ module.exports = class extends Generator {
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
         port: this.props.port,
         https: (this.props.https ? 'true' : 'false'),
+        letsencrypt: (this.props.letsencrypt ? 'true' : 'false'),
         ftp: (this.props.ftp ? 'true' : 'false'),
-        serverName: this.props.serverName
+        serverName: this.props.serverName,
+        serverMail: this.props.serverMail
       }
     );
 
@@ -213,14 +233,23 @@ module.exports = class extends Generator {
       this.destinationPath('config'),
       {
         port: this.props.port,
-        https: (this.props.https ? 'true' : 'false')
+        https: (this.props.https ? 'true' : 'false'),
+        letsencrypt: (this.props.letsencrypt ? 'true' : 'false'),
       }
     );
-    if (this.props.https) {
+
+    if (this.props.https && !this.props.letsencrypt) {
       this.fs.copy(
         this.templatePath('images/config/cert'),
         this.destinationPath('config/cert')
       );
+    }
+
+    if (this.props.https && this.props.letsencrypt) {
+      this.fs.copyTpl(
+        this.templatePath('scripts/nginx.tmpl'),
+        this.destinationPath('nginx.tmpl')
+      )
     }
 
     // Addons
@@ -298,7 +327,8 @@ module.exports = class extends Generator {
         this.destinationPath('start.sh'),
         {
           port: this.props.port,
-          serverName: this.props.serverName
+          serverName: this.props.serverName,
+          https: (this.props.https ? 'true' : 'false'),
         }
       )
     }
