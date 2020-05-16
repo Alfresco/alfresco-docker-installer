@@ -141,6 +141,12 @@ module.exports = class extends Generator {
       },
       {
         type: 'confirm',
+        name: 'windows',
+        message: 'Are you using a Windows host to run Docker?',
+        default: false
+      },
+      {
+        type: 'confirm',
         name: 'startscript',
         message: 'Do you want to use a start script?',
         default: false
@@ -193,6 +199,7 @@ module.exports = class extends Generator {
         ftp: (this.props.ftp ? 'true' : 'false'),
         serverName: this.props.serverName,
         serverMail: this.props.serverMail
+        windows: (this.props.windows ? 'true' : 'false')
       }
     );
 
