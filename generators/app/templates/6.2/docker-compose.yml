@@ -247,6 +247,7 @@ services:
         ports:
             - <%=port%>:<%=port%> <% } %> <% if (letsencrypt === 'true') { %>
         environment:
+            - VIRTUAL_PORT=80
             - VIRTUAL_HOST=<%=serverName%>
             - LETSENCRYPT_HOST=<%=serverName%>
             - LETSENCRYPT_EMAIL=<%=serverMail%> <% } %>

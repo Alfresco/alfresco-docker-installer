@@ -102,6 +102,12 @@ If you are deploying on a server different than `localhost`, include in this opt
 HTTP port to be used by every service. If you are running on a Linux computer, you'll need to specify a port greater than 1024 when not starting as `root` user.
 
 ```
+? Do you want to lets manage Lets Encrypt the SSL certificate lifecycle? You will need to provide your domain and email
+```
+
+Lets Encrypt will manage the lifecycle of your domain ssl certificate. Lets Encrypt will create an ssl certificate based on your provided server name.
+
+```
 ? Do you want to use FTP (port 2121)? No
 ```
 
@@ -167,6 +173,8 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 * `--addons`: list of addons to be installed: js-console, ootbee-support-tools, share-site-creators, simple-ocr, esign-cert
 * `--startscript`: true or false
 * `--https`: true or false
+* `--letsencrypt`: true or false
+* `--serverMail`: admin@example.com default
 * `--serverName`: localhost default
 * `--port`: 80 default
 * `--ftp`: true or false
@@ -271,6 +279,7 @@ Following folder structure is generated when Docker Compose is running. Dependin
     └── modules             > Deployment directory for addons
         ├── amps            > Share addons with AMP format
         └── jars            > Share addons with JAR format
+├── start.sh                > Start script with wait on ACS finished booting
 ```
 
 ## Docker Volumes
