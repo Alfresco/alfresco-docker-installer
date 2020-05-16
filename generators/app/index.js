@@ -198,7 +198,7 @@ module.exports = class extends Generator {
         letsencrypt: (this.props.letsencrypt ? 'true' : 'false'),
         ftp: (this.props.ftp ? 'true' : 'false'),
         serverName: this.props.serverName,
-        serverMail: this.props.serverMail
+        serverMail: this.props.serverMail,
         windows: (this.props.windows ? 'true' : 'false')
       }
     );
