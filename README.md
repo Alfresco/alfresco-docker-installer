@@ -65,7 +65,7 @@ https://docs.docker.com/compose/install/
 
 Create a folder where Docker Compose template files are going to be produced and run the generator.
 
->>> If you downloaded this project, **dont't** reuse source code folder. Create an empty folder to generate Docker Compose template anywhere.
+>>> If you downloaded this project, **don't** reuse source code folder. Create an empty folder to generate Docker Compose template anywhere.
 
 ```
 $ mkdir docker-compose
