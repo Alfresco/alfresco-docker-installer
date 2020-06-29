@@ -1,7 +1,7 @@
 # generator-alfresco-docker-installer
 > Alfresco Docker Installer
 
-Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1 to be used in Docker Compose installations.
+Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1 and Alfresco Community 6.2 to be used in Docker Compose installations.
 
 This project generates a Docker Compose template ready to be used including following features:
 
@@ -14,6 +14,11 @@ This project generates a Docker Compose template ready to be used including foll
 * Wrapper Script for waiting the alfresco boot to finish
 
 >> This generator creates a base Docker Template with the configuration selected, but you should review volumes, configuration, modules & tuning parameters before using this composition in Production environments.
+
+**WARNING** Depending on the OS used for hosting Docker, some adjustments must be made in default **volumes** configuration:
+* For *Mac OS*, produced Docker Compose template should work as is
+* For *Windows*, safer approach is to use standard [Docker Volumes](https://docs.docker.com/storage/volumes/) are used instead of [Bind Docker Volumes](https://docs.docker.com/storage/bind-mounts/). This alternative is enabled when choosing "Windows host" option in the generator.
+* For *Linux*, some local folder permission must be adjusted if you are not using 'root' to run Docker. Review the [Docker Volumes](https://github.com/Alfresco/alfresco-docker-installer#docker-volumes) section before running the produced Docker Compose template.
 
 ## Installation
 
@@ -60,7 +65,7 @@ https://docs.docker.com/compose/install/
 
 Create a folder where Docker Compose template files are going to be produced and run the generator.
 
->>> If you downloaded this project, **dont't** reuse source code folder. Create an empty folder to generate Docker Compose template anywhere.
+>>> If you downloaded this project, **don't** reuse source code folder. Create an empty folder to generate Docker Compose template anywhere.
 
 ```
 $ mkdir docker-compose
@@ -164,7 +169,7 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 
 **Parameter names reference**
 
-* `--acsVersion`: 6.1 or 6.2 (early access only)
+* `--acsVersion`: 6.1 or 6.2
 * `--ram`: number of GB available for Docker
 * `--mariadb`: true or false
 * `--crossLocale`: true or false
