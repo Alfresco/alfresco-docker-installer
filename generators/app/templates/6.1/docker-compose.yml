@@ -198,7 +198,7 @@ services:
 
     <% if (ldap == 'true') { %>
     openldap:
-        image: osixia/openldap
+        image: osixia/openldap:1.4.0
         mem_limit: 128m
         container_name: openldap
         environment:
