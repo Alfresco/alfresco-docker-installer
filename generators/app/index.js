@@ -310,6 +310,13 @@ module.exports = class extends Generator {
       )
     }
 
+    if (this.props.addons.includes('share-site-creators')) {
+        this.log('\n   ---------------------------------------------------\n' +
+        '   WARNING: You selected the addon share-site-creators. \n' +
+        '   Remember to add any user to group GROUP_SITE_CREATORS \n' +
+        '   ---------------------------------------------------\n');
+    }
+
   }
 
 };
