@@ -362,7 +362,7 @@ local               tmp_postgres-logs
 local               tmp_solr-data
 ```
 
-You need to take care of this volumes for backup and other operations. 
+You need to take care of this volumes for backup and other operations.
 
 In case you want to clean your environment (loosing all the data inside), you can remove all this Docker containers to start from scratch.
 
@@ -374,10 +374,10 @@ $ docker volume rm $(docker volume ls -q --filter name=tmp_)
 
 ## Docker Images
 
-* [alfresco-content-repository-community:6.1.2-ga](https://hub.docker.com/r/alfresco/alfresco-content-repository-community)
-* [alfresco-share:6.1.0](https://hub.docker.com/r/alfresco/alfresco-share)
-* [alfresco-search-services:1.3.0.6](https://hub.docker.com/r/alfresco/alfresco-search-services)
-* [postgres:10.1](https://hub.docker.com/_/postgres)
+* [alfresco-content-repository-community:6.2.0-ga](https://hub.docker.com/r/alfresco/alfresco-content-repository-community)
+* [alfresco-share:6.2.0](https://hub.docker.com/r/alfresco/alfresco-share)
+* [alfresco-search-services:2.0.0](https://hub.docker.com/r/alfresco/alfresco-search-services)
+* [postgres:11.4](https://hub.docker.com/_/postgres)
 * [nginx:stable-alpine](https://hub.docker.com/_/nginx)
 * [mwader/postfix-relay](https://hub.docker.com/r/mwader/postfix-relay)
 * [osixia/openldap](https://hub.docker.com/r/osixia/openldap)
