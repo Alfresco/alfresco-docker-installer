@@ -41,6 +41,8 @@ services:
                 -Dftp.port=2121
                 -Dftp.dataPortFrom=2433
                 -Dftp.dataPortTo=2434 <% } %>
+                -Dopencmis.server.override=true
+                -Dopencmis.server.value=http<% if (https == 'true') { %>s<%}%>://<%=serverName%>:<%=port%>
                 -Dlocal.transform.service.enabled=true
                 -DlocalTransform.pdfrenderer.url=http://alfresco-pdf-renderer:8090/
                 -DlocalTransform.imagemagick.url=http://imagemagick:8090/

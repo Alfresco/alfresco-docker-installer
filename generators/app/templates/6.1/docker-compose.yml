@@ -36,6 +36,8 @@ services:
                 -Dftp.port=2121
                 -Dftp.dataPortFrom=2433
                 -Dftp.dataPortTo=2434 <% } %>
+                -Dopencmis.server.override=true
+                -Dopencmis.server.value=http<% if (https == 'true') { %>s<%}%>://<%=serverName%>:<%=port%>
                 -Dalfresco.restApi.basicAuthScheme=true
                 -Dmessaging.subsystem.autoStart=false
                 -Dauthentication.protection.enabled=false
