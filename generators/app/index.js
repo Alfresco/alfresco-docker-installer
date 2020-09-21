@@ -305,7 +305,8 @@ module.exports = class extends Generator {
         this.destinationPath('start.sh'),
         {
           port: this.props.port,
-          serverName: this.props.serverName
+          serverName: this.props.serverName,
+          https: (this.props.https ? 'true' : 'false')
         }
       )
     }

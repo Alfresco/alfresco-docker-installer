@@ -43,7 +43,7 @@ docker-compose up -d --build
 if [[ $WAIT_TIME -gt 0 ]]; then
   echo "Waiting for alfresco to boot ..."
   WAIT_TIME=$(( ${WAIT_TIME} * 1000 ))
-  node_modules/wait-on/bin/wait-on "http://${SERVER_NAME}:${SERVER_PORT}/alfresco/" -t "${WAIT_TIME}" -i 10000 -v
+  node_modules/wait-on/bin/wait-on "http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}:${SERVER_PORT}/alfresco/" -t "${WAIT_TIME}" -i 10000 -v
   if [ $? == 1 ]; then
     echo "Waiting failed -> exit 1"
     exit 1
