@@ -23,13 +23,13 @@ services:
                 -Dsolr.secureComms=none
                 -Dsolr.baseUrl=/solr
                 -Dindex.subsystem.name=solr6
-                -Dalfresco.host=<%=serverName%>
+                -Dalfresco.host=${SERVER_NAME}
                 -Dalfresco.port=<%=port%>
                 <% if (https == 'true') { %>-Dalfresco.protocol=https <%}%>
-                -Dshare.host=<%=serverName%>
+                -Dshare.host=${SERVER_NAME}
                 -Dshare.port=<%=port%>
                 <% if (https == 'true') { %>-Dshare.protocol=https <%}%>
-                -Daos.baseUrlOverwrite=http<% if (https == 'true') { %>s<%}%>://<%=serverName%>/alfresco/aos
+                -Daos.baseUrlOverwrite=http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}/alfresco/aos
                 -Ddeployment.method=DOCKER_COMPOSE
                 -Dcsrf.filter.enabled=false <% if (ftp == 'true') { %>
                 -Dftp.enabled=true
@@ -37,7 +37,7 @@ services:
                 -Dftp.dataPortFrom=2433
                 -Dftp.dataPortTo=2434 <% } %>
                 -Dopencmis.server.override=true
-                -Dopencmis.server.value=http<% if (https == 'true') { %>s<%}%>://<%=serverName%>:<%=port%>
+                -Dopencmis.server.value=http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}:<%=port%>
                 -Dalfresco.restApi.basicAuthScheme=true
                 -Dmessaging.subsystem.autoStart=false
                 -Dauthentication.protection.enabled=false
@@ -109,6 +109,7 @@ services:
           context: ./share
           args:
             SHARE_TAG: ${SHARE_TAG}
+            SERVER_NAME: ${SERVER_NAME}
         mem_limit: <%=ram/8%>m
         environment:
             REPO_HOST: "alfresco"

@@ -159,9 +159,12 @@ module.exports = class extends Generator {
   writing() {
 
     // Docker Compose environment variables values
-    this.fs.copy(
+    this.fs.copyTpl(
       this.templatePath(this.props.acsVersion + '/.env'),
-      this.destinationPath('.env')
+      this.destinationPath('.env'),
+      {
+        serverName: this.props.serverName
+      }
     )
 
     // Copy Docker Compose applying configuration
@@ -178,7 +181,6 @@ module.exports = class extends Generator {
         port: this.props.port,
         https: (this.props.https ? 'true' : 'false'),
         ftp: (this.props.ftp ? 'true' : 'false'),
-        serverName: this.props.serverName,
         windows: (this.props.windows ? 'true' : 'false')
       }
     );
@@ -204,7 +206,6 @@ module.exports = class extends Generator {
       {
         port: this.props.port,
         https: (this.props.https ? 'true' : 'false'),
-        serverName: this.props.serverName
       }
     );
 

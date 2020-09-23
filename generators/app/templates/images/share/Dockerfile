@@ -3,11 +3,14 @@ FROM alfresco/alfresco-share:${SHARE_TAG}
 
 ARG TOMCAT_DIR=/usr/local/tomcat
 
+# Server data
+ARG SERVER_NAME
+
 USER root
 
 <%if (https == 'true') { %>
 RUN sed -i '/Connector port="8080"/a scheme="https" secure="true"' /usr/local/tomcat/conf/server.xml && \
-    sed -i '/Connector port="8080"/a proxyName="<%=serverName%>" proxyPort="<%=port%>"' /usr/local/tomcat/conf/server.xml
+    sed -i "/Connector port=\"8080\"/a proxyName=\"${SERVER_NAME}\" proxyPort=\"<%=port%>\"" /usr/local/tomcat/conf/server.xml
 <% } %>
 
 # Install modules and addons
