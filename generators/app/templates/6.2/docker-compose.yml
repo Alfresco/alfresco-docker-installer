@@ -245,16 +245,18 @@ services:
     # HTTP proxy to provide HTTP Default port access to services
     # SOLR API and SOLR Web Console are protected to avoid unauthenticated access
     proxy:
-        image: nginx:stable-alpine
+        image: angelborroy/acs-proxy:1.0.0
         mem_limit: 128m
+        environment:
+            - PORT=<%=port%><% if (https == 'true') { %>
+            - PROTOCOL=https <% } %>
         depends_on:
             - alfresco
             - solr6
             - share
             - content-app
         volumes:
-            - ./config/nginx.conf:/etc/nginx/nginx.conf
-            - ./config/nginx.htpasswd:/etc/nginx/conf.d/nginx.htpasswd <% if (https = 'true') { %>
+            - ./config/nginx.htpasswd:/etc/nginx/conf.d/nginx.htpasswd <% if (https == 'true') { %>
             - ./config/cert/localhost.cer:/etc/nginx/localhost.cer
             - ./config/cert/localhost.key:/etc/nginx/localhost.key <% } %>
         ports:
