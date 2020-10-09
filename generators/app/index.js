@@ -95,6 +95,11 @@ module.exports = class extends Generator {
         message: 'Select the addons to be installed:',
         choices: [
           {
+            name: 'Google Docs 3.1.0',
+            value: 'google-docs',
+            checked: true
+          },
+          {
             name: 'JavaScript Console 0.6',
             value: 'js-console',
             checked: true
@@ -181,7 +186,8 @@ module.exports = class extends Generator {
         port: this.props.port,
         https: (this.props.https ? 'true' : 'false'),
         ftp: (this.props.ftp ? 'true' : 'false'),
-        windows: (this.props.windows ? 'true' : 'false')
+        windows: (this.props.windows ? 'true' : 'false'),
+        googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false')
       }
     );
 

@@ -42,6 +42,7 @@ services:
                 -Dmessaging.subsystem.autoStart=false
                 -Dauthentication.protection.enabled=false
                 -XX:+UseG1GC -XX:+UseStringDeduplication
+                <% if (googledocs == 'false') {%>-Dgoogledocs.enabled=false <%}%>
                 -Xms<%=(ram/2) - 512%>m -Xmx<%=(ram/2) - 512%>m <% if (smtp == 'true') { %>
                 -Dmail.host=smtp
                 -Dmail.port=25 
