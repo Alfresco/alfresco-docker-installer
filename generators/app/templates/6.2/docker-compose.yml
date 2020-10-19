@@ -152,7 +152,7 @@ services:
         volumes: <% if (windows == 'false') { %>
             - ./logs/share:/usr/local/tomcat/logs <% } %> <% if (windows == 'true') { %>
             - alf-share-logs:/usr/local/tomcat/logs <% } %>
-    
+
     <% if (db == 'postgres') { %>
     postgres:
         image: postgres:${POSTGRES_TAG}
@@ -246,7 +246,7 @@ services:
     # HTTP proxy to provide HTTP Default port access to services
     # SOLR API and SOLR Web Console are protected to avoid unauthenticated access
     proxy:
-        image: angelborroy/acs-proxy:1.0.0
+        image: angelborroy/acs-proxy:1.1.0
         mem_limit: 128m
         environment:
             - PORT=<%=port%><% if (https == 'true') { %>
@@ -321,6 +321,6 @@ volumes:
     mariadb-data:
     mariadb-logs: <% } %>
     solr-data: <% if (ocr == 'true') { %>
-    ocr-input: 
+    ocr-input:
     ocr-output: <% } %>
-<% } %>    
+<% } %>

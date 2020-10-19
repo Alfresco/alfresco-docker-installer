@@ -3,7 +3,7 @@ version: "2"
 
 services:
 
-    alfresco: 
+    alfresco:
         build:
           context: ./alfresco
           args:
@@ -45,18 +45,18 @@ services:
                 <% if (googledocs == 'false') {%>-Dgoogledocs.enabled=false <%}%>
                 -Xms<%=(ram/2) - 512%>m -Xmx<%=(ram/2) - 512%>m <% if (smtp == 'true') { %>
                 -Dmail.host=smtp
-                -Dmail.port=25 
-                -Dmail.username=anonymous 
+                -Dmail.port=25
+                -Dmail.username=anonymous
                 -Dmail.password=
-                -Dmail.protocol=smtp 
-                -Dmail.smtps.starttls.enable=false 
+                -Dmail.protocol=smtp
+                -Dmail.smtps.starttls.enable=false
                 -Dmail.smtps.auth=false <% } %> <% if (ldap == 'true') { %>
                 -Dauthentication.chain=alfinst:alfrescoNtlm,ldap1:ldap
                 -Dldap.authentication.active=true
                 -Dldap.authentication.java.naming.provider.url=ldap://openldap:389
                 -Dldap.authentication.userNameFormat=uid=%s,dc=keensoft,dc=es
                 -Dldap.synchronization.active=false <% } %> <% if (ocr == 'true') { %>
-                -Docr.command=/opt/alfresco/bin/ocrmypdf.sh 
+                -Docr.command=/opt/alfresco/bin/ocrmypdf.sh
                 -Docr.output.verbose=true
                 -Docr.output.file.prefix.command=
                 -Docr.extra.commands="-j1 --author keensoft --rotate-pages -l spa+eng+fra --deskew --clean --skip-text"
@@ -76,14 +76,14 @@ services:
             - 2121:2121
             - 2433:2433
             - 2434:2434 <% } %>
-    
+
     solr6:
         build:
           context: ./search
           args:
             SEARCH_TAG: $SEARCH_CE_TAG
             SOLR_HOSTNAME: solr6
-            ALFRESCO_HOSTNAME: alfresco 
+            ALFRESCO_HOSTNAME: alfresco
             ALFRESCO_COMMS: none
             CROSS_LOCALE: "<%=crossLocale%>"
         mem_limit: <%=ram/4%>m
@@ -124,7 +124,7 @@ services:
             - ./logs/share:/usr/local/tomcat/logs <% } %> <% if (windows == 'true') { %>
             - alf-share-logs:/usr/local/tomcat/logs <% } %>
 
-    <% if (db == 'postgres') { %>    
+    <% if (db == 'postgres') { %>
     postgres:
         image: postgres:${POSTGRES_TAG}
         mem_limit: <%=ram/8%>m
@@ -145,7 +145,7 @@ services:
             - ./logs/postgres:/var/log/postgresql <% } %> <% if (windows == 'true') { %>
             - postgres-data:/var/lib/postgresql/data
             - postgres-logs:/var/log/postgresql <% } %>
-    <% } %> <% if (db == 'mariadb') { %>    
+    <% } %> <% if (db == 'mariadb') { %>
     mariadb:
         image: mariadb:latest
         mem_limit: <%=ram/8%>m
@@ -179,7 +179,7 @@ services:
     # HTTP proxy to provide HTTP Default port access to services
     # SOLR API and SOLR Web Console are protected to avoid unauthenticated access
     proxy:
-        image: angelborroy/acs-proxy:1.0.0
+        image: angelborroy/acs-proxy:1.1.0
         mem_limit: 128m
         environment:
             - PORT=<%=port%><% if (https == 'true') { %>
@@ -194,9 +194,9 @@ services:
             - ./config/cert/localhost.cer:/etc/nginx/localhost.cer
             - ./config/cert/localhost.key:/etc/nginx/localhost.key <% } %>
         ports:
-            - <%=port%>:<%=port%>    
+            - <%=port%>:<%=port%>
 
-    <% if (smtp == 'true') { %>    
+    <% if (smtp == 'true') { %>
     smtp:
         image: mwader/postfix-relay
         mem_limit: 128m
@@ -211,7 +211,7 @@ services:
           LDAP_DOMAIN: "alfresco.org"
           LDAP_BASE_DN: "dc=alfresco,dc=org"
           LDAP_ADMIN_PASSWORD: "admin"
-        volumes: 
+        volumes:
             - ./data/ldap:/var/lib/ldap
             - ./data/slap.d:/etc/ldap/slap.d
 
@@ -254,6 +254,6 @@ volumes:
     mariadb-data:
     mariadb-logs: <% } %>
     solr-data: <% if (ocr == 'true') { %>
-    ocr-input: 
-    ocr-output: <% } %>    
-<% } %>    
+    ocr-input:
+    ocr-output: <% } %>
+<% } %>
