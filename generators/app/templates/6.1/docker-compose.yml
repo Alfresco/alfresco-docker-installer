@@ -179,7 +179,7 @@ services:
     # HTTP proxy to provide HTTP Default port access to services
     # SOLR API and SOLR Web Console are protected to avoid unauthenticated access
     proxy:
-        image: angelborroy/acs-proxy:1.1.0
+        image: angelborroy/acs-proxy:1.2.0
         mem_limit: 128m
         environment:
             - PORT=<%=port%><% if (https == 'true') { %>
