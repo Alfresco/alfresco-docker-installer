@@ -212,6 +212,7 @@ module.exports = class extends Generator {
       {
         port: this.props.port,
         https: (this.props.https ? 'true' : 'false'),
+        googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false')
       }
     );
 
