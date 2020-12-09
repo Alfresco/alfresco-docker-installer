@@ -212,8 +212,8 @@ services:
           LDAP_BASE_DN: "dc=alfresco,dc=org"
           LDAP_ADMIN_PASSWORD: "admin"
         volumes:
-            - ./data/ldap:/var/lib/ldap
-            - ./data/slap.d:/etc/ldap/slap.d
+            - ./data/slapd/database:/var/lib/ldap
+            - ./data/slapd/config:/etc/ldap/slapd.d
 
     phpldapadmin:
         image: osixia/phpldapadmin
