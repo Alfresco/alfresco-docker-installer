@@ -187,7 +187,8 @@ module.exports = class extends Generator {
         https: (this.props.https ? 'true' : 'false'),
         ftp: (this.props.ftp ? 'true' : 'false'),
         windows: (this.props.windows ? 'true' : 'false'),
-        googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false')
+        googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false'),
+        serverName: this.props.serverName
       }
     );
 
