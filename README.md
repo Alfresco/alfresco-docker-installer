@@ -18,7 +18,7 @@ This project generates a Docker Compose template ready to be used including foll
 **WARNING** Depending on the OS used for hosting Docker, some adjustments must be made in default **volumes** configuration:
 * For *Mac OS*, produced Docker Compose template should work as is
 * For *Windows*, safer approach is to use standard [Docker Volumes](https://docs.docker.com/storage/volumes/) are used instead of [Bind Docker Volumes](https://docs.docker.com/storage/bind-mounts/). This alternative is enabled when choosing "Windows host" option in the generator.
-* For *Linux*, some local folder permission must be adjusted if you are not using 'root' to run Docker. Review the [Docker Volumes](https://github.com/Alfresco/alfresco-docker-installer#docker-volumes) section before running the produced Docker Compose template.
+* For *Linux*, some local folder permission must be adjusted if you are not using 'root' to run Docker. Review the [Docker Volumes](https://github.com/Alfresco/alfresco-docker-installer#docker-volumes) section before running the produced Docker Compose template. Also checkout this tutorial with video recording on how to use this tool in Ubuntu 20.04 LTS: [Installing Alfresco 6 Community Edition in Ubuntu](https://hub.alfresco.com/t5/alfresco-content-services-blog/installing-alfresco-6-community-edition-in-ubuntu-using-docker/ba-p/303840)
 
 ## Installation
 
