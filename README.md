@@ -1,6 +1,8 @@
 # generator-alfresco-docker-installer
 > Alfresco Docker Installer
 
+**IMPORTANT** This project is not supported by Alfresco in any way. Despite deployments using Docker Compose are considered a valid approach for ACS deployment (Community and Enterprise), this `alfresco-docker-installer` tool is **not** the official Alfresco recommendation. Please, check [https://github.com/Alfresco/acs-deployment/tree/master/docker-compose](https://github.com/Alfresco/acs-deployment/tree/master/docker-compose) in order to understand official recommendations from Alfresco.
+
 Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1 and Alfresco Community 6.2 to be used in Docker Compose installations.
 
 This project generates a Docker Compose template ready to be used including following features:
