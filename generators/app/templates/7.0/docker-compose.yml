@@ -75,7 +75,7 @@ services:
                 -Docr.command=/opt/alfresco/bin/ocrmypdf.sh
                 -Docr.output.verbose=true
                 -Docr.output.file.prefix.command=
-                -Docr.extra.commands="-j1 --author keensoft --rotate-pages -l spa+eng+fra --deskew --clean --skip-text"
+                -Docr.extra.commands=\"-j1 --author keensoft --rotate-pages -l spa+eng+fra --deskew --clean --skip-text\"
                 -Docr.server.os=linux <% } %>
                 -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
             "
