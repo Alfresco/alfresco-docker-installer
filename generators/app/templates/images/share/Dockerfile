@@ -14,7 +14,7 @@ RUN sed -i '/Connector port="8080"/a scheme="https" secure="true"' /usr/local/to
 <% } %>
 
 # Uninstall manually Share GoogleDocs module
-<%if (googledocs == 'false') { %>
+<%if (googledocs == 'false' && acsVersion < '7') { %>
 RUN rm $TOMCAT_DIR/webapps/share/WEB-INF/lib/alfresco-googledocs-share-community-*.jar && \
     rm $TOMCAT_DIR/webapps/share/WEB-INF/classes/alfresco/web-extension/custom-slingshot-googledocs-context.xml && \
     rm $TOMCAT_DIR/webapps/share/WEB-INF/classes/alfresco/messages/googledocs_* && \

@@ -20,14 +20,14 @@ module.exports = class extends Generator {
         type: 'list',
         name: 'acsVersion',
         message: 'Which ACS version do you want to use?',
-        choices: [ "6.1", "6.2" ],
-        default: '6.1'
+        choices: [ "6.1", "6.2", "7.0" ],
+        default: '7.0'
       },
       {
         type: 'input',
         name: 'ram',
-        message: 'How may GB RAM are available for Alfresco (8 is minimum required)?',
-        default: '8'
+        message: 'How may GB RAM are available for Alfresco (12 is minimum required)?',
+        default: '12'
       },
       {
         type: 'confirm',
@@ -213,7 +213,8 @@ module.exports = class extends Generator {
       {
         port: this.props.port,
         https: (this.props.https ? 'true' : 'false'),
-        googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false')
+        googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false'),
+        acsVersion: this.props.acsVersion
       }
     );
 

@@ -6,7 +6,7 @@
 
 ## Description
 
-Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1 and Alfresco Community 6.2 to be used in Docker Compose installations.
+Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2 and 7.0 to be used in Docker Compose installations.
 
 This project generates a Docker Compose template ready to be used including following features:
 
@@ -82,16 +82,16 @@ $ yo alfresco-docker-installer
 Several options are provided in order to build the configuration.
 
 ```
-? Which ACS version do you want to use? 6.1
+? Which ACS version do you want to use? 7.0
 ```
 
-You can use Alfresco 6.1 or 6.2
+You can use Alfresco 6.1, 6.2 or 7.0
 
 ```
-? How may GB RAM are available for Alfresco (8 is minimum required)? 8
+? How may GB RAM are available for Alfresco (12 is minimum required)? 12
 ```
 
-Alfresco platform could work with less than 8 GB RAM, but it's recommended to provide at least 8 GB in your Docker server. This generator will limit the amount of memory for every service in order to match your resources.
+Alfresco platform could work with less than 12 GB RAM, but it's recommended to provide at least 16 GB in your Docker server. This generator will limit the amount of memory for every service in order to match your resources.
 
 ```
 ? Do you want to use HTTPs for Web Proxy?
@@ -175,7 +175,7 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 
 **Parameter names reference**
 
-* `--acsVersion`: 6.1 or 6.2
+* `--acsVersion`: 6.1, 6.2 or 7.0
 * `--ram`: number of GB available for Docker
 * `--mariadb`: true or false
 * `--crossLocale`: true or false
@@ -254,7 +254,6 @@ Following folder structure is generated when Docker Compose is running. Dependin
 │   └── ssh                 > [OCR] Shared key to communicate with OCR Service
 
 ├── config                  > CONFIGURATION
-│   ├── nginx.conf          > Web Proxy configuration
 │   └── nginx.htpasswd      > Password to protect the access to Solr Web Console
 
 ├── config/cert             > SSL Certificates (only when using HTTPs)
@@ -380,10 +379,10 @@ $ docker volume rm $(docker volume ls -q --filter name=tmp_)
 
 ## Docker Images
 
-* [alfresco-content-repository-community:6.2.0-ga](https://hub.docker.com/r/alfresco/alfresco-content-repository-community)
-* [alfresco-share:6.2.0](https://hub.docker.com/r/alfresco/alfresco-share)
-* [alfresco-search-services:2.0.0](https://hub.docker.com/r/alfresco/alfresco-search-services)
-* [postgres:11.4](https://hub.docker.com/_/postgres)
+* [alfresco-content-repository-community:7.0.0](https://hub.docker.com/r/alfresco/alfresco-content-repository-community)
+* [alfresco-share:7.0.0](https://hub.docker.com/r/alfresco/alfresco-share)
+* [alfresco-search-services:2.0.1](https://hub.docker.com/r/alfresco/alfresco-search-services)
+* [postgres:13.1](https://hub.docker.com/_/postgres)
 * [nginx:stable-alpine](https://hub.docker.com/_/nginx)
 * [mwader/postfix-relay](https://hub.docker.com/r/mwader/postfix-relay)
 * [osixia/openldap](https://hub.docker.com/r/osixia/openldap)
