@@ -20,18 +20,18 @@ INPUT_FILE=$(basename "$INPUT_FILE_PARAM")
 OUTPUT_FILE=$(basename "$OUTPUT_FILE_PARAM")
 
 # SSH parameters
-SCP=cp
+SCP=scp
 SSH=ssh
 USER=root
 
 # copy original pdf to ocrmypdf server
-$SCP $INPUT_FILE_PARAM $INPUT_DIR
+$SCP $INPUT_FILE_PARAM $USER@$OCRMYPDF_SERVER:$INPUT_DIR
 
 # execute ocrmypdf program
 $SSH $USER@$OCRMYPDF_SERVER "/usr/bin/ocr.sh $ARGS $INPUT_DIR/$INPUT_FILE $OUTPUT_DIR/$OUTPUT_FILE"
 
 # copy transformed pdf back to alfresco path
-$SCP $OUTPUT_DIR/$OUTPUT_FILE ${OUTPUT_FILE_PARAM}
+$SCP $USER@$OCRMYPDF_SERVER:$OUTPUT_DIR/$OUTPUT_FILE ${OUTPUT_FILE_PARAM}
 
 # remove temporal files
 rm -f $INPUT_DIR/$INPUT_FILE $OUTPUT_DIR/$OUTPUT_FILE
