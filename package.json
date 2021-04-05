@@ -1,6 +1,6 @@
 {
   "name": "generator-alfresco-docker-installer",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Alfresco Docker Installer",
   "homepage": "https://github.com/Alfresco/alfresco-docker-installer",
   "author": "Angel Borroy <angel.borroy@alfresco.com>",
@@ -17,13 +17,13 @@
   "devDependencies": {
     "coveralls": "^3.0.2",
     "eslint": "^5.9.0",
-    "prettier": "^1.15.2",
-    "husky": "^1.2.0",
-    "lint-staged": "^8.1.0",
     "eslint-config-prettier": "^3.3.0",
-    "eslint-plugin-prettier": "^3.0.0",
     "eslint-config-xo": "^0.25.0",
-    "jest": "^24.8.0"
+    "eslint-plugin-prettier": "^3.0.0",
+    "husky": "^1.2.0",
+    "jest": "^24.8.0",
+    "lint-staged": "^8.1.0",
+    "prettier": "^1.15.2"
   },
   "engines": {
     "npm": ">= 4.0.0"
