@@ -363,6 +363,9 @@ $ id -u postgres
 999
 
 ```
+Stop Docker Container and set the right permissions on your host folder.
+
+```
 $ sudo chown -R 999 data/postgres-data
 $ sudo chown -R 999 logs/postgres
 ```
