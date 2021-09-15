@@ -199,6 +199,7 @@ module.exports = class extends Generator {
       {
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
         ftp: (this.props.ftp ? 'true' : 'false'),
+        acsVersion: this.props.acsVersion
       }
     );
     this.fs.copyTpl(

@@ -13,7 +13,8 @@ COPY modules/jars $TOMCAT_DIR/webapps/alfresco/WEB-INF/lib
 RUN java -jar $TOMCAT_DIR/alfresco-mmt/alfresco-mmt*.jar install \
     $TOMCAT_DIR/amps $TOMCAT_DIR/webapps/alfresco -directory -nobackup -force
 
-# Install api-explorer webapp for REST API
+<%if (acsVersion < '7') { %>
+# Install api-explorer webapp for REST API for ACS 6.x versions
 ARG API_EXPLORER_TAG
 ENV API_EXPLORER_TAG $API_EXPLORER_TAG
 RUN yum -y update && \
@@ -22,6 +23,7 @@ RUN yum -y update && \
  set -x \
     && wget https://artifacts.alfresco.com/nexus/service/local/repositories/releases/content/org/alfresco/api-explorer/${API_EXPLORER_TAG}/api-explorer-${API_EXPLORER_TAG}.war \
     -O /usr/local/tomcat/webapps/api-explorer.war
+<% } %>
 
 # DATABASE
 ARG DB
@@ -48,7 +50,7 @@ COPY bin/ /opt/alfresco/bin/
 # Configure SSH Client
 RUN set -x && \
     chmod +x /opt/alfresco/bin/ocrmypdf.sh && \
-    # Configure ssh    
+    # Configure ssh
     yum install -y openssh-clients && \
     echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
     # Alfresco Image is using POSIX as Locale (!)
