@@ -143,12 +143,13 @@ This service provides an internal OpenLDAP server (for authentication). If you w
 
 ```
 ? Select the addons to be installed:
-  Google Docs 3.1.0                      : https://github.com/Alfresco/google-docs/tree/V3.0.3
-  JavaScript Console 0.6                 : https://github.com/share-extras/js-console
-  Order of the Bee Support Tools 1.1.0.0 : https://github.com/OrderOfTheBee/ootbee-support-tools
-  Share Site Creators 0.0.7              : https://github.com/jpotts/share-site-creators
-  Simple OCR 2.3.1                       : https://github.com/keensoft/alfresco-simple-ocr
-  ESign Cert 1.8.2                       : https://github.com/keensoft/alfresco-esign-cert
+  Google Docs 3.1.0                           : https://github.com/Alfresco/google-docs/tree/V3.0.3
+  JavaScript Console 0.6                      : https://github.com/share-extras/js-console
+  Order of the Bee Support Tools 1.1.0.0      : https://github.com/OrderOfTheBee/ootbee-support-tools
+  Share Site Creators 0.0.7                   : https://github.com/jpotts/share-site-creators
+  Simple OCR 2.3.1 (for ACS 6.x)              : https://github.com/keensoft/alfresco-simple-ocr
+  Alfresco OCR Transformer 1.0.0 (for ACS 7+) : https://github.com/aborroy/alf-tengine-ocr
+  ESign Cert 1.8.2                            : https://github.com/keensoft/alfresco-esign-cert
 ```
 
 A small catalog of trusted *addons* is provided by default, but you can install any other using the deployment folders.
@@ -181,7 +182,7 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 * `--crossLocale`: true or false
 * `--smtp`: true or false
 * `--ldap`: true or false
-* `--addons`: list of addons to be installed: js-console, ootbee-support-tools, share-site-creators, simple-ocr, esign-cert
+* `--addons`: list of addons to be installed: js-console, ootbee-support-tools, share-site-creators, simple-ocr, alf-tengine-ocr, esign-cert
 * `--startscript`: true or false
 * `--https`: true or false
 * `--serverName`: localhost default
