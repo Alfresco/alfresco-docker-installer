@@ -115,8 +115,13 @@ module.exports = class extends Generator {
             checked: true
           },
           {
-            name: 'Simple OCR 2.3.1',
+            name: 'Simple OCR 2.3.1 (for Alfresco 6.x)',
             value: 'simple-ocr',
+            checked: false
+          },
+          {
+            name: 'Alfresco OCR Transformer 1.0.0 (for Alfresco 7+)',
+            value: 'alf-tengine-ocr',
             checked: false
           },
           {
@@ -183,6 +188,7 @@ module.exports = class extends Generator {
         ldap: (this.props.ldap ? 'true' : 'false'),
         crossLocale: (this.props.crossLocale ? 'true' : 'false'),
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
+        transformerocr: (this.props.addons.includes('alf-tengine-ocr') ? 'true' : 'false'),
         port: this.props.port,
         https: (this.props.https ? 'true' : 'false'),
         ftp: (this.props.ftp ? 'true' : 'false'),
@@ -296,6 +302,13 @@ module.exports = class extends Generator {
         this.templatePath('images/alfresco/ssh'),
         this.destinationPath('alfresco/ssh')
       );
+    }
+
+    if (this.props.addons.includes('alf-tengine-ocr')) {
+      this.fs.copy(
+        this.templatePath('addons/alfresco-tengine-ocr/embed-metadata-action-*.jar'),
+        this.destinationPath('alfresco/modules/jars')
+      )
     }
 
     if (this.props.addons.includes('esign-cert')) {

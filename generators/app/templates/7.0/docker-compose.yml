@@ -53,7 +53,8 @@ services:
                 -Dftp.dataPortTo=2434 <% } %>
                 -Dopencmis.server.override=true
                 -Dopencmis.server.value=http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}:<%=port%>
-                -DlocalTransform.core-aio.url=http://transform-core-aio:8090/
+                -DlocalTransform.core-aio.url=http://transform-core-aio:8090/ <% if (transformerocr == 'true') { %>
+                -DlocalTransform.ocr.url=http://transform-ocr:8090/ <% } %>
                 -Dcsrf.filter.enabled=false
                 -Dalfresco.restApi.basicAuthScheme=true
                 -Dauthentication.protection.enabled=false
@@ -276,6 +277,14 @@ services:
             - ./data/ocr/output:/ocr_output <% } %> <% if (windows == 'true') { %>
             - ocr-input:/ocr_input
             - ocr-output:/ocr_output <% } %>
+    <% } %>
+
+    <% if (transformerocr == 'true') { %>
+    transform-ocr:
+        image: angelborroy/alfresco-tengine-ocr:1.0.0
+        mem_limit: 1536m
+        environment:
+          JAVA_OPTS: "-XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80"
     <% } %>
 
 <% if (windows == 'true') { %>
