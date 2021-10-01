@@ -85,7 +85,7 @@ Several options are provided in order to build the configuration.
 ? Which ACS version do you want to use? 7.1
 ```
 
-You can use Alfresco 6.1, 6.2, 7.0 or 7.0
+You can use Alfresco 6.1, 6.2, 7.0 or 7.1
 
 ```
 ? How may GB RAM are available for Alfresco (16 is minimum required)? 16
