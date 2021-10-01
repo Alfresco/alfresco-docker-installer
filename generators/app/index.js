@@ -20,14 +20,14 @@ module.exports = class extends Generator {
         type: 'list',
         name: 'acsVersion',
         message: 'Which ACS version do you want to use?',
-        choices: [ "6.1", "6.2", "7.0" ],
-        default: '7.0'
+        choices: [ '6.1', '6.2', '7.0', '7.1' ],
+        default: '7.1'
       },
       {
         type: 'input',
         name: 'ram',
-        message: 'How may GB RAM are available for Alfresco (12 is minimum required)?',
-        default: '12'
+        message: 'How may GB RAM are available for Alfresco (16 is minimum required)?',
+        default: '16'
       },
       {
         type: 'confirm',
@@ -78,6 +78,16 @@ module.exports = class extends Generator {
         default: true
       },
       {
+        when: function (response) {
+          return response.acsVersion >= '7.1'
+        },
+        type: 'list',
+        name: 'solrHttpMode',
+        message: 'Would you like to use HTTP or Shared Secret for Alfresco-SOLR communication?',
+        choices: [ 'http', 'secret' ],
+        default: 'http'
+      },
+      {
         type: 'confirm',
         name: 'smtp',
         message: 'Do you want to create an internal SMTP server?',
@@ -97,22 +107,22 @@ module.exports = class extends Generator {
           {
             name: 'Google Docs 3.1.0',
             value: 'google-docs',
-            checked: true
+            checked: false
           },
           {
             name: 'JavaScript Console 0.6',
             value: 'js-console',
-            checked: true
+            checked: false
           },
           {
             name: 'Order of the Bee Support Tools 1.0.0.0',
             value: 'ootbee-support-tools',
-            checked: true
+            checked: false
           },
           {
             name: 'Share Site Creators 0.0.7',
             value: 'share-site-creators',
-            checked: true
+            checked: false
           },
           {
             name: 'Simple OCR 2.3.1 (for Alfresco 6.x)',
@@ -194,7 +204,9 @@ module.exports = class extends Generator {
         ftp: (this.props.ftp ? 'true' : 'false'),
         windows: (this.props.windows ? 'true' : 'false'),
         googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false'),
-        serverName: this.props.serverName
+        serverName: this.props.serverName,
+        solrHttpMode: this.props.solrHttpMode,
+        secureComms: (this.props.solrHttpMode == 'secret' ? 'secret' : 'none'),
       }
     );
 

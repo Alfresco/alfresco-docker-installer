@@ -31,6 +31,9 @@ ENV ALFRESCO_COMMS $ALFRESCO_COMMS
 RUN if [ "$ALFRESCO_COMMS" == "https" ] ; then \
     sed -i '/^bash.*/i sed -i "'"s/alfresco.secureComms=none/alfresco.secureComms=https/g"'" ${DIST_DIR}/solrhome/templates/rerank/conf/solrcore.properties\n' \
     ${DIST_DIR}/solr/bin/search_config_setup.sh; \
+elif [ "$ALFRESCO_COMMS" == "secret" ] ; then \
+    sed -i '/^bash.*/i sed -i "'"s/alfresco.secureComms=https/alfresco.secureComms=secret/g"'" ${DIST_DIR}/solrhome/templates/rerank/conf/solrcore.properties\n' \
+    ${DIST_DIR}/solr/bin/search_config_setup.sh; \
 else \
     sed -i '/^bash.*/i sed -i "'"s/alfresco.secureComms=https/alfresco.secureComms=none/g"'" ${DIST_DIR}/solrhome/templates/rerank/conf/solrcore.properties\n' \
     ${DIST_DIR}/solr/bin/search_config_setup.sh; \

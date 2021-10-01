@@ -6,7 +6,7 @@
 
 ## Description
 
-Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2 and 7.0 to be used in Docker Compose installations.
+Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2, 7.0 and 7.1 to be used in Docker Compose installations.
 
 This project generates a Docker Compose template ready to be used including following features:
 
@@ -15,7 +15,7 @@ This project generates a Docker Compose template ready to be used including foll
 * Search Services configured for environments using several languages for contents or from operative systems / browsers
 * Outbound Email service (smtp)
 * LDAP service for identification (based in OpenLDAP)
-* Several addons available
+* Several Community addons available
 * Wrapper Script for waiting the alfresco boot to finish
 
 >> This generator creates a base Docker Template with the configuration selected, but you should review volumes, configuration, modules & tuning parameters before using this composition in Production environments.
@@ -82,16 +82,16 @@ $ yo alfresco-docker-installer
 Several options are provided in order to build the configuration.
 
 ```
-? Which ACS version do you want to use? 7.0
+? Which ACS version do you want to use? 7.1
 ```
 
-You can use Alfresco 6.1, 6.2 or 7.0
+You can use Alfresco 6.1, 6.2, 7.0 or 7.0
 
 ```
-? How may GB RAM are available for Alfresco (12 is minimum required)? 12
+? How may GB RAM are available for Alfresco (16 is minimum required)? 16
 ```
 
-Alfresco platform could work with less than 12 GB RAM, but it's recommended to provide at least 16 GB in your Docker server. This generator will limit the amount of memory for every service in order to match your resources.
+Alfresco platform could work with less than 16 GB RAM, but it's recommended to provide at least 16 GB in your Docker server. This generator will limit the amount of memory for every service in order to match your resources.
 
 ```
 ? Do you want to use HTTPs for Web Proxy?
@@ -127,7 +127,15 @@ Alfresco uses PostgreSQL by default, but alternatively `MariaDB` can be used as 
 ? Are you using different languages (this is the most common scenario)? Yes
 ```
 
-By default, many organisations are storing document in different languages or the users are accessing the platform with browser configured in different languages. If this is your case, enable this configuration.
+By default, many organizations are storing document in different languages or the users are accessing the platform with browser configured in different languages. If this is your case, enable this configuration.
+
+```
+'Would you like to use HTTP or Shared Secret for Alfresco-SOLR communication?',
+  http
+  secret
+```
+
+By default communication between Alfresco and SOLR happens in plain `http`. Since external APIs are protected by `proxy` and SOLR Web Console is protected by user and password, default configuration may be the right one for many deployments. When using `secret` option (only available from 7.1.0), Alfresco and SOLR communication is happening in plain HTTP but including a shared secret word in HTTP Header. This should be a safer approach for open environments.
 
 ```
 ? Do you want to create an internal SMTP server? No
@@ -255,6 +263,7 @@ Following folder structure is generated when Docker Compose is running. Dependin
 │   └── ssh                 > [OCR] Shared key to communicate with OCR Service
 
 ├── config                  > CONFIGURATION
+│   └── nginx.conf          > NGINX Configuration file
 │   └── nginx.htpasswd      > Password to protect the access to Solr Web Console
 
 ├── config/cert             > SSL Certificates (only when using HTTPs)
@@ -411,6 +420,7 @@ $ docker volume rm $(docker volume ls -q --filter name=tmp_)
 * [osixia/openldap](https://hub.docker.com/r/osixia/openldap)
 * [osixia/phpldapadmin](https://hub.docker.com/r/osixia/phpldapadmin)
 * [jbarlow83/ocrmypdf:latest](https://hub.docker.com/r/jbarlow83/ocrmypdf)
+* [angelborroy/alfresco-tengine-ocr](https://hub.docker.com/repository/docker/angelborroy/alfresco-tengine-ocr)
 
 ## Service URLs
 

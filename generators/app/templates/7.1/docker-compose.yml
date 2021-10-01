@@ -33,9 +33,10 @@ services:
                 -Ddb.url=jdbc:mysql://mariadb/alfresco?useUnicode=yes\&characterEncoding=UTF-8 <% } %>
                 -Dsolr.host=solr6
                 -Dsolr.port=8983
-                -Dsolr.secureComms=none
+                -Dsolr.secureComms=<%=secureComms%>
                 -Dsolr.baseUrl=/solr
-                -Dindex.subsystem.name=solr6
+                -Dindex.subsystem.name=solr6<% if (solrHttpMode == 'secret') { %>
+                -Dsolr.sharedSecret=secret<% } %>
                 -Dalfresco.host=${SERVER_NAME}
                 -Dalfresco.port=<%=port%>
                 <% if (https == 'true') { %>-Dalfresco.protocol=https <%} else {%>-Dalfresco.protocol=http <%}%>
@@ -175,7 +176,7 @@ services:
             SEARCH_TAG: $SEARCH_CE_TAG
             SOLR_HOSTNAME: solr6
             ALFRESCO_HOSTNAME: alfresco
-            ALFRESCO_COMMS: none
+            ALFRESCO_COMMS: <%=secureComms%>
             CROSS_LOCALE: "<%=crossLocale%>"
         mem_limit: <%=ram/4%>m
         environment:
@@ -190,7 +191,8 @@ services:
             SOLR_JAVA_MEM: "-Xms<%=(ram/4) - 256%>m -Xmx<%=(ram/4) - 256%>m"
             SOLR_OPTS: "
                 -XX:NewSize=<%=(ram/8) - 256%>m
-                -XX:MaxNewSize=<%=(ram/8) - 256%>m
+                -XX:MaxNewSize=<%=(ram/8) - 256%>m<% if (solrHttpMode == 'secret') { %>
+                -Dalfresco.secureComms.secret=secret<% } %>
             "
         volumes: <% if (windows == 'false') { %>
             - ./data/solr-data:/opt/alfresco-search-services/data <% } %> <% if (windows == 'true') { %>
