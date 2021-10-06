@@ -15,7 +15,6 @@ services:
             - mariadb <% } %>
         environment:
             JAVA_OPTS : '
-                -Ddb.driver=org.postgresql.Driver
                 -Ddb.username=alfresco
                 -Ddb.password=alfresco<% if (db == "postgres") { %>
                 -Ddb.driver=org.postgresql.Driver
