@@ -110,7 +110,7 @@ module.exports = class extends Generator {
             checked: false
           },
           {
-            name: 'JavaScript Console 0.6',
+            name: 'JavaScript Console 0.7',
             value: 'js-console',
             checked: false
           },
