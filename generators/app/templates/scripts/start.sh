@@ -40,10 +40,13 @@ done
 echo "Start docker compose"
 docker-compose up -d --build
 
+echo "Checking wait-on module availability"
+npm list -g wait-on || npm install -g wait-on
+
 if [[ $WAIT_TIME -gt 0 ]]; then
   echo "Waiting for alfresco to boot ..."
   WAIT_TIME=$(( ${WAIT_TIME} * 1000 ))
-  node_modules/wait-on/bin/wait-on "http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}:${SERVER_PORT}/alfresco/" -t "${WAIT_TIME}" -i 10000 -v
+  npx -y wait-on "http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}:${SERVER_PORT}/alfresco/" -t "${WAIT_TIME}" -i 10000 -v
   if [ $? == 1 ]; then
     echo "Waiting failed -> exit 1"
     exit 1

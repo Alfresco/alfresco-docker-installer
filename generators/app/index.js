@@ -335,7 +335,6 @@ module.exports = class extends Generator {
     }
 
     if (this.props.startscript) {
-      this.npmInstall(['wait-on'], { 'save-dev': true });
       this.fs.copyTpl(
         this.templatePath('scripts/start.sh'),
         this.destinationPath('start.sh'),
