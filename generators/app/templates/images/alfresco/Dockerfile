@@ -34,10 +34,9 @@ RUN if [ "$DB" == "mariadb" ] ; then \
     set -x \
         && yum install -y wget \
         && yum clean all \
-        && wget -P /tmp/ http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-8.0.13.tar.gz \
-        && tar xvf /tmp/mysql-connector-java-8.0.13.tar.gz -C /tmp/ \
-        && cp /tmp/mysql-connector-java-8.0.13/mysql-connector-java-8.0.13.jar $TOMCAT_DIR/lib/ \
-        && rm -rf /tmp/mysql-connector-java-8.0.13.tar.gz /tmp/mysql-connector-java-8.0.13; \
+        && wget -P /tmp/ https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/2.7.4/mariadb-java-client-2.7.4.jar \
+        && cp /tmp/mariadb-java-client-2.7.4.jar $TOMCAT_DIR/lib/ \
+        && rm -rf /tmp/mariadb-java-client-2.7.4.jar; \
 fi
 
 <% if (ocr == 'true') { %>

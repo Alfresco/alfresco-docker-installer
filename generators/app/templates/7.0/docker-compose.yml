@@ -28,7 +28,7 @@ services:
                 -Ddb.password=alfresco<% if (db == "postgres") { %>
                 -Ddb.driver=org.postgresql.Driver
                 -Ddb.url=jdbc:postgresql://postgres:5432/alfresco <% } %> <% if (db == "mariadb") { %>
-                -Ddb.driver=com.mysql.cj.jdbc.Driver
+                -Ddb.driver=org.mariadb.jdbc.Driver
                 -Ddb.url=jdbc:mysql://mariadb/alfresco?useUnicode=yes\&characterEncoding=UTF-8 <% } %>
                 -Dsolr.host=solr6
                 -Dsolr.port=8983
@@ -144,14 +144,14 @@ services:
             - postgres-logs:/var/log/postgresql <% } %>
     <% } %> <% if (db == 'mariadb') { %>
     mariadb:
-        image: mariadb:latest
+        image: mariadb:${MARIADB_TAG}
         mem_limit: <%=ram/8%>m
         environment:
             - MYSQL_ROOT_PASSWORD=alfresco
             - MYSQL_DATABASE=alfresco
             - MYSQL_USER=alfresco
             - MYSQL_PASSWORD=alfresco
-        command: "mysqld
+        command: "
             --character-set-server=utf8
             --collation-server=utf8_bin
             --lower_case_table_names=1
