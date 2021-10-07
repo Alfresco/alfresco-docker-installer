@@ -65,4 +65,5 @@ EXPOSE 2121 2433 2434
 <% } %>
 
 # Restore original user
+RUN chown -R ${IMAGEUSERNAME} $TOMCAT_DIR
 USER ${IMAGEUSERNAME}
