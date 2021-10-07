@@ -2,7 +2,10 @@ ARG ALFRESCO_TAG
 FROM alfresco/alfresco-content-repository-community:${ALFRESCO_TAG}
 
 ARG TOMCAT_DIR=/usr/local/tomcat
+ARG IMAGEUSERNAME=alfresco
 
+# default user is alfresco (added on the base image alfresco/alfresco-content-repository-community)
+# change to root user to be able to install the addons and packages
 USER root
 
 # Install modules and addons
@@ -60,3 +63,6 @@ RUN set -x && \
 <% if (ftp == 'true') { %>
 EXPOSE 2121 2433 2434
 <% } %>
+
+# Restore original user
+USER ${IMAGEUSERNAME}
