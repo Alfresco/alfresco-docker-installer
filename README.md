@@ -306,6 +306,11 @@ In order to enable persistent storage, several Docker Volumes are configured by 
 Identifying the right UID for every folder can be obtained by starting Docker Compose without the volumes declaration. Following lines should be commented in `docker-compose.yml` file.
 
 ```
+    alfresco:
+#        volumes: 
+#           - ./data/alf-repo-data:/usr/local/tomcat/alf_data
+#           - ./logs/alfresco:/usr/local/tomcat/logs   
+
     postgres:
 #        volumes:
 #            - ./data/postgres-data:/var/lib/postgresql/data
@@ -373,11 +378,38 @@ $ id -u postgres
 999
 
 ```
+
 Stop Docker Container and set the right permissions on your host folder.
 
 ```
 $ sudo chown -R 999 data/postgres-data
 $ sudo chown -R 999 logs/postgres
+```
+
+And finally, permissions for `alfresco` user inside Alfresco Docker Image may be adjusted.
+
+```
+$ docker ps
+ded1748f961f    nginx:stable-alpine   tmp_proxy_1
+b01e0abb3c0e    tmp_alfresco          tmp_alfresco_1
+4fef719112ad    postgres:10.1         tmp_postgres_1
+99a4bd6ede52    tmp_share             tmp_share_1
+554236b9bedf    tmp_solr6             tmp_solr6_1
+
+$ docker exec -it tmp_alfresco_1 sh
+
+$ ls -la alf_data
+drwx------ 19 alfresco alfresco 4096 Jul 24 14:05 alf_data
+
+$ id -u alfresco
+33000
+```
+
+Stop Docker Container and set the right permissions on your host folder.
+
+```
+$ sudo chown -R 33000 data/alf-repo-data
+$ sudo chown -R 33000 logs/alfresco
 ```
 
 Uncomment the lines in your `docker-compose.yml` for the volumes declaration and your Docker Compose should be ready to use.
