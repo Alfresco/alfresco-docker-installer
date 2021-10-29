@@ -109,8 +109,8 @@ services:
         environment:
             REPO_HOST: "alfresco"
             REPO_PORT: "8080"
-            CSRF_FILTER_REFERER: "http<% if (https == 'true') { %>s<%}%>://<%=serverName%>/.*"
-            CSRF_FILTER_ORIGIN: "http<% if (https == 'true') { %>s<%}%>://<%=serverName%>"
+            CSRF_FILTER_REFERER: "http<% if (https == 'true') { %>s<%}%>://<%=serverName%>:<%=port%>/.*"
+            CSRF_FILTER_ORIGIN: "http<% if (https == 'true') { %>s<%}%>://<%=serverName%>:<%=port%>"
             JAVA_OPTS: "
                 -Xms<%=(ram/8) - 128%>m -Xmx<%=(ram/8) - 128%>m
                 -Dalfresco.context=alfresco
