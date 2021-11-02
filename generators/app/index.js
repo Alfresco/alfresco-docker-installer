@@ -120,7 +120,7 @@ module.exports = class extends Generator {
             checked: false
           },
           {
-            name: 'Share Site Creators 0.0.7',
+            name: 'Share Site Creators 0.0.8',
             value: 'share-site-creators',
             checked: false
           },
