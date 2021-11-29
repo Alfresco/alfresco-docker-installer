@@ -106,6 +106,12 @@ This option enables HTTPs for every service. Default SSL certificates (public an
 If you are deploying on a server different than `localhost`, include in this option the name of your server. For instance: `alfresco.com`
 
 ```
+? Choose the password for your admin user (admin)
+```
+
+Alfreso provides `admin` password by default, choose a different one for new deployments. When using this option on pre-populated Alfresco Repositories, this setting is not applied, since the password is already stored in the existent database.
+
+```
 ? What HTTP port do you want to use (all the services are using the same port)? 80 or 443
 ```
 
@@ -194,6 +200,7 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 * `--startscript`: true or false
 * `--https`: true or false
 * `--serverName`: localhost default
+* `--password`: admin user default password
 * `--port`: 80 default
 * `--ftp`: true or false
 
@@ -307,7 +314,7 @@ Identifying the right UID for every folder can be obtained by starting Docker Co
 
 ```
     alfresco:
-#        volumes: 
+#        volumes:
 #           - ./data/alf-repo-data:/usr/local/tomcat/alf_data
 #           - ./logs/alfresco:/usr/local/tomcat/logs   
 
@@ -443,10 +450,10 @@ $ docker volume rm $(docker volume ls -q --filter name=tmp_)
 
 ## Docker Images
 
-* [alfresco-content-repository-community:7.0.0](https://hub.docker.com/r/alfresco/alfresco-content-repository-community)
-* [alfresco-share:7.0.0](https://hub.docker.com/r/alfresco/alfresco-share)
-* [alfresco-search-services:2.0.1](https://hub.docker.com/r/alfresco/alfresco-search-services)
-* [postgres:13.1](https://hub.docker.com/_/postgres)
+* [alfresco-content-repository-community](https://hub.docker.com/r/alfresco/alfresco-content-repository-community)
+* [alfresco-share](https://hub.docker.com/r/alfresco/alfresco-share)
+* [alfresco-search-services](https://hub.docker.com/r/alfresco/alfresco-search-services)
+* [postgres](https://hub.docker.com/_/postgres)
 * [nginx:stable-alpine](https://hub.docker.com/_/nginx)
 * [mwader/postfix-relay](https://hub.docker.com/r/mwader/postfix-relay)
 * [osixia/openldap](https://hub.docker.com/r/osixia/openldap)
@@ -470,19 +477,19 @@ http://localhost
 
 Default credentials
 * user: admin
-* password: admin
+* password: admin (or chosen password)
 
 http://localhost/share
 
 Default credentials
 * user: admin
-* password: admin
+* password: admin (or chosen password)
 
 http://localhost/alfresco
 
 Default credentials
 * user: admin
-* password: admin
+* password: admin (or chosen password)
 
 http://localhost/solr
 
@@ -494,7 +501,7 @@ http://localhost/api-explorer
 
 Default credentials
 * user: admin
-* password: admin
+* password: admin (or chosen password)
 
 http://localhost:8088
 

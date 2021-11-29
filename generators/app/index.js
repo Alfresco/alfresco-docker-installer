@@ -1,6 +1,7 @@
 'use strict';
 const Generator = require('yeoman-generator');
 var banner = require('./banner')
+var nthash = require('smbhash').nthash;
 
 /**
  * This module buids a Docker Compose template to use
@@ -40,6 +41,12 @@ module.exports = class extends Generator {
         name: 'serverName',
         message: 'What is the name of your server?',
         default: 'localhost'
+      },
+      {
+        type: 'input',
+        name: 'password',
+        message: 'Choose the password for your admin user',
+        default: 'admin'
       },
       {
         when: function (response) {
@@ -207,6 +214,7 @@ module.exports = class extends Generator {
         serverName: this.props.serverName,
         solrHttpMode: this.props.solrHttpMode,
         secureComms: (this.props.solrHttpMode == 'secret' ? 'secret' : 'none'),
+        password: computeHashPassword(this.props.password)
       }
     );
 
@@ -396,5 +404,10 @@ function getAvailableMemory(props) {
   }
   return ram;
 
+}
+
+// Compute NTLMv1 MD4 Hash for Alfresco DB
+function computeHashPassword(password) {
+  return nthash(password).toLowerCase();
 }
 

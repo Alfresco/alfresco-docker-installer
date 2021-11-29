@@ -30,6 +30,7 @@ services:
                 -Ddb.url=jdbc:postgresql://postgres:5432/alfresco <% } %> <% if (db == "mariadb") { %>
                 -Ddb.driver=org.mariadb.jdbc.Driver
                 -Ddb.url=jdbc:mysql://mariadb/alfresco?useUnicode=yes\&characterEncoding=UTF-8 <% } %>
+                -Dalfresco_user_store.adminpassword=<%=password%>
                 -Dsolr.host=solr6
                 -Dsolr.port=8983
                 -Dsolr.secureComms=<%=secureComms%>
