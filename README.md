@@ -109,7 +109,7 @@ If you are deploying on a server different than `localhost`, include in this opt
 ? Choose the password for your admin user (admin)
 ```
 
-Alfreso provides `admin` password by default, choose a different one for new deployments. When using this option on pre-populated Alfresco Repositories, this setting is not applied, since the password is already stored in the existent database.
+Alfresco provides `admin` password by default, choose a different one for new deployments. When using this option on pre-populated Alfresco Repositories, this setting is not applied, since the password is already stored in the existent database. By default `system.preferred.password.encoding` is using `bcrypt10` algorithm, so passwords are stored in database ciphered with salt.
 
 ```
 ? What HTTP port do you want to use (all the services are using the same port)? 80 or 443

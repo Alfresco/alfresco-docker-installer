@@ -64,6 +64,8 @@ RUN set -x && \
 EXPOSE 2121 2433 2434
 <% } %>
 
+<%if (acsVersion > '6.1') { %>
 # Restore original user
 RUN chown -R ${IMAGEUSERNAME} $TOMCAT_DIR
 USER ${IMAGEUSERNAME}
+<% } %>

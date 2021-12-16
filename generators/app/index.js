@@ -361,6 +361,15 @@ module.exports = class extends Generator {
         '   ---------------------------------------------------\n');
     }
 
+    if (this.props.https) {
+      this.log('\n   ---------------------------------------------------------------\n' +
+      '   WARNING: You selected HTTPs for the NGINX Web Proxy. \n' +
+      '   Default certificates localhost.cer and localhost.key have been \n' +
+      '   provided in config/cert folder. \n' +
+      '   You may replace these certificates by your own. \n' +
+      '   ---------------------------------------------------------------\n');
+  }
+
   }
 
 };
