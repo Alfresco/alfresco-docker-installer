@@ -95,6 +95,33 @@ module.exports = class extends Generator {
         default: 'http'
       },
       {
+        when: function (response) {
+          return response.acsVersion >= '7.1'
+        },
+        type: 'confirm',
+        name: 'activeMqCredentials',
+        message: 'Do you want to use credentials for Events service (ActiveMQ)?',
+        default: false
+      },
+      {
+        when: function (response) {
+          return response.acsVersion >= '7.1' && response.activeMqCredentials
+        },
+        type: 'input',
+        name: 'activeMqUser',
+        message: 'Choose the USERNAME for your ActiveMQ user',
+        default: 'admin'
+      },
+      {
+        when: function (response) {
+          return response.acsVersion >= '7.1' && response.activeMqCredentials
+        },
+        type: 'input',
+        name: 'activeMqPassword',
+        message: 'Choose the PASSWORD for your ActiveMQ user',
+        default: 'password'
+      },
+      {
         type: 'confirm',
         name: 'smtp',
         message: 'Do you want to create an internal SMTP server?',
@@ -214,7 +241,10 @@ module.exports = class extends Generator {
         serverName: this.props.serverName,
         solrHttpMode: this.props.solrHttpMode,
         secureComms: (this.props.solrHttpMode == 'http' ? 'none' : this.props.solrHttpMode),
-        password: computeHashPassword(this.props.password)
+        password: computeHashPassword(this.props.password),
+        activeMqCredentials: (this.props.activeMqCredentials ? 'true' : 'false'),
+        activeMqUser: this.props.activeMqUser,
+        activeMqPassword: this.props.activeMqPassword
       }
     );
 

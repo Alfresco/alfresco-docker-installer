@@ -62,7 +62,9 @@ services:
                 -Dshare.port=<%=port%>
                 <% if (https == 'true') { %>-Dshare.protocol=https <%} else {%>-Dshare.protocol=http <%}%>
                 -Daos.baseUrlOverwrite=http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}/alfresco/aos
-                -Dmessaging.broker.url="failover:(nio://activemq:61616)?timeout=3000&jms.useCompression=true"
+                -Dmessaging.broker.url="failover:(nio://activemq:61616)?timeout=3000&jms.useCompression=true"<% if (activeMqCredentials == 'true') { %>
+                -Dmessaging.broker.username=<%=activeMqUser%>
+                -Dmessaging.broker.password=<%=activeMqPassword%> <% } %>
                 -Ddeployment.method=DOCKER_COMPOSE
                 -Dcsrf.filter.enabled=false <% if (ftp == 'true') { %>
                 -Dftp.enabled=true
@@ -248,12 +250,12 @@ services:
 
     activemq:
         image: alfresco/alfresco-activemq:${ACTIVEMQ_TAG}
-        mem_limit: 1g
+        mem_limit: 1g<% if (activeMqCredentials == 'true') { %>
+        environment:
+            ACTIVEMQ_ADMIN_LOGIN: "<%=activeMqUser%>"
+            ACTIVEMQ_ADMIN_PASSWORD: "<%=activeMqPassword%>" <% } %>
         ports:
-            - 8161:8161 # Web Console
-            - 5672:5672 # AMQP
-            - 61616:61616 # OpenWire
-            - 61613:61613 # STOMP
+            - 8161:8161
 
     content-app:
         image: alfresco/alfresco-content-app:${ACA_TAG}

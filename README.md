@@ -136,15 +136,22 @@ Alfresco uses PostgreSQL by default, but alternatively `MariaDB` can be used as 
 By default, many organizations are storing document in different languages or the users are accessing the platform with browser configured in different languages. If this is your case, enable this configuration.
 
 ```
-'Would you like to use HTTP or Shared Secret for Alfresco-SOLR communication?',
+? Would you like to use HTTP or Shared Secret for Alfresco-SOLR communication?
   http
   https
   secret
 ```
 
-By default communication between Alfresco and SOLR happens in plain `http`. Since external APIs are protected by `proxy` and SOLR Web Console is protected by user and password, default configuration may be the right one for many deployments. 
+By default, communication between Alfresco and SOLR happens in plain `http`. Since external APIs are protected by `proxy` and SOLR Web Console is protected by user and password, default configuration may be the right one for many deployments. 
 When using `secret` option (only available from 7.1.0), Alfresco and SOLR communication is happening in plain HTTP but including a shared secret word in HTTP Header. This should be a safer approach for open environments.
 In addition, when using `https`option, communication between SOLR and Alfresco is using Mutual TLS. This protocol includes client authentication using digital certificates, that may be also a safe alternative.
+
+```
+? Do you want to use credentials for Events service (ActiveMQ)? No
+```
+
+By default, there is no authentication for ActiveMQ service. When choosing `Yes` for this option, you'll be prompted for username and password to be used to access ActiveMQ Alfresco Broker. In case you enable this option, remember to use these credentials to consume messages from ActiveMQ when using Out of Process SDK or similar.
+
 
 ```
 ? Do you want to create an internal SMTP server? No
@@ -505,6 +512,10 @@ http://localhost/api-explorer
 Default credentials
 * user: admin
 * password: admin (or chosen password)
+
+http://localhost:8161
+
+Default credentials: none (or the username and password chosen)
 
 http://localhost:8088
 

@@ -1,6 +1,6 @@
 {
   "name": "generator-alfresco-docker-installer",
-  "version": "0.4.3",
+  "version": "0.4.5",
   "description": "Alfresco Docker Installer",
   "homepage": "https://github.com/Alfresco/alfresco-docker-installer",
   "author": "Angel Borroy <angel.borroy@alfresco.com>",
