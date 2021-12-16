@@ -7,6 +7,7 @@ node_js:
 
 before_install:
   - sudo /etc/init.d/postgresql stop
+  - export NODE_OPTIONS=--openssl-legacy-provider
   - npm install -g -d yo
   - npm install -g -d yeoman-generator
   - npm install --global generator-alfresco-docker-installer
