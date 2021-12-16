@@ -7,10 +7,9 @@ node_js:
 
 before_install:
   - sudo /etc/init.d/postgresql stop
-  - npm install -g yo
-  - npm i -g -d yeoman-generator
+  - npm install -g -d yo
+  - npm install -g -d yeoman-generator
   - npm install --global generator-alfresco-docker-installer
-  - npm link
   - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=false --windows=false
   # remove volume which create a permission denied issue
   - sed -i '\|logs/postgres|d' ./docker-compose.yml
