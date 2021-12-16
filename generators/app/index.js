@@ -90,8 +90,8 @@ module.exports = class extends Generator {
         },
         type: 'list',
         name: 'solrHttpMode',
-        message: 'Would you like to use HTTP or Shared Secret for Alfresco-SOLR communication?',
-        choices: [ 'http', 'secret' ],
+        message: 'Would you like to use HTTP, HTTPs or Shared Secret for Alfresco-SOLR communication?',
+        choices: [ 'http', 'https', 'secret' ],
         default: 'http'
       },
       {
@@ -213,7 +213,7 @@ module.exports = class extends Generator {
         googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false'),
         serverName: this.props.serverName,
         solrHttpMode: this.props.solrHttpMode,
-        secureComms: (this.props.solrHttpMode == 'secret' ? 'secret' : 'none'),
+        secureComms: (this.props.solrHttpMode == 'http' ? 'none' : this.props.solrHttpMode),
         password: computeHashPassword(this.props.password)
       }
     );
@@ -257,13 +257,22 @@ module.exports = class extends Generator {
       this.destinationPath('config'),
       {
         port: this.props.port,
-        https: (this.props.https ? 'true' : 'false')
+        https: (this.props.https ? 'true' : 'false'),
+        solrHttps: (this.props.solrHttpMode == 'https' ? 'true' : 'false')
       }
     );
     if (this.props.https) {
       this.fs.copy(
         this.templatePath('images/config/cert'),
         this.destinationPath('config/cert')
+      );
+    }
+
+    // Copy mTLS Keystores
+    if (this.props.solrHttpMode == 'https') {
+      this.fs.copy(
+        this.templatePath('keystores'),
+        this.destinationPath('keystores')
       );
     }
 
@@ -368,7 +377,16 @@ module.exports = class extends Generator {
       '   provided in config/cert folder. \n' +
       '   You may replace these certificates by your own. \n' +
       '   ---------------------------------------------------------------\n');
-  }
+    }
+
+    if (this.props.solrHttpMode == 'https') {
+      this.log('\n   ---------------------------------------------------------------\n' +
+      '   WARNING: You selected HTTPs communication for Alfresco-Solr. \n' +
+      '   Default keystores have been provided in keystores folder. \n' +
+      '   You may replace these certificates by your own. \n' +
+      '   Check https://github.com/Alfresco/alfresco-ssl-generator \n' +
+      '   ---------------------------------------------------------------\n');
+    }
 
   }
 

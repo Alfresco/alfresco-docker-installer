@@ -60,6 +60,36 @@ RUN set -x && \
     chmod 600 /root/.ssh/id_rsa
 <% } %>
 
+# COMMS
+ARG SOLR_COMMS
+ENV SOLR_COMMS $SOLR_COMMS
+
+# SSL
+ARG TRUSTSTORE_TYPE
+ARG TRUSTSTORE_PASS
+ARG KEYSTORE_TYPE
+ARG KEYSTORE_PASS
+
+ENV TRUSTSTORE_TYPE=$TRUSTSTORE_TYPE \
+    TRUSTSTORE_PASS=$TRUSTSTORE_PASS \
+    KEYSTORE_TYPE=$KEYSTORE_TYPE \
+    KEYSTORE_PASS=$KEYSTORE_PASS
+
+# Enable SSL by adding the proper Connector to server.xml
+RUN if [ "$SOLR_COMMS" == "https" ] ; then \
+      sed -i "s/\
+[[:space:]]\+<\/Engine>/\n\
+        <\/Engine>\n\
+        <Connector port=\"8443\" protocol=\"HTTP\/1.1\"\n\
+            connectionTimeout=\"20000\"\n\
+            SSLEnabled=\"true\" maxThreads=\"150\" scheme=\"https\" clientAuth=\"want\" sslProtocol=\"TLS\" sslEnabledProtocols=\"TLSv1.2\"\n\
+            keystoreFile=\"\/usr\/local\/tomcat\/keystore\/ssl.keystore\"\n\
+            keystorePass=\"${KEYSTORE_PASS}\" keystoreType=\"${KEYSTORE_TYPE}\" secure=\"true\"\n\
+            truststoreFile=\"\/usr\/local\/tomcat\/keystore\/ssl.truststore\"\n\
+            truststorePass=\"${TRUSTSTORE_PASS}\" truststoreType=\"${TRUSTSTORE_TYPE}\">\n\
+        <\/Connector>/g" ${TOMCAT_DIR}/conf/server.xml; \
+    fi
+
 <% if (ftp == 'true') { %>
 EXPOSE 2121 2433 2434
 <% } %>
