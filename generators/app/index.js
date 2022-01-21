@@ -186,6 +186,16 @@ module.exports = class extends Generator {
         name: 'startscript',
         message: 'Do you want to use a start script?',
         default: false
+      },
+      {
+        // Provide volumes permission script for Linux OS
+        when: function () {
+          return !process.platform == 'win32' && !process.platform == 'darwin';
+        },
+        type: 'confirm',
+        name: 'volumesscript',
+        message: 'Do you want to get the script to create host volumes?',
+        default: false
       }
     ];
 
@@ -390,6 +400,13 @@ module.exports = class extends Generator {
           serverName: this.props.serverName,
           https: (this.props.https ? 'true' : 'false')
         }
+      )
+    }
+
+    if (this.props.volumesscript) {
+      this.fs.copy(
+        this.templatePath('scripts/create_volumes.sh'),
+        this.destinationPath('create_volumes.sh')
       )
     }
 

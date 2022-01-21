@@ -190,6 +190,12 @@ When using a Windows host to run Docker, standard [Docker Volumes](https://docs.
 
 The wrapper script for the docker-compose file allows nice features as a wait for alfresco to finish the boot and much more. Use "./start.sh -h" for more information.
 
+```
+? Do you want to get the script to create host volumes? No
+
+When using Linux as host, you can get the script `create_volumes.sh` in Docker Compose folder. The script should be run only once, to create the initial `data` and `logs` host folders with the expected permissions. 
+```
+
 ## Passing parameters from command line
 
 Default values for options can be specified in the command line, using a `--name=value` pattern. When an options is specified in the command line, the question is not prompted to the user, so you can generate a Docker Compose template with no user interaction.
