@@ -39,6 +39,7 @@ services:
                 -Dindex.subsystem.name=solr6
                 -Dalfresco.host=${SERVER_NAME}
                 -Dalfresco.port=<%=port%>
+                -Dapi-explorer.url=<% if (https == 'true') { %>https<%} else {%>http<%}%>://${SERVER_NAME}:<%=port%>/api-explorer
                 <% if (https == 'true') { %>-Dalfresco.protocol=https <%} else {%>-Dalfresco.protocol=http <%}%>
                 -Dshare.host=${SERVER_NAME}
                 -Dshare.port=<%=port%>
