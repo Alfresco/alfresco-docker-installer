@@ -219,6 +219,7 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 * `--password`: admin user default password
 * `--port`: 80 default
 * `--ftp`: true or false
+* `--solrHttpMode`: http, https or secret
 
 ## Deploying additional addons
 
