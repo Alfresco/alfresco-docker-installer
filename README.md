@@ -296,6 +296,7 @@ Following folder structure is generated when Docker Compose is running. Dependin
 
 ├── data                    > DATA STORAGE (it's recommend to perform a backup of this folder)
 │   ├── alf-repo-data       > Content Store for Alfresco Repository
+│   ├── activemq-data       > Message Store for ActiveMQ
 │   ├── ldap                > [LDAP] Internal database
 │   ├── ocr                 > [OCR] Temporal folder shared between Alfresco Repository and OCR
 │   ├── postgres-data       > Internal storage for database

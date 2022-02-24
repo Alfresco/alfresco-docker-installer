@@ -239,6 +239,9 @@ services:
             - 5672:5672 # AMQP
             - 61616:61616 # OpenWire
             - 61613:61613 # STOMP
+        volumes: <% if (windows == 'false') { %>
+            - ./data/activemq-data:/opt/activemq/data <% } %> <% if (windows == 'true') { %>
+            - activemq-data:/opt/activemq/data <% } %>
 
     content-app:
         image: alfresco/alfresco-content-app:${ACA_TAG}
@@ -314,6 +317,7 @@ services:
 <% if (windows == 'true') { %>
 volumes:
     alf-repo-data:
+    activemq-data:
     alf-repo-logs: <% if (ocr == 'true') { %>
     alf-repo-ocr-input:
     alf-repo-ocr-output: <% } %>
