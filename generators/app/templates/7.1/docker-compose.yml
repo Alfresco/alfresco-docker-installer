@@ -257,6 +257,9 @@ services:
             ACTIVEMQ_ADMIN_PASSWORD: "<%=activeMqPassword%>" <% } %>
         ports:
             - 8161:8161
+        volumes: <% if (windows == 'false') { %>
+            - ./data/activemq-data:/opt/activemq/data <% } %> <% if (windows == 'true') { %>
+            - activemq-data:/opt/activemq/data <% } %>
 
     content-app:
         image: alfresco/alfresco-content-app:${ACA_TAG}
@@ -340,6 +343,7 @@ services:
 <% if (windows == 'true') { %>
 volumes:
     alf-repo-data:
+    activemq-data:
     alf-repo-logs: <% if (ocr == 'true') { %>
     alf-repo-ocr-input:
     alf-repo-ocr-output: <% } %>
