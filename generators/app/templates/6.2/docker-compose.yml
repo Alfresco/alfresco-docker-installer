@@ -81,7 +81,9 @@ services:
                 -Docr.extra.commands="-j1 --author keensoft --rotate-pages -l spa+eng+fra --deskew --clean --skip-text"
                 -Docr.server.os=linux <% } %>
             '
-        volumes: <% if (windows == 'false') { %>
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro" <% if (windows == 'false') { %>
             - ./data/alf-repo-data:/usr/local/tomcat/alf_data
             - ./logs/alfresco:/usr/local/tomcat/logs <% if (ocr == 'true') { %>
             - ./data/ocr/input:/ocr_input
@@ -103,6 +105,9 @@ services:
             JAVA_OPTS: " -Xms256m -Xmx512m"
         ports:
             - 8090:8090
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro"
 
     imagemagick:
         image: alfresco/alfresco-imagemagick:${TRANSFORM_ENGINE_TAG}
@@ -111,6 +116,9 @@ services:
             JAVA_OPTS: " -Xms256m -Xmx512m"
         ports:
             - 8091:8090
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro"
 
     libreoffice:
         image: alfresco/alfresco-libreoffice:${TRANSFORM_ENGINE_TAG}
@@ -119,6 +127,9 @@ services:
             JAVA_OPTS: " -Xms512m -Xmx1024m"
         ports:
             - 8092:8090
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro"
 
     tika:
         image: alfresco/alfresco-tika:${TRANSFORM_ENGINE_TAG}
@@ -127,6 +138,9 @@ services:
             JAVA_OPTS: " -Xms512m -Xmx1024m"
         ports:
             - 8093:8090
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro"
 
     transform-misc:
         image: alfresco/alfresco-transform-misc:${TRANSFORM_ENGINE_TAG}
@@ -135,6 +149,9 @@ services:
             JAVA_OPTS: " -Xms256m -Xmx512m"
         ports:
             - 8094:8090
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro"
 
     share:
         build:
@@ -153,7 +170,9 @@ services:
                 -Dalfresco.context=alfresco
                 -Dalfresco.protocol=http
                 "
-        volumes: <% if (windows == 'false') { %>
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro" <% if (windows == 'false') { %>
             - ./logs/share:/usr/local/tomcat/logs <% } %> <% if (windows == 'true') { %>
             - alf-share-logs:/usr/local/tomcat/logs <% } %>
 
@@ -173,7 +192,9 @@ services:
               -c log_directory=/var/log/postgresql"
         ports:
             - 5432:5432
-        volumes: <% if (windows == 'false') { %>
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro" <% if (windows == 'false') { %>
             - ./data/postgres-data:/var/lib/postgresql/data
             - ./logs/postgres:/var/log/postgresql <% } %> <% if (windows == 'true') { %>
             - postgres-data:/var/lib/postgresql/data
@@ -194,7 +215,9 @@ services:
             --max_connections=200
             --innodb-flush-method=O_DIRECT
             --wait_timeout=28800"
-        volumes: <% if (windows == 'false') { %>
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro" <% if (windows == 'false') { %>
             - ./data/mariadb_data:/var/lib/mysql
             - ./logs/mariadb:/var/log/mysql <% } %> <% if (windows == 'true') { %>
             - mariadb-data:/var/lib/mysql
@@ -227,7 +250,9 @@ services:
                 -XX:NewSize=<%=(ram/8) - 256%>m
                 -XX:MaxNewSize=<%=(ram/8) - 256%>m
             "
-        volumes: <% if (windows == 'false') { %>
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro" <% if (windows == 'false') { %>
             - ./data/solr-data:/opt/alfresco-search-services/data <% } %> <% if (windows == 'true') { %>
             - solr-data:/opt/alfresco-search-services/data <% } %>
 
@@ -239,7 +264,9 @@ services:
             - 5672:5672 # AMQP
             - 61616:61616 # OpenWire
             - 61613:61613 # STOMP
-        volumes: <% if (windows == 'false') { %>
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro" <% if (windows == 'false') { %>
             - ./data/activemq-data:/opt/activemq/data <% } %> <% if (windows == 'true') { %>
             - activemq-data:/opt/activemq/data <% } %>
 
@@ -249,6 +276,9 @@ services:
         depends_on:
             - alfresco
             - share
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro"
 
     # HTTP proxy to provide HTTP Default port access to services
     # SOLR API and SOLR Web Console are protected to avoid unauthenticated access
@@ -261,6 +291,8 @@ services:
             - share
             - content-app
         volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro"
             - ./config/nginx.conf:/etc/nginx/nginx.conf
             - ./config/nginx.htpasswd:/etc/nginx/conf.d/nginx.htpasswd <% if (https == 'true') { %>
             - ./config/cert/localhost.cer:/etc/nginx/localhost.cer
@@ -272,6 +304,9 @@ services:
     smtp:
         image: mwader/postfix-relay
         mem_limit: 128m
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro"
     <% } %>
 
     <% if (ldap == 'true') { %>
@@ -284,6 +319,8 @@ services:
           LDAP_BASE_DN: "dc=alfresco,dc=org"
           LDAP_ADMIN_PASSWORD: "admin"
         volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro"
             - ./data/slapd/database:/var/lib/ldap
             - ./data/slapd/config:/etc/ldap/slapd.d
 
@@ -294,6 +331,9 @@ services:
         environment:
           PHPLDAPADMIN_LDAP_HOSTS: "openldap"
           PHPLDAPADMIN_HTTPS=false:
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro"
         links:
             - openldap
         depends_on:
@@ -307,7 +347,9 @@ services:
         build: ./ocrmypdf
         mem_limit: 512m
         hostname: ocrmypdf
-        volumes: <% if (windows == 'false') { %>
+        volumes:
+            - "/etc/localtime:/etc/localtime:ro"
+            - "/etc/timezone:/etc/timezone:ro" <% if (windows == 'false') { %>
             - ./data/ocr/input:/ocr_input
             - ./data/ocr/output:/ocr_output <% } %> <% if (windows == 'true') { %>
             - ocr-input:/ocr_input
