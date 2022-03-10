@@ -251,6 +251,8 @@ module.exports = class extends Generator {
         serverName: this.props.serverName,
         solrHttpMode: this.props.solrHttpMode,
         secureComms: (this.props.solrHttpMode == 'http' ? 'none' : this.props.solrHttpMode),
+        // Generate random password for Repo-SOLR secret communication method
+        secretPassword: Math.random().toString(36).slice(2),
         password: computeHashPassword(this.props.password),
         activeMqCredentials: (this.props.activeMqCredentials ? 'true' : 'false'),
         activeMqUser: this.props.activeMqUser,

@@ -51,7 +51,7 @@ services:
                 -Dsolr.secureComms=<%=secureComms%>
                 -Dsolr.baseUrl=/solr
                 -Dindex.subsystem.name=solr6<% if (solrHttpMode == 'secret') { %>
-                -Dsolr.sharedSecret=secret <% } %> <% if (solrHttpMode == 'https') { %>
+                -Dsolr.sharedSecret=<%=secretPassword%> <% } %> <% if (solrHttpMode == 'https') { %>
                 -Ddir.keystore=/usr/local/tomcat/keystore
                 -Dalfresco.encryption.ssl.keystore.type=JCEKS
                 -Dalfresco.encryption.ssl.truststore.type=JCEKS <% } %>
@@ -236,7 +236,7 @@ services:
             SOLR_OPTS: "
                 -XX:NewSize=<%=(ram/8) - 256%>m
                 -XX:MaxNewSize=<%=(ram/8) - 256%>m<% if (solrHttpMode == 'secret') { %>
-                -Dalfresco.secureComms.secret=secret<% } %> <% if (solrHttpMode == 'https') { %>
+                -Dalfresco.secureComms.secret=<%=secretPassword%><% } %> <% if (solrHttpMode == 'https') { %>
                 -Dsolr.ssl.checkPeerName=false
                 -Dsolr.allow.unsafe.resourceloading=true <% } %>
             "
