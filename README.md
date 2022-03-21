@@ -6,7 +6,7 @@
 
 ## Description
 
-Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2, 7.0 and 7.1 to be used in Docker Compose installations.
+Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2, 7.0, 7.1 and 7.2 to be used in Docker Compose installations.
 
 This project generates a Docker Compose template ready to be used including following features:
 
@@ -82,10 +82,10 @@ $ yo alfresco-docker-installer
 Several options are provided in order to build the configuration.
 
 ```
-? Which ACS version do you want to use? 7.1
+? Which ACS version do you want to use? 7.2
 ```
 
-You can use Alfresco 6.1, 6.2, 7.0 or 7.1
+You can use Alfresco 6.1, 6.2, 7.0, 7.1 or 7.2
 
 ```
 ? How may GB RAM are available for Alfresco (16 is minimum required)? 16
@@ -137,14 +137,16 @@ By default, many organizations are storing document in different languages or th
 
 ```
 ? Would you like to use HTTP or Shared Secret for Alfresco-SOLR communication?
-  http
+  http  << Not available when using ACS 7.2+
   https
   secret
 ```
 
-By default, communication between Alfresco and SOLR happens in plain `http`. Since external APIs are protected by `proxy` and SOLR Web Console is protected by user and password, default configuration may be the right one for many deployments. 
+By default, communication between Alfresco and SOLR happens in plain `http`. Since external APIs are protected by `proxy` and SOLR Web Console is protected by user and password, default configuration may be the right one for many deployments. **This option has been disabled from ACS 7.2!**
+
 When using `secret` option (only available from 7.1.0), Alfresco and SOLR communication is happening in plain HTTP but including a shared secret word in HTTP Header. This should be a safer approach for open environments.
-In addition, when using `https`option, communication between SOLR and Alfresco is using Mutual TLS. This protocol includes client authentication using digital certificates, that may be also a safe alternative.
+
+In addition, when using `https` option, communication between SOLR and Alfresco is using Mutual TLS. This protocol includes client authentication using digital certificates, that may be also a safe alternative.
 
 ```
 ? Do you want to use credentials for Events service (ActiveMQ)? No

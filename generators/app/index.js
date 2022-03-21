@@ -4,7 +4,7 @@ var banner = require('./banner')
 var nthash = require('smbhash').nthash;
 
 /**
- * This module buids a Docker Compose template to use
+ * This module builds a Docker Compose template to use
  * Alfresco Repository and Search Services
 */
 module.exports = class extends Generator {
@@ -21,8 +21,8 @@ module.exports = class extends Generator {
         type: 'list',
         name: 'acsVersion',
         message: 'Which ACS version do you want to use?',
-        choices: [ '6.1', '6.2', '7.0', '7.1' ],
-        default: '7.1'
+        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2' ],
+        default: '7.2'
       },
       {
         type: 'input',
@@ -86,13 +86,23 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return response.acsVersion >= '7.1'
+          return response.acsVersion == '7.1'
         },
         type: 'list',
         name: 'solrHttpMode',
         message: 'Would you like to use HTTP, HTTPs or Shared Secret for Alfresco-SOLR communication?',
         choices: [ 'http', 'https', 'secret' ],
         default: 'http'
+      },
+      {
+        when: function (response) {
+          return response.acsVersion >= '7.2'
+        },
+        type: 'list',
+        name: 'solrHttpMode',
+        message: 'Would you like to use Shared Secret or HTTPs for Alfresco-SOLR communication?',
+        choices: [ 'secret', 'https' ],
+        default: 'secret'
       },
       {
         when: function (response) {
