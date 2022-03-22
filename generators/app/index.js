@@ -16,6 +16,8 @@ module.exports = class extends Generator {
       this.log(banner);
     }
 
+    var commandProps = new Map();
+
     const prompts = [
       {
         type: 'list',
@@ -50,7 +52,7 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return !response.https;
+          return !response.https || !commandProps['https']
         },
         type: 'input',
         name: 'port',
@@ -59,7 +61,7 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return response.https;
+          return response.https || commandProps['https']
         },
         type: 'input',
         name: 'port',
@@ -86,7 +88,7 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return response.acsVersion == '7.1'
+          return response.acsVersion == '7.1' || commandProps['acsVersion'] == '7.1'
         },
         type: 'list',
         name: 'solrHttpMode',
@@ -96,7 +98,7 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return response.acsVersion >= '7.2'
+          return response.acsVersion >= '7.2' || commandProps['acsVersion'] >= '7.2'
         },
         type: 'list',
         name: 'solrHttpMode',
@@ -106,7 +108,7 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return response.acsVersion >= '7.1'
+          return response.acsVersion >= '7.1'  || commandProps['acsVersion'] >= '7.1'
         },
         type: 'confirm',
         name: 'activeMqCredentials',
@@ -115,7 +117,8 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return response.acsVersion >= '7.1' && response.activeMqCredentials
+          return (response.acsVersion >= '7.1' && response.activeMqCredentials) ||
+                 (commandProps['acsVersion'] >= '7.1' && commandProps['activeMqCredentials'])
         },
         type: 'input',
         name: 'activeMqUser',
@@ -124,7 +127,8 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return response.acsVersion >= '7.1' && response.activeMqCredentials
+          return (response.acsVersion >= '7.1' && response.activeMqCredentials) ||
+                 (commandProps['acsVersion'] >= '7.1' && commandProps['activeMqCredentials'])
         },
         type: 'input',
         name: 'activeMqPassword',
@@ -211,7 +215,6 @@ module.exports = class extends Generator {
 
     // Read options from command line parameters
     const filteredPrompts = [];
-    const commandProps = new Map();
     prompts.forEach(function prompts(prompt) {
       const option = this.options[prompt.name];
       if (option === undefined) {
