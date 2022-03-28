@@ -121,7 +121,10 @@ services:
         image: alfresco/alfresco-transform-core-aio:${TRANSFORM_ENGINE_TAG}
         mem_limit: 1536m
         environment:
-            JAVA_OPTS: " -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80"
+            JAVA_OPTS: "
+              -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
+              -Dlogging.level.org.alfresco.transform.router.TransformerDebug=ERROR
+            "
 
     share:
         build:
