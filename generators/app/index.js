@@ -450,6 +450,16 @@ module.exports = class extends Generator {
       '   ---------------------------------------------------------------\n');
     }
 
+    if (this.props.addons.includes('alf-tengine-ocr')) {
+      this.log('\n   ---------------------------------------------------------------\n' +
+      '   NOTE: You selected to use Alfresco OCR Transformer 1.0.0 (for Alfresco 7+). \n' +
+      '   Default Docker Image (angelborroy/alfresco-tengine-ocr:1.0.0) only includes support for English. \n' +
+      '   You may replace this in docker-compose.yml by "angelborroy/alfresco-tengine-ocr:1.0.0-deu-fra-spa-ita" \n' +
+      '   to provide support for English, German, French, Spanish and Italian. \n' +
+      '   Or you may build your customized Docker Image using https://github.com/aborroy/alf-tengine-ocr/tree/master/ats-transformer-ocr \n' +
+      '   ---------------------------------------------------------------\n');
+    }
+
   }
 
 };
