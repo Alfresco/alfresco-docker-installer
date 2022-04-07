@@ -195,7 +195,7 @@ The wrapper script for the docker-compose file allows nice features as a wait fo
 ```
 ? Do you want to get the script to create host volumes? No
 
-When using Linux as host, you can get the script `create_volumes.sh` in Docker Compose folder. The script should be run only once, to create the initial `data` and `logs` host folders with the expected permissions. 
+When using Linux as host, you can get the script `create_volumes.sh` in Docker Compose folder. The script should be run only once, and be the first one to be executed, before the docker-compose up command, to create the initial `data` and `logs` host folders with the expected permissions. 
 ```
 
 ## Passing parameters from command line
@@ -329,6 +329,8 @@ Following folder structure is generated when Docker Compose is running. Dependin
 ## Docker Volumes
 
 In order to enable persistent storage, several Docker Volumes are configured by default. When using from Linux, some permissions on your local folders need to be set.
+
+>> You can skip all the following steps and have the volumes automatically configured by using the create_volumes.sh script optionally created during the project creation.
 
 Identifying the right UID for every folder can be obtained by starting Docker Compose without the volumes declaration. Following lines should be commented in `docker-compose.yml` file.
 
@@ -545,4 +547,5 @@ If you want to build it locally, you need an environment with Node.js and Yeoman
 
 ```bash
 $ npm link
+$ npm update
 ```

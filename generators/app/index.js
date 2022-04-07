@@ -203,9 +203,6 @@ module.exports = class extends Generator {
       },
       {
         // Provide volumes permission script for Linux OS
-        when: function () {
-          return !process.platform == 'win32' && !process.platform == 'darwin';
-        },
         type: 'confirm',
         name: 'volumesscript',
         message: 'Do you want to get the script to create host volumes?',
