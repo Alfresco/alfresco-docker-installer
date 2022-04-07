@@ -547,4 +547,5 @@ If you want to build it locally, you need an environment with Node.js and Yeoman
 
 ```bash
 $ npm link
+$ npm update
 ```
