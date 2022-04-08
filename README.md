@@ -194,9 +194,10 @@ The wrapper script for the docker-compose file allows nice features as a wait fo
 
 ```
 ? Do you want to get the script to create host volumes? No
+```
 
 When using Linux as host, you can get the script `create_volumes.sh` in Docker Compose folder. The script should be run only once, and be the first one to be executed, before the docker-compose up command, to create the initial `data` and `logs` host folders with the expected permissions. 
-```
+
 
 ## Passing parameters from command line
 
