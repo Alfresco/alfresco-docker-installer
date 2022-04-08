@@ -216,6 +216,7 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 * `--ldap`: true or false
 * `--addons`: list of addons to be installed: js-console, ootbee-support-tools, share-site-creators, simple-ocr, alf-tengine-ocr, esign-cert
 * `--startscript`: true or false
+* `--volumesscript`: true or false
 * `--https`: true or false
 * `--serverName`: localhost default
 * `--password`: admin user default password
