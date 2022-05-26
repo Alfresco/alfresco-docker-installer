@@ -351,6 +351,10 @@ Identifying the right UID for every folder can be obtained by starting Docker Co
 #        volumes:
 #            - ./data/solr-data:/opt/alfresco-search-services/data
 
+    activemq:
+#        volumes:
+#            - activemq-data:/opt/activemq/data <% } %>
+
 ```
 
 Once the volumes have been commented, start Docker Compose.
@@ -417,7 +421,7 @@ $ sudo chown -R 999 data/postgres-data
 $ sudo chown -R 999 logs/postgres
 ```
 
-And finally, permissions for `alfresco` user inside Alfresco Docker Image may be adjusted.
+Additionally, permissions for `alfresco` user inside Alfresco Docker Image may be adjusted.
 
 ```
 $ docker ps
@@ -441,6 +445,13 @@ Stop Docker Container and set the right permissions on your host folder.
 ```
 $ sudo chown -R 33000 data/alf-repo-data
 $ sudo chown -R 33000 logs/alfresco
+```
+
+Finally, you may set the right permissions for `activemq` Docker Image by using following commands:
+
+```
+$ mkdir -p ./data/activemq-data
+$ sudo chown -R 33031 data/activemq-data
 ```
 
 Uncomment the lines in your `docker-compose.yml` for the volumes declaration and your Docker Compose should be ready to use.
