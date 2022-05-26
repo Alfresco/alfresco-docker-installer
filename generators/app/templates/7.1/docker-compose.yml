@@ -123,6 +123,8 @@ services:
         environment:
             JAVA_OPTS: "
                 -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
+                -Dserver.tomcat.threads.max=12
+                -Dserver.tomcat.threads.min=4
               "
 
     share:
