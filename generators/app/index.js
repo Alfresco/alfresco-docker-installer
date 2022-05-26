@@ -150,6 +150,7 @@ module.exports = class extends Generator {
       {
         type: 'checkbox',
         name: 'addons',
+        pageSize: 10,
         message: 'Select the addons to be installed:',
         choices: [
           {
@@ -185,6 +186,11 @@ module.exports = class extends Generator {
           {
             name: 'ESign Cert 1.8.2',
             value: 'esign-cert',
+            checked: false
+          },
+          {
+            name: 'Edit with LibreOffice in Alfresco Share 0.3.0',
+            value: 'share-online-edition',
             checked: false
           }
         ]
@@ -403,6 +409,13 @@ module.exports = class extends Generator {
       )
     }
 
+    if (this.props.addons.includes('share-online-edition')) {
+      this.fs.copy(
+        this.templatePath('addons/amps_share/zk-libreoffice-addon-share*.amp'),
+        this.destinationPath('share/modules/amps')
+      )
+    }
+
     if (this.props.startscript) {
       this.fs.copyTpl(
         this.templatePath('scripts/start.sh'),
@@ -455,6 +468,14 @@ module.exports = class extends Generator {
       '   to provide support for English, German, French, Spanish and Italian. \n' +
       '   Or you may build your customized Docker Image using https://github.com/aborroy/alf-tengine-ocr/tree/master/ats-transformer-ocr \n' +
       '   ---------------------------------------------------------------\n');
+    }
+
+    if (this.props.addons.includes('share-online-edition')) {
+      this.log('\n   ---------------------------------------------------\n' +
+      '   WARNING: You selected the addon share-online-edition. \n' +
+      '   Remember to register required protocol in your client computer. \n' +
+      '   Check https://github.com/zylklab/alfresco-share-online-edition-addon#registering-the-protocols \n' +
+      '   ---------------------------------------------------\n');
     }
 
   }
