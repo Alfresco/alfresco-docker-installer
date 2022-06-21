@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+mkdir -p ./data/alf-repo-data
+chown -R 33000 data/alf-repo-data
+
+mkdir -p ./logs/alfresco
+chown -R 33000 logs/alfresco
+
 mkdir -p ./data/solr-data
 chown 33007 ./data/solr-data
 
