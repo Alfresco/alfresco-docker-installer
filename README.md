@@ -136,6 +136,12 @@ Alfresco uses PostgreSQL by default, but alternatively `MariaDB` can be used as 
 By default, many organizations are storing document in different languages or the users are accessing the platform with browser configured in different languages. If this is your case, enable this configuration.
 
 ```
+? Do you want to search in the content of the documents?
+```
+
+By default, Alfresco is indexing the content of a document (in addition to the metadata). Disable this option if you don't require searching by the content of the documents.
+
+```
 ? Would you like to use HTTP or Shared Secret for Alfresco-SOLR communication?
   http  << Not available when using ACS 7.2+
   https

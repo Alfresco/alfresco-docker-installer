@@ -87,6 +87,12 @@ module.exports = class extends Generator {
         default: true
       },
       {
+        type: 'confirm',
+        name: 'enableContentIndexing',
+        message: 'Do you want to search in the content of the documents?',
+        default: true
+      },
+      {
         when: function (response) {
           return response.acsVersion == '7.1' || commandProps['acsVersion'] == '7.1'
         },
@@ -257,6 +263,7 @@ module.exports = class extends Generator {
         smtp: (this.props.smtp ? 'true' : 'false'),
         ldap: (this.props.ldap ? 'true' : 'false'),
         crossLocale: (this.props.crossLocale ? 'true' : 'false'),
+        disableContentIndexing: (this.props.enableContentIndexing ? 'false' : 'true'),
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
         transformerocr: (this.props.addons.includes('alf-tengine-ocr') ? 'true' : 'false'),
         port: this.props.port,

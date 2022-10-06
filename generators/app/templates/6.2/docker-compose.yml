@@ -212,6 +212,7 @@ services:
             ALFRESCO_HOSTNAME: alfresco
             ALFRESCO_COMMS: none
             CROSS_LOCALE: "<%=crossLocale%>"
+            DISABLE_CONTENT_INDEXING: "<%=disableContentIndexing%>"
         mem_limit: <%=ram/4%>m
         environment:
             #Solr needs to know how to register itself with Alfresco
