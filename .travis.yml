@@ -11,7 +11,7 @@ before_install:
   - npm install -g -d yo
   - npm install -g -d yeoman-generator
   - npm install --global generator-alfresco-docker-installer
-  - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --smtp=false --ldap=false --addons=js-console --startscript=false --windows=true --password=admin --volumesscript=false
+  - yo alfresco-docker-installer --acsVersion=6.2 --ram=8 --mariadb=false --https=false --serverName=localhost --port=80 --ftp=false --crossLocale=false --enableContentIndexing=true --smtp=false --ldap=false --addons=js-console --startscript=false --windows=true --password=admin --volumesscript=false
   # remove volume which create a permission denied issue
   - sed -i '\|logs/postgres|d' ./docker-compose.yml
 
