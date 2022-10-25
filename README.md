@@ -183,6 +183,7 @@ This service provides an internal OpenLDAP server (for authentication). If you w
   Alfresco OCR Transformer 1.0.0 (for ACS 7+)   : https://github.com/aborroy/alf-tengine-ocr
   ESign Cert 1.8.2                              : https://github.com/keensoft/alfresco-esign-cert
   Edit with LibreOffice in Alfresco Share 0.3.0 : https://github.com/zylklab/alfresco-share-online-edition-addon
+  Alfresco PDF Toolkit 1.4.x                    : https://github.com/OrderOfTheBee/alfresco-pdf-toolkit
 ```
 
 A small catalog of trusted *addons* is provided by default, but you can install any other using the deployment folders.

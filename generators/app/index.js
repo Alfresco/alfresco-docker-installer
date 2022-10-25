@@ -198,6 +198,11 @@ module.exports = class extends Generator {
             name: 'Edit with LibreOffice in Alfresco Share 0.3.0',
             value: 'share-online-edition',
             checked: false
+          },
+          {
+            name: 'Alfresco PDF Toolkit 1.4.4',
+            value: 'alfresco-pdf-toolkit',
+            checked: false
           }
         ]
       },
@@ -419,6 +424,24 @@ module.exports = class extends Generator {
     if (this.props.addons.includes('share-online-edition')) {
       this.fs.copy(
         this.templatePath('addons/amps_share/zk-libreoffice-addon-share*.amp'),
+        this.destinationPath('share/modules/amps')
+      )
+    }
+
+    if (this.props.addons.includes('alfresco-pdf-toolkit')) {
+      if (this.props.acsVersion.startsWith('7')) {
+        this.fs.copy(
+          this.templatePath('addons/amps/pdf-toolkit-repo-1.4.4-ACS-7*.amp'),
+          this.destinationPath('alfresco/modules/amps')
+        )
+      } else {
+        this.fs.copy(
+          this.templatePath('addons/amps/pdf-toolkit-repo-1.4.4-SNAPSHOT*.amp'),
+          this.destinationPath('alfresco/modules/amps')
+        )
+      }
+      this.fs.copy(
+        this.templatePath('addons/amps_share/pdf-toolkit-share*.amp'),
         this.destinationPath('share/modules/amps')
       )
     }
