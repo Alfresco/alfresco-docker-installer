@@ -6,7 +6,7 @@
 
 ## Description
 
-Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2, 7.0, 7.1 and 7.2 to be used in Docker Compose installations.
+Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2, 7.0, 7.1, 7.2 and 7.3 to be used in Docker Compose installations.
 
 This project generates a Docker Compose template ready to be used including following features:
 
@@ -82,10 +82,10 @@ $ yo alfresco-docker-installer
 Several options are provided in order to build the configuration.
 
 ```
-? Which ACS version do you want to use? 7.2
+? Which ACS version do you want to use? 7.3
 ```
 
-You can use Alfresco 6.1, 6.2, 7.0, 7.1 or 7.2
+You can use Alfresco 6.1, 6.2, 7.0, 7.1, 7.2 or 7.3
 
 ```
 ? How may GB RAM are available for Alfresco (16 is minimum required)? 16
@@ -217,7 +217,7 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 
 **Parameter names reference**
 
-* `--acsVersion`: 6.1, 6.2 or 7.0
+* `--acsVersion`: 6.1, 6.2, 7.0, 7.1, 7.2 or 7.3
 * `--ram`: number of GB available for Docker
 * `--mariadb`: true or false
 * `--crossLocale`: true or false

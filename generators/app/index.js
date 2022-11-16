@@ -23,8 +23,8 @@ module.exports = class extends Generator {
         type: 'list',
         name: 'acsVersion',
         message: 'Which ACS version do you want to use?',
-        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2' ],
-        default: '7.2'
+        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2', '7.3' ],
+        default: '7.3'
       },
       {
         type: 'input',
