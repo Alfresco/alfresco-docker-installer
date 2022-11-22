@@ -155,6 +155,12 @@ When using `secret` option (only available from 7.1.0), Alfresco and SOLR commun
 In addition, when using `https` option, communication between SOLR and Alfresco is using Mutual TLS. This protocol includes client authentication using digital certificates, that may be also a safe alternative.
 
 ```
+? Do you want to use the Events service (ActiveMQ)? No
+```
+
+This question is only available from ACS 7.3+. ActiveMQ for Community Edition is only required when using Out-Of-Process SDK, it may be omitted for other use cases.
+
+```
 ? Do you want to use credentials for Events service (ActiveMQ)? No
 ```
 

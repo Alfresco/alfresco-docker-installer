@@ -114,7 +114,18 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return response.acsVersion >= '7.1'  || commandProps['acsVersion'] >= '7.1'
+          return response.acsVersion >= '7.3'  || commandProps['acsVersion'] >= '7.3'
+        },
+        type: 'confirm',
+        name: 'activemq',
+        message: 'Do you want to use the Events service (ActiveMQ)?',
+        default: false
+      },
+      {
+        when: function (response) {
+          return (response.activemq == undefined && (response.acsVersion >= '7.1' || commandProps['acsVersion'] >= '7.1')) ||
+                 ((response.acsVersion >= '7.3'  || commandProps['acsVersion'] >= '7.3') &&
+                 (response.activemq  || commandProps['activemq']))
         },
         type: 'confirm',
         name: 'activeMqCredentials',
@@ -282,6 +293,7 @@ module.exports = class extends Generator {
         // Generate random password for Repo-SOLR secret communication method
         secretPassword: Math.random().toString(36).slice(2),
         password: computeHashPassword(this.props.password),
+        activemq: (this.props.activemq ? 'true' : 'false'),
         activeMqCredentials: (this.props.activeMqCredentials ? 'true' : 'false'),
         activeMqUser: this.props.activeMqUser,
         activeMqPassword: this.props.activeMqPassword
@@ -344,6 +356,14 @@ module.exports = class extends Generator {
         this.templatePath('keystores'),
         this.destinationPath('keystores')
       );
+    }
+
+    // ActiveMQ
+    if (!this.props.activemq) {
+      this.fs.copy(
+        this.templatePath('addons/jars/activemq-broker-*.jar'),
+        this.destinationPath('alfresco/modules/jars')
+      );      
     }
 
     // Addons

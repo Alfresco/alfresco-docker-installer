@@ -62,10 +62,12 @@ services:
                 -Dshare.host=${SERVER_NAME}
                 -Dshare.port=<%=port%>
                 <% if (https == 'true') { %>-Dshare.protocol=https <%} else {%>-Dshare.protocol=http <%}%>
-                -Daos.baseUrlOverwrite=http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}/alfresco/aos
+                -Daos.baseUrlOverwrite=http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}/alfresco/aos<% if (activemq == 'true') { %>
                 -Dmessaging.broker.url="failover:(nio://activemq:61616)?timeout=3000&jms.useCompression=true"<% if (activeMqCredentials == 'true') { %>
                 -Dmessaging.broker.username=<%=activeMqUser%>
-                -Dmessaging.broker.password=<%=activeMqPassword%> <% } %>
+                -Dmessaging.broker.password=<%=activeMqPassword%> <% } %> <% } %> <% if (activemq == 'false') { %>
+                -Dmessaging.broker.url=vm://localhost?broker.persistent=false
+                -Dalfresco.events.include=<% } %>
                 -Ddeployment.method=DOCKER_COMPOSE
                 -Dcsrf.filter.enabled=false <% if (ftp == 'true') { %>
                 -Dftp.enabled=true
@@ -255,6 +257,7 @@ services:
             - 8983:8983
         <% } %>
 
+    <% if (activemq == 'true') { %>
     activemq:
         image: alfresco/alfresco-activemq:${ACTIVEMQ_TAG}
         mem_limit: 1g<% if (activeMqCredentials == 'true') { %>
@@ -266,6 +269,7 @@ services:
         volumes: <% if (windows == 'false') { %>
             - ./data/activemq-data:/opt/activemq/data <% } %> <% if (windows == 'true') { %>
             - activemq-data:/opt/activemq/data <% } %>
+    <% } %>
 
     content-app:
         image: alfresco/alfresco-content-app:${ACA_TAG}
