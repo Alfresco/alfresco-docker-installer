@@ -181,7 +181,7 @@ module.exports = class extends Generator {
             checked: false
           },
           {
-            name: 'Order of the Bee Support Tools 1.0.0.0',
+            name: 'Order of the Bee Support Tools 1.2.0.0',
             value: 'ootbee-support-tools',
             checked: false
           },
@@ -367,7 +367,7 @@ module.exports = class extends Generator {
     }
 
     // Addons
-    if (this.props.addons.includes('js-console')) {
+    if (this.props.addons.includes('js-console') && !this.props.addons.includes('ootbee-support-tools')) {
       this.fs.copy(
         this.templatePath('addons/amps/javascript-console-repo-*.amp'),
         this.destinationPath('alfresco/modules/amps')
