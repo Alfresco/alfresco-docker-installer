@@ -88,6 +88,12 @@ Several options are provided in order to build the configuration.
 You can use Alfresco 6.1, 6.2, 7.0, 7.1, 7.2 or 7.3
 
 ```
+? Do you want to deploy Alfresco in ARCH64 computer (like Apple Silicon)?
+```
+
+Use ARCH64 Docker Images, mandatory when using Apple Silicon computers for deployment. This feature is only provided for ACS 7.3+
+
+```
 ? How may GB RAM are available for Alfresco (16 is minimum required)? 16
 ```
 

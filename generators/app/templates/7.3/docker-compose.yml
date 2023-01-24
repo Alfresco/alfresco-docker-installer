@@ -120,7 +120,7 @@ services:
             - 2434:2434 <% } %>
 
     transform-core-aio:
-        image: alfresco/alfresco-transform-core-aio:${TRANSFORM_ENGINE_TAG}
+        image: <%=repository%>/alfresco-transform-core-aio:${TRANSFORM_ENGINE_TAG}
         mem_limit: 2048m
         environment:
             JAVA_OPTS: "
@@ -272,7 +272,7 @@ services:
     <% } %>
 
     content-app:
-        image: alfresco/alfresco-content-app:${ACA_TAG}
+        image: <%=repository%>/alfresco-content-app:${ACA_TAG}
         mem_limit: 256m
         environment:
             APP_BASE_SHARE_URL: "http://${SERVER_NAME}:<%=port%>/#/preview/s"

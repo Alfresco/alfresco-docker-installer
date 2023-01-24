@@ -1,5 +1,5 @@
 ARG ALFRESCO_TAG
-FROM alfresco/alfresco-content-repository-community:${ALFRESCO_TAG}
+FROM <%=repository%>/alfresco-content-repository-community:${ALFRESCO_TAG}
 
 ARG TOMCAT_DIR=/usr/local/tomcat
 ARG IMAGEUSERNAME=alfresco

@@ -1,5 +1,5 @@
 ARG SEARCH_TAG
-FROM alfresco/alfresco-search-services:${SEARCH_TAG}
+FROM <%=repository%>/alfresco-search-services:${SEARCH_TAG}
 
 # COMMON
 ARG ALFRESCO_HOSTNAME

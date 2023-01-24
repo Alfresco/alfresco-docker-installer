@@ -27,6 +27,15 @@ module.exports = class extends Generator {
         default: '7.3'
       },
       {
+        when: function (response) {
+          return response.acsVersion >= '7.3'  || commandProps['acsVersion'] >= '7.3'
+        },
+        type: 'confirm',
+        name: 'arch',
+        message: 'Do you want to deploy Alfresco in ARCH64 computer (like Apple Silicon)?',
+        default: false
+      },
+      {
         type: 'input',
         name: 'ram',
         message: 'How may GB RAM are available for Alfresco (16 is minimum required)?',
@@ -296,7 +305,8 @@ module.exports = class extends Generator {
         activemq: (this.props.activemq ? 'true' : 'false'),
         activeMqCredentials: (this.props.activeMqCredentials ? 'true' : 'false'),
         activeMqUser: this.props.activeMqUser,
-        activeMqPassword: this.props.activeMqPassword
+        activeMqPassword: this.props.activeMqPassword,
+        repository: (this.props.arch ? 'angelborroy' : 'alfresco')
       }
     );
 
@@ -307,7 +317,8 @@ module.exports = class extends Generator {
       {
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
         ftp: (this.props.ftp ? 'true' : 'false'),
-        acsVersion: this.props.acsVersion
+        acsVersion: this.props.acsVersion,
+        repository: (this.props.arch ? 'angelborroy' : 'alfresco')
       }
     );
     this.fs.copyTpl(
@@ -323,14 +334,18 @@ module.exports = class extends Generator {
         port: this.props.port,
         https: (this.props.https ? 'true' : 'false'),
         googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false'),
-        acsVersion: this.props.acsVersion
+        acsVersion: this.props.acsVersion,
+        repository: (this.props.arch ? 'angelborroy' : 'alfresco')
       }
     );
 
     // Copy Docker Image for Search applying configuration
     this.fs.copyTpl(
       this.templatePath('images/search'),
-      this.destinationPath('search')
+      this.destinationPath('search'),
+      {
+        repository: (this.props.arch ? 'angelborroy' : 'alfresco')
+      }
     );
 
     // Copy NGINX Configuration
