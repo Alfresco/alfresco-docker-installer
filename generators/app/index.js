@@ -543,6 +543,23 @@ module.exports = class extends Generator {
       '   ---------------------------------------------------\n');
     }
 
+    // Service URLs
+    let protocol = this.props.https ? 'https://' : 'http://'
+    let port = this.props.port != 80 && this.props.port != 443 ? ':' + this.props.port : ''
+    this.log('\n---------------------------------------------------\n' +
+    'STARTING ALFRESCO\n\n' +
+    'Start Alfresco using the command "docker compose up"\n' +
+    'Once the plaform is ready, you will find a line similar to the following one in the terminal:\n' +
+    'alfresco-1 | org.apache.catalina.startup.Catalina.start Server startup in [NNNNN] milliseconds\n\n' +
+    'SERVICE URLs\n\n' +
+    '   * UI: ' + protocol + this.props.serverName + port + '/\n' +
+    '   * Legacy UI (users & groups management): ' + protocol + this.props.serverName + port + '/share\n' +
+    '   * Repository (REST API): ' + protocol + this.props.serverName + port + '/alfresco\n\n' +
+    'Remember to use as credentials: \n\n' +
+    '   * username: admin \n' +
+    '   * password: ' + this.props.password + '\n\n' +
+    '---------------------------------------------------\n');
+
   }
 
 };
