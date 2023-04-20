@@ -217,7 +217,7 @@ services:
             SOLR_SOLR_PORT: "8983"
             #Create the default alfresco and archive cores
             SOLR_CREATE_ALFRESCO_DEFAULTS: "alfresco,archive"
-            SOLR_JAVA_MEM: "-Xms<%=(ram/4) - 256%>m -Xmx<%=(ram/4) - 256%>m" <% if (solrHttpMode == 'https') { %>
+            SOLR_JAVA_MEM: "-Xms<%=(ram/4) - 512%>m -Xmx<%=(ram/4) - 512%>m" <% if (solrHttpMode == 'https') { %>
             SOLR_SSL_TRUST_STORE: "/opt/alfresco-search-services/keystore/ssl-repo-client.truststore"
             SOLR_SSL_TRUST_STORE_PASSWORD: "truststore"
             SOLR_SSL_TRUST_STORE_TYPE: "JCEKS"
