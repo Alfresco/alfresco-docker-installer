@@ -23,8 +23,8 @@ module.exports = class extends Generator {
         type: 'list',
         name: 'acsVersion',
         message: 'Which ACS version do you want to use?',
-        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2', '7.3' ],
-        default: '7.3'
+        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4' ],
+        default: '7.4'
       },
       {
         when: function (response) {
@@ -318,7 +318,7 @@ module.exports = class extends Generator {
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
         ftp: (this.props.ftp ? 'true' : 'false'),
         acsVersion: this.props.acsVersion,
-        repository: (this.props.arch ? 'angelborroy' : 'alfresco')
+        repository: (this.props.arch && this.props.acsVersion == '7.3' ? 'angelborroy' : 'alfresco')
       }
     );
     this.fs.copyTpl(
@@ -335,7 +335,7 @@ module.exports = class extends Generator {
         https: (this.props.https ? 'true' : 'false'),
         googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false'),
         acsVersion: this.props.acsVersion,
-        repository: (this.props.arch ? 'angelborroy' : 'alfresco')
+        repository: (this.props.arch && this.props.acsVersion == '7.3'  ? 'angelborroy' : 'alfresco')
       }
     );
 
@@ -374,7 +374,7 @@ module.exports = class extends Generator {
     }
 
     // ActiveMQ
-    if (!this.props.activemq) {
+    if (!this.props.activemq && this.props.acsVersion < '7.4') {
       this.fs.copy(
         this.templatePath('addons/jars/activemq-broker-*.jar'),
         this.destinationPath('alfresco/modules/jars')

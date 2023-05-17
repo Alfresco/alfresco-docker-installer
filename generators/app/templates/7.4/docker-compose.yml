@@ -1,0 +1,381 @@
+# Using version 2 as 3 does not support resource constraint options (cpu_*, mem_* limits) for non swarm mode in Compose
+version: "2"
+
+services:
+    alfresco:
+        build:
+          context: ./alfresco
+          args:
+            ALFRESCO_TAG: ${ALFRESCO_CE_TAG}
+            DB: <%=db%>
+            SOLR_COMMS: <%=secureComms%> <% if (solrHttpMode == 'https') { %>
+            TRUSTSTORE_TYPE: JCEKS
+            TRUSTSTORE_PASS: truststore
+            KEYSTORE_TYPE: JCEKS
+            KEYSTORE_PASS: keystore <% } %>
+        mem_limit: <%=ram/2%>m
+        depends_on: <% if (db == 'postgres') { %>
+            - postgres <% } %> <% if (db == 'mariadb') { %>
+            - mariadb <% } %>
+        environment:
+            JAVA_TOOL_OPTIONS: "
+                -Dencryption.keystore.type=JCEKS
+                -Dencryption.cipherAlgorithm=DESede/CBC/PKCS5Padding
+                -Dencryption.keyAlgorithm=DESede
+                -Dencryption.keystore.location=/usr/local/tomcat/shared/classes/alfresco/extension/keystore/keystore
+                -Dmetadata-keystore.password=mp6yc0UD9e
+                -Dmetadata-keystore.aliases=metadata
+                -Dmetadata-keystore.metadata.password=oKIWzVdEdA
+                -Dmetadata-keystore.metadata.algorithm=DESede<% if (solrHttpMode == 'https') { %>
+                -Dssl-keystore.password=keystore
+                -Dssl-keystore.aliases=ssl-alfresco-ca,ssl-repo
+                -Dssl-keystore.ssl-alfresco-ca.password=keystore
+                -Dssl-keystore.ssl-repo.password=keystore
+                -Dssl-truststore.password=truststore
+                -Dssl-truststore.aliases=alfresco-ca,ssl-repo-client
+                -Dssl-truststore.alfresco-ca.password=truststore
+                -Dssl-truststore.ssl-repo-client.password=truststore<% } %>
+                "
+            JAVA_OPTS : '
+                -Ddb.username=alfresco
+                -Ddb.password=alfresco<% if (db == "postgres") { %>
+                -Ddb.driver=org.postgresql.Driver
+                -Ddb.url=jdbc:postgresql://postgres:5432/alfresco <% } %> <% if (db == "mariadb") { %>
+                -Ddb.driver=org.mariadb.jdbc.Driver
+                -Ddb.url=jdbc:mysql://mariadb/alfresco?useUnicode=yes\&characterEncoding=UTF-8 <% } %>
+                -Dalfresco_user_store.adminpassword=<%=password%>
+                -Dsystem.preferred.password.encoding=bcrypt10
+                -Dsolr.host=solr6
+                -Dsolr.port=8983
+                -Dsolr.port.ssl=8983
+                -Dsolr.secureComms=<%=secureComms%>
+                -Dsolr.baseUrl=/solr
+                -Dindex.subsystem.name=solr6<% if (solrHttpMode == 'secret') { %>
+                -Dsolr.sharedSecret=<%=secretPassword%> <% } %> <% if (solrHttpMode == 'https') { %>
+                -Ddir.keystore=/usr/local/tomcat/keystore
+                -Dalfresco.encryption.ssl.keystore.type=JCEKS
+                -Dalfresco.encryption.ssl.truststore.type=JCEKS <% } %>
+                -Dalfresco.host=${SERVER_NAME}
+                -Dalfresco.port=<%=port%>
+                -Dapi-explorer.url=<% if (https == 'true') { %>https<%} else {%>http<%}%>://${SERVER_NAME}:<%=port%>/api-explorer
+                <% if (https == 'true') { %>-Dalfresco.protocol=https <%} else {%>-Dalfresco.protocol=http <%}%>
+                -Dshare.host=${SERVER_NAME}
+                -Dshare.port=<%=port%>
+                <% if (https == 'true') { %>-Dshare.protocol=https <%} else {%>-Dshare.protocol=http <%}%>
+                -Daos.baseUrlOverwrite=http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}/alfresco/aos<% if (activemq == 'true') { %>
+                -Dmessaging.broker.url="failover:(nio://activemq:61616)?timeout=3000&jms.useCompression=true"<% if (activeMqCredentials == 'true') { %>
+                -Dmessaging.broker.username=<%=activeMqUser%>
+                -Dmessaging.broker.password=<%=activeMqPassword%> <% } %> <% } %> <% if (activemq == 'false') { %>
+                -Drepo.event2.enabled=false<% } %>
+                -Ddeployment.method=DOCKER_COMPOSE
+                -Dcsrf.filter.enabled=false <% if (ftp == 'true') { %>
+                -Dftp.enabled=true
+                -Dftp.port=2121
+                -Dftp.dataPortFrom=2433
+                -Dftp.dataPortTo=2434 <% } %>
+                -Dopencmis.server.override=true
+                -Dopencmis.server.value=http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}:<%=port%>
+                -DlocalTransform.core-aio.url=http://transform-core-aio:8090/ <% if (transformerocr == 'true') { %>
+                -DlocalTransform.ocr.url=http://transform-ocr:8090/ <% } %>
+                -Dcsrf.filter.enabled=false
+                -Dalfresco.restApi.basicAuthScheme=true
+                -Dauthentication.protection.enabled=false
+                -XX:+UseG1GC -XX:+UseStringDeduplication
+                <% if (googledocs == 'false') {%>-Dgoogledocs.enabled=false <%} else {%>-Dgoogledocs.enabled=true <%}%>
+                -Xms<%=(ram/2) - 512%>m -Xmx<%=(ram/2) - 512%>m <% if (smtp == "true") { %>
+                -Dmail.host=smtp
+                -Dmail.port=25
+                -Dmail.username=anonymous
+                -Dmail.password=
+                -Dmail.protocol=smtp
+                -Dmail.smtps.starttls.enable=false
+                -Dmail.smtps.auth=false <% } %> <% if (ldap == "true") { %>
+                -Dauthentication.chain=alfinst:alfrescoNtlm,ldap1:ldap
+                -Dldap.authentication.active=true
+                -Dldap.authentication.java.naming.provider.url=ldap://openldap:389
+                -Dldap.authentication.userNameFormat=uid=%s,dc=keensoft,dc=es
+                -Dldap.synchronization.active=false <% } %> <% if (ocr == "true") { %>
+                -Docr.command=/opt/alfresco/bin/ocrmypdf.sh
+                -Docr.output.verbose=true
+                -Docr.output.file.prefix.command=
+                -Docr.extra.commands="-j1 --author keensoft --rotate-pages -l spa+eng+fra --deskew --clean --skip-text"
+                -Docr.server.os=linux <% } %>
+                -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
+            '
+        volumes: <% if (windows == 'false') { %>
+            - ./data/alf-repo-data:/usr/local/tomcat/alf_data
+            - ./logs/alfresco:/usr/local/tomcat/logs <% if (ocr == 'true') { %>
+            - ./data/ocr/input:/ocr_input
+            - ./data/ocr/output:/ocr_output <% } %> <% } %> <% if (windows == 'true') { %>
+            - alf-repo-data:/usr/local/tomcat/alf_data
+            - alf-repo-logs:/usr/local/tomcat/logs <% if (ocr == 'true') { %>
+            - alf-repo-ocr-input:/ocr_input
+            - alf-repo-ocr-output:/ocr_output <% } %> <% } %> <% if (solrHttpMode == 'https') { %>
+            - ./keystores/alfresco:/usr/local/tomcat/keystore <% } %>
+        <% if (ftp == 'true') { %>
+        ports:
+            - 2121:2121
+            - 2433:2433
+            - 2434:2434 <% } %>
+
+    transform-core-aio:
+        image: <%=repository%>/alfresco-transform-core-aio:${TRANSFORM_ENGINE_TAG}
+        mem_limit: 2048m
+        environment:
+            JAVA_OPTS: "
+              -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
+              -Dserver.tomcat.threads.max=12
+              -Dserver.tomcat.threads.min=4
+              -Dlogging.level.org.alfresco.transform.common.TransformerDebug=ERROR
+              -Dlogging.level.org.alfresco.transform=ERROR
+              -Dlogging.level.org.apache.fontbox.ttf=ERROR
+              -Dlogging.level.org.apache.pdfbox.cos.COSDocument=ERROR
+              -Dlogging.level.org.apache.pdfbox.pdfparser=ERROR
+              -Dlogging.level.org.apache.pdfbox.filter.FlateFilter=ERROR
+              -Dlogging.level.org.apache.pdfbox.pdmodel.font=ERROR
+              -Dlogging.level.org.apache.pdfbox.pdmodel.font.PDSimpleFont=FATAL
+              -Dlogging.level.org.apache.pdfbox.pdmodel.font.PDFont=FATAL
+              -Dlogging.level.org.apache.pdfbox.pdmodel.font.PDCIDFont=FATAL
+            "
+
+    share:
+        build:
+          context: ./share
+          args:
+            SHARE_TAG: ${SHARE_TAG}
+            SERVER_NAME: ${SERVER_NAME}
+        mem_limit: <%=ram/8%>m
+        environment:
+            REPO_HOST: "alfresco"
+            REPO_PORT: "8080"
+            CSRF_FILTER_REFERER: "http<% if (https == 'true') { %>s<%}%>://<%=serverName%>:<%=port%>/.*"
+            CSRF_FILTER_ORIGIN: "http<% if (https == 'true') { %>s<%}%>://<%=serverName%>:<%=port%>"
+            JAVA_OPTS: "
+                -Xms<%=(ram/8) - 128%>m -Xmx<%=(ram/8) - 128%>m
+                -Dalfresco.context=alfresco
+                -Dalfresco.protocol=http<% if (https == 'true') { %>s<%}%>
+                -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
+                "
+        volumes: <% if (windows == 'false') { %>
+            - ./logs/share:/usr/local/tomcat/logs <% } %> <% if (windows == 'true') { %>
+            - alf-share-logs:/usr/local/tomcat/logs <% } %>
+
+    <% if (db == 'postgres') { %>
+    postgres:
+        image: postgres:${POSTGRES_TAG}
+        mem_limit: <%=ram/8%>m
+        environment:
+            - POSTGRES_PASSWORD=alfresco
+            - POSTGRES_USER=alfresco
+            - POSTGRES_DB=alfresco
+        command: "
+            postgres
+              -c max_connections=200
+              -c logging_collector=on
+              -c log_min_messages=LOG
+              -c log_directory=/var/log/postgresql"
+        ports:
+            - 5432:5432
+        volumes: <% if (windows == 'false') { %>
+            - ./data/postgres-data:/var/lib/postgresql/data
+            - ./logs/postgres:/var/log/postgresql <% } %> <% if (windows == 'true') { %>
+            - postgres-data:/var/lib/postgresql/data
+            - postgres-logs:/var/log/postgresql <% } %>
+    <% } %> <% if (db == 'mariadb') { %>
+    mariadb:
+        image: mariadb:${MARIADB_TAG}
+        mem_limit: <%=ram/8%>m
+        environment:
+            - MYSQL_ROOT_PASSWORD=alfresco
+            - MYSQL_DATABASE=alfresco
+            - MYSQL_USER=alfresco
+            - MYSQL_PASSWORD=alfresco
+        command: "
+            --character-set-server=utf8
+            --collation-server=utf8_bin
+            --lower_case_table_names=1
+            --max_connections=200
+            --innodb-flush-method=O_DIRECT
+            --wait_timeout=28800"
+        volumes: <% if (windows == 'false') { %>
+            - ./data/mariadb_data:/var/lib/mysql
+            - ./logs/mariadb:/var/log/mysql <% } %> <% if (windows == 'true') { %>
+            - mariadb-data:/var/lib/mysql
+            - mariadb-logs:/var/log/mysql <% } %>
+        ports:
+            - 3306:3306
+    <% } %>
+
+    solr6:
+        build:
+          context: ./search
+          args:
+            SEARCH_TAG: ${SEARCH_CE_TAG}
+            SOLR_HOSTNAME: solr6
+            ALFRESCO_HOSTNAME: alfresco
+            ALFRESCO_COMMS: <%=secureComms%> <% if (solrHttpMode == 'https') { %>
+            TRUSTSTORE_TYPE: JCEKS
+            KEYSTORE_TYPE: JCEKS <% } %>
+            CROSS_LOCALE: "<%=crossLocale%>"
+            DISABLE_CONTENT_INDEXING: "<%=disableContentIndexing%>"
+        mem_limit: <%=ram/4%>m
+        environment:
+            #Solr needs to know how to register itself with Alfresco
+            SOLR_ALFRESCO_HOST: "alfresco"
+            SOLR_ALFRESCO_PORT: <% if (solrHttpMode == 'https') { %> "8443" <% } else { %> "8080" <% } %>
+            #Alfresco needs to know how to call solr
+            SOLR_SOLR_HOST: "solr6"
+            SOLR_SOLR_PORT: "8983"
+            #Create the default alfresco and archive cores
+            SOLR_CREATE_ALFRESCO_DEFAULTS: "alfresco,archive"
+            SOLR_JAVA_MEM: "-Xms<%=(ram/4) - 512%>m -Xmx<%=(ram/4) - 512%>m" <% if (solrHttpMode == 'https') { %>
+            SOLR_SSL_TRUST_STORE: "/opt/alfresco-search-services/keystore/ssl-repo-client.truststore"
+            SOLR_SSL_TRUST_STORE_PASSWORD: "truststore"
+            SOLR_SSL_TRUST_STORE_TYPE: "JCEKS"
+            SOLR_SSL_KEY_STORE: "/opt/alfresco-search-services/keystore/ssl-repo-client.keystore"
+            SOLR_SSL_KEY_STORE_PASSWORD: "keystore"
+            SOLR_SSL_KEY_STORE_TYPE: "JCEKS"
+            SOLR_SSL_NEED_CLIENT_AUTH: "true"
+            JAVA_TOOL_OPTIONS: "
+                -Dsolr.jetty.truststore.password=truststore
+                -Dsolr.jetty.keystore.password=keystore
+                -Dssl-keystore.password=keystore
+                -Dssl-keystore.aliases=ssl-alfresco-ca,ssl-repo-client
+                -Dssl-keystore.ssl-alfresco-ca.password=keystore
+                -Dssl-keystore.ssl-repo-client.password=keystore
+                -Dssl-truststore.password=truststore
+                -Dssl-truststore.aliases=ssl-alfresco-ca,ssl-repo,ssl-repo-client
+                -Dssl-truststore.ssl-alfresco-ca.password=truststore
+                -Dssl-truststore.ssl-repo.password=truststore
+                -Dssl-truststore.ssl-repo-client.password=truststore
+            " <% } %>
+            SOLR_OPTS: "
+                -XX:NewSize=<%=(ram/8) - 256%>m
+                -XX:MaxNewSize=<%=(ram/8) - 256%>m<% if (solrHttpMode == 'secret') { %>
+                -Dalfresco.secureComms.secret=<%=secretPassword%><% } %> <% if (solrHttpMode == 'https') { %>
+                -Dsolr.ssl.checkPeerName=false
+                -Dsolr.allow.unsafe.resourceloading=true <% } %>
+            "
+        volumes: <% if (windows == 'false') { %>
+            - ./data/solr-data:/opt/alfresco-search-services/data <% } %> <% if (windows == 'true') { %>
+            - solr-data:/opt/alfresco-search-services/data <% } %> <% if (solrHttpMode == 'https') { %>
+            - ./keystores/solr:/opt/alfresco-search-services/keystore <% } %>
+        <% if (solrHttpMode == 'https') { %>
+        ports:
+            - 8983:8983
+        <% } %>
+
+    <% if (activemq == 'true') { %>
+    activemq:
+        image: alfresco/alfresco-activemq:${ACTIVEMQ_TAG}
+        mem_limit: 1g<% if (activeMqCredentials == 'true') { %>
+        environment:
+            ACTIVEMQ_ADMIN_LOGIN: "<%=activeMqUser%>"
+            ACTIVEMQ_ADMIN_PASSWORD: "<%=activeMqPassword%>" <% } %>
+        ports:
+            - 8161:8161
+        volumes: <% if (windows == 'false') { %>
+            - ./data/activemq-data:/opt/activemq/data <% } %> <% if (windows == 'true') { %>
+            - activemq-data:/opt/activemq/data <% } %>
+    <% } %>
+
+    content-app:
+        image: <%=repository%>/alfresco-content-app:${ACA_TAG}
+        mem_limit: 256m
+        environment:
+            APP_BASE_SHARE_URL: "http://${SERVER_NAME}:<%=port%>/#/preview/s"
+        depends_on:
+            - alfresco
+
+    # HTTP proxy to provide HTTP Default port access to services
+    # SOLR API and SOLR Web Console are protected to avoid unauthenticated access
+    proxy:
+        image: nginx:stable-alpine
+        mem_limit: 128m
+        depends_on:
+            - alfresco
+            - solr6
+            - share
+            - content-app
+        volumes:
+            - ./config/nginx.conf:/etc/nginx/nginx.conf
+            - ./config/nginx.htpasswd:/etc/nginx/conf.d/nginx.htpasswd <% if (https == 'true') { %>
+            - ./config/cert/localhost.cer:/etc/nginx/localhost.cer
+            - ./config/cert/localhost.key:/etc/nginx/localhost.key <% } %>
+        ports:
+            - <%=port%>:<%=port%>
+
+    <% if (smtp == 'true') { %>
+    smtp:
+        image: mwader/postfix-relay
+        mem_limit: 128m
+    <% } %>
+
+    <% if (ldap == 'true') { %>
+    openldap:
+        image: osixia/openldap:1.4.0
+        mem_limit: 128m
+        container_name: openldap
+        environment:
+          LDAP_DOMAIN: "alfresco.org"
+          LDAP_BASE_DN: "dc=alfresco,dc=org"
+          LDAP_ADMIN_PASSWORD: "admin"
+        volumes:
+            - ./data/slapd/database:/var/lib/ldap
+            - ./data/slapd/config:/etc/ldap/slapd.d
+
+    phpldapadmin:
+        image: osixia/phpldapadmin
+        mem_limit: 128m
+        container_name: phpldapadmin
+        environment:
+          PHPLDAPADMIN_LDAP_HOSTS: "openldap"
+          PHPLDAPADMIN_HTTPS=false:
+        links:
+            - openldap
+        depends_on:
+            - openldap
+        ports:
+            - 8088:80
+    <% } %>
+
+    <% if (ocr == 'true') { %>
+    ocrmypdf:
+        build: ./ocrmypdf
+        mem_limit: 512m
+        hostname: ocrmypdf
+        volumes: <% if (windows == 'false') { %>
+            - ./data/ocr/input:/ocr_input
+            - ./data/ocr/output:/ocr_output <% } %> <% if (windows == 'true') { %>
+            - ocr-input:/ocr_input
+            - ocr-output:/ocr_output <% } %>
+    <% } %>
+
+    <% if (transformerocr == 'true') { %>
+    transform-ocr:
+        image: angelborroy/alfresco-tengine-ocr:1.0.0
+        mem_limit: 1536m
+        environment:
+          JAVA_OPTS: "
+              -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
+              -Dserver.tomcat.threads.max=4
+              -Dserver.tomcat.threads.min=1
+            "
+    <% } %>
+
+<% if (windows == 'true') { %>
+volumes:
+    alf-repo-data:
+    activemq-data:
+    alf-repo-logs: <% if (ocr == 'true') { %>
+    alf-repo-ocr-input:
+    alf-repo-ocr-output: <% } %>
+    alf-share-logs: <% if (db == 'postgres') { %>
+    postgres-data:
+    postgres-logs: <% } %> <% if (db == 'mariadb') { %>
+    mariadb-data:
+    mariadb-logs: <% } %>
+    solr-data: <% if (ocr == 'true') { %>
+    ocr-input:
+    ocr-output: <% } %>
+<% } %>
