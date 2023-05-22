@@ -90,7 +90,8 @@ services:
                 -Dmail.password=
                 -Dmail.protocol=smtp
                 -Dmail.smtps.starttls.enable=false
-                -Dmail.smtps.auth=false <% } %> <% if (ldap == "true") { %>
+                -Dmail.smtps.auth=false <% } else { %> 
+                -Ddev.email.not.sent=true <% } if (ldap == "true") { %>
                 -Dauthentication.chain=alfinst:alfrescoNtlm,ldap1:ldap
                 -Dldap.authentication.active=true
                 -Dldap.authentication.java.naming.provider.url=ldap://openldap:389
