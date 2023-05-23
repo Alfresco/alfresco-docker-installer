@@ -52,6 +52,23 @@ And finally, you can install this generator:
 $ npm install --global generator-alfresco-docker-installer
 ```
 
+**Note for NodeJS 16+**
+
+When using NodeJS 16+, depending on your terminal, it's required to run one of the commands below before using the project.
+
+```
+# macOS, Linux and Windows Git Bash
+export NODE_OPTIONS=--openssl-legacy-provider
+
+# Windows Command Prompt:
+set NODE_OPTIONS=--openssl-legacy-provider
+
+# Windows PowerShell:
+$env:NODE_OPTIONS="--openssl-legacy-provider"
+```
+
+**Deployment**
+
 Deployment is provided for Docker Compose, so following dependencies must be satisfied by the server used to run the generated configuration:
 
 * Docker
