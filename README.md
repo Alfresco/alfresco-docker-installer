@@ -32,6 +32,8 @@ This program has following dependencies:
 * Node.js
 * Yeoman
 
+Yoeman requires the Node to have a version higher than v14.0.0
+
 You can download and install `Node.js` from official web page:
 
 https://nodejs.org/en/download/
