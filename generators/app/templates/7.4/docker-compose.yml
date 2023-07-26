@@ -252,6 +252,7 @@ services:
                 -Dssl-truststore.ssl-repo-client.password=truststore
             " <% } %>
             SOLR_OPTS: "
+                -XX:-UseLargePages
                 -XX:NewSize=<%=(ram/8) - 256%>m
                 -XX:MaxNewSize=<%=(ram/8) - 256%>m<% if (solrHttpMode == 'secret') { %>
                 -Dalfresco.secureComms.secret=<%=secretPassword%><% } %> <% if (solrHttpMode == 'https') { %>
