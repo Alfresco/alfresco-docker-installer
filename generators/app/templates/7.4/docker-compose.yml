@@ -77,7 +77,10 @@ services:
                 -Dopencmis.server.override=true
                 -Dopencmis.server.value=http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}:<%=port%>
                 -DlocalTransform.core-aio.url=http://transform-core-aio:8090/ <% if (transformerocr == 'true') { %>
-                -DlocalTransform.ocr.url=http://transform-ocr:8090/ <% } %>
+                -DlocalTransform.ocr.url=http://transform-ocr:8090/
+                -Dhttpclient.config.transform.socketTimeout=500000
+                -Dhttpclient.config.transform.connectionRequestTimeout=500000
+                -Dhttpclient.config.transform.connectionTimeout=500000 <% } %>
                 -Dcsrf.filter.enabled=false
                 -Dalfresco.restApi.basicAuthScheme=true
                 -Dauthentication.protection.enabled=false
