@@ -76,17 +76,16 @@ services:
                 -Dftp.dataPortTo=2434 <% } %>
                 -Dopencmis.server.override=true
                 -Dopencmis.server.value=http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}:<%=port%>
-                -DlocalTransform.core-aio.url=http://transform-core-aio:8090/ <% if (transformerocr == 'true') { %>
+                -DlocalTransform.core-aio.url=http://transform-core-aio:8090/ 
+                -Dhttpclient.config.transform.connectionRequestTimeout=500000<% if (transformerocr == 'true') { %>
                 -DlocalTransform.ocr.url=http://transform-ocr:8090/
                 -Dhttpclient.config.transform.socketTimeout=500000
-                -Dhttpclient.config.transform.connectionRequestTimeout=500000
                 -Dhttpclient.config.transform.connectionTimeout=500000 <% } %>
                 -Dcsrf.filter.enabled=false
                 -Dalfresco.restApi.basicAuthScheme=true
                 -Dauthentication.protection.enabled=false
                 -XX:+UseG1GC -XX:+UseStringDeduplication
-                <% if (googledocs == 'false') {%>-Dgoogledocs.enabled=false <%} else {%>-Dgoogledocs.enabled=true <%}%>
-                -Xms<%=(ram/2) - 512%>m -Xmx<%=(ram/2) - 512%>m <% if (smtp == "true") { %>
+                <% if (googledocs == 'false') {%>-Dgoogledocs.enabled=false <%} else {%>-Dgoogledocs.enabled=true <%}%> <% if (smtp == "true") { %>
                 -Dmail.host=smtp
                 -Dmail.port=25
                 -Dmail.username=anonymous
@@ -233,8 +232,7 @@ services:
             SOLR_SOLR_HOST: "solr6"
             SOLR_SOLR_PORT: "8983"
             #Create the default alfresco and archive cores
-            SOLR_CREATE_ALFRESCO_DEFAULTS: "alfresco,archive"
-            SOLR_JAVA_MEM: "-Xms<%=(ram/4) - 512%>m -Xmx<%=(ram/4) - 512%>m" <% if (solrHttpMode == 'https') { %>
+            SOLR_CREATE_ALFRESCO_DEFAULTS: "alfresco,archive" <% if (solrHttpMode == 'https') { %>
             SOLR_SSL_TRUST_STORE: "/opt/alfresco-search-services/keystore/ssl-repo-client.truststore"
             SOLR_SSL_TRUST_STORE_PASSWORD: "truststore"
             SOLR_SSL_TRUST_STORE_TYPE: "JCEKS"
@@ -257,8 +255,7 @@ services:
             " <% } %>
             SOLR_OPTS: "
                 -XX:-UseLargePages
-                -XX:NewSize=<%=(ram/8) - 256%>m
-                -XX:MaxNewSize=<%=(ram/8) - 256%>m<% if (solrHttpMode == 'secret') { %>
+                -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80<% if (solrHttpMode == 'secret') { %>
                 -Dalfresco.secureComms.secret=<%=secretPassword%><% } %> <% if (solrHttpMode == 'https') { %>
                 -Dsolr.ssl.checkPeerName=false
                 -Dsolr.allow.unsafe.resourceloading=true <% } %>
