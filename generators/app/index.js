@@ -210,7 +210,7 @@ module.exports = class extends Generator {
             checked: false
           },
           {
-            name: 'ESign Cert 1.8.2',
+            name: 'ESign Cert 1.8.2 (available only till Alfresco 7.3)',
             value: 'esign-cert',
             checked: false
           },
@@ -446,14 +446,18 @@ module.exports = class extends Generator {
     }
 
     if (this.props.addons.includes('esign-cert')) {
-      this.fs.copy(
-        this.templatePath('addons/amps/esign-cert-repo-*.amp'),
-        this.destinationPath('alfresco/modules/amps')
-      );
-      this.fs.copy(
-        this.templatePath('addons/amps_share/esign-cert-share-*.amp'),
-        this.destinationPath('share/modules/amps')
-      )
+      if (this.props.acsVersion < '7.4') {
+        this.fs.copy(
+          this.templatePath('addons/amps/esign-cert-repo-*.amp'),
+          this.destinationPath('alfresco/modules/amps')
+        );
+        this.fs.copy(
+          this.templatePath('addons/amps_share/esign-cert-share-*.amp'),
+          this.destinationPath('share/modules/amps')
+        )
+      } else {
+        this.log("\nWARNING: Module 'esing-cert' is not available for Alfresco 7.4+")
+      }
     }
 
     if (this.props.addons.includes('share-online-edition')) {
