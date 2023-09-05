@@ -210,7 +210,7 @@ module.exports = class extends Generator {
             checked: false
           },
           {
-            name: 'ESign Cert 1.8.2 (available only till Alfresco 7.3)',
+            name: 'ESign Cert 1.8.3 (available only till Alfresco 7.3)',
             value: 'esign-cert',
             checked: false
           },
