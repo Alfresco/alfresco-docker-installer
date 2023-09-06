@@ -212,7 +212,7 @@ This service provides an internal OpenLDAP server (for authentication). If you w
   Share Site Creators 0.0.8                     : https://github.com/jpotts/share-site-creators
   Simple OCR 2.3.1 (for ACS 6.x)                : https://github.com/keensoft/alfresco-simple-ocr
   Alfresco OCR Transformer 1.0.0 (for ACS 7+)   : https://github.com/aborroy/alf-tengine-ocr
-  ESign Cert 1.8.3                              : https://github.com/ambientelivre/alfresco-esign-cert
+  ESign Cert 1.8.4                              : https://github.com/ambientelivre/alfresco-esign-cert
   Edit with LibreOffice in Alfresco Share 0.3.0 : https://github.com/zylklab/alfresco-share-online-edition-addon
   Alfresco PDF Toolkit 1.4.x                    : https://github.com/OrderOfTheBee/alfresco-pdf-toolkit
 ```
