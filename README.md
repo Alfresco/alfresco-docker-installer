@@ -220,10 +220,10 @@ This service provides an internal OpenLDAP server (for authentication). If you w
 A small catalog of trusted *addons* is provided by default, but you can install any other using the deployment folders.
 
 ```
-? Are you using a Windows host to run Docker?
+? Do you want Docker to manage volume storage (recommended when dealing with permission issues)?
 ```
 
-When using a Windows host to run Docker, standard [Docker Volumes](https://docs.docker.com/storage/volumes/) are used instead of [Bind Docker Volumes](https://docs.docker.com/storage/bind-mounts/). This options is easier to run in Docker Windows environments.
+Standard [Docker Volumes](https://docs.docker.com/storage/volumes/) can be used instead of [Bind Docker Volumes](https://docs.docker.com/storage/bind-mounts/). This options is easier to run in environments with folder permission issues.
 
 ```
 ? Do you want to use a start script? Yes

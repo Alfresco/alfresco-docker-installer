@@ -229,7 +229,7 @@ module.exports = class extends Generator {
       {
         type: 'confirm',
         name: 'windows',
-        message: 'Are you using a Windows host to run Docker?',
+        message: 'Do you want Docker to manage volume storage (recommended when dealing with permission issues)?',
         default: false
       },
       {
@@ -378,7 +378,7 @@ module.exports = class extends Generator {
       this.fs.copy(
         this.templatePath('addons/jars/activemq-broker-*.jar'),
         this.destinationPath('alfresco/modules/jars')
-      );      
+      );
     }
 
     // Addons
