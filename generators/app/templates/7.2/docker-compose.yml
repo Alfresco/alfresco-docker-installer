@@ -122,6 +122,7 @@ services:
         image: alfresco/alfresco-transform-core-aio:${TRANSFORM_ENGINE_TAG}
         mem_limit: 2048m
         environment:
+            ACTIVEMQ_URL: "nio://activemq:61616"
             JAVA_OPTS: "
               -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
               -Dserver.tomcat.threads.max=12
@@ -344,6 +345,7 @@ services:
         image: angelborroy/alfresco-tengine-ocr:1.0.0
         mem_limit: 1536m
         environment:
+          ACTIVEMQ_URL: "nio://activemq:61616"
           JAVA_OPTS: "
               -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
               -Dserver.tomcat.threads.max=4
