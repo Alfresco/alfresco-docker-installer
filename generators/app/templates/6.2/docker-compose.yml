@@ -101,6 +101,7 @@ services:
         image: alfresco/alfresco-pdf-renderer:${TRANSFORM_ENGINE_TAG}
         mem_limit: 512m
         environment:
+            ACTIVEMQ_URL: "nio://activemq:61616"
             JAVA_OPTS: " -Xms256m -Xmx512m"
         ports:
             - 8090:8090
@@ -109,6 +110,7 @@ services:
         image: alfresco/alfresco-imagemagick:${TRANSFORM_ENGINE_TAG}
         mem_limit: 512m
         environment:
+            ACTIVEMQ_URL: "nio://activemq:61616"
             JAVA_OPTS: " -Xms256m -Xmx512m"
         ports:
             - 8091:8090
@@ -117,6 +119,7 @@ services:
         image: alfresco/alfresco-libreoffice:${TRANSFORM_ENGINE_TAG}
         mem_limit: 512m
         environment:
+            ACTIVEMQ_URL: "nio://activemq:61616"
             JAVA_OPTS: " -Xms512m -Xmx1024m"
         ports:
             - 8092:8090
@@ -125,6 +128,7 @@ services:
         image: alfresco/alfresco-tika:${TRANSFORM_ENGINE_TAG}
         mem_limit: 512m
         environment:
+            ACTIVEMQ_URL: "nio://activemq:61616"
             JAVA_OPTS: " -Xms512m -Xmx1024m"
         ports:
             - 8093:8090
@@ -133,6 +137,7 @@ services:
         image: alfresco/alfresco-transform-misc:${TRANSFORM_ENGINE_TAG}
         mem_limit: 512m
         environment:
+            ACTIVEMQ_URL: "nio://activemq:61616"
             JAVA_OPTS: " -Xms256m -Xmx512m"
         ports:
             - 8094:8090
