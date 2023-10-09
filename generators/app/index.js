@@ -335,7 +335,8 @@ module.exports = class extends Generator {
         https: (this.props.https ? 'true' : 'false'),
         googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false'),
         acsVersion: this.props.acsVersion,
-        repository: (this.props.arch && this.props.acsVersion == '7.3'  ? 'angelborroy' : 'alfresco')
+        repository: (this.props.arch && this.props.acsVersion == '7.3'  ? 'angelborroy' : 'alfresco'),
+        serverName: this.props.serverName
       }
     );
 
