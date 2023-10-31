@@ -190,7 +190,7 @@ module.exports = class extends Generator {
             checked: false
           },
           {
-            name: 'Order of the Bee Support Tools 1.2.0.0',
+            name: 'Order of the Bee Support Tools 1.2.1.0',
             value: 'ootbee-support-tools',
             checked: false
           },

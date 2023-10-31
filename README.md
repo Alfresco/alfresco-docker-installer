@@ -208,7 +208,7 @@ This service provides an internal OpenLDAP server (for authentication). If you w
 ? Select the addons to be installed:
   Google Docs 3.1.0                             : https://github.com/Alfresco/google-docs/tree/V3.0.3
   JavaScript Console 0.7                        : https://github.com/AFaust/js-console
-  Order of the Bee Support Tools 1.1.0.0        : https://github.com/OrderOfTheBee/ootbee-support-tools
+  Order of the Bee Support Tools 1.2.1.0        : https://github.com/OrderOfTheBee/ootbee-support-tools
   Share Site Creators 0.0.8                     : https://github.com/jpotts/share-site-creators
   Simple OCR 2.3.1 (for ACS 6.x)                : https://github.com/keensoft/alfresco-simple-ocr
   Alfresco OCR Transformer 1.0.0 (for ACS 7+)   : https://github.com/aborroy/alf-tengine-ocr
