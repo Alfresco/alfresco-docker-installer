@@ -11,7 +11,7 @@ RUN sed -i '/Connector port="8080"/a scheme="https" secure="true"' /usr/local/to
     sed -i "/Connector port=\"8080\"/a proxyName=\"${SERVER_NAME}\" proxyPort=\"<%=port%>\"" /usr/local/tomcat/conf/server.xml
 <% } %>
 
-<%if (googledocs == 'false' && acsVersion < '7') { %>
+<%if (googledocs == 'false' && acsVersion < '7' && acsVersion > '5') { %>
 # Uninstall manually Share GoogleDocs module
 RUN rm $TOMCAT_DIR/webapps/share/WEB-INF/lib/alfresco-googledocs-share-community-*.jar && \
     rm $TOMCAT_DIR/webapps/share/WEB-INF/classes/alfresco/web-extension/custom-slingshot-googledocs-context.xml && \

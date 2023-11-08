@@ -16,7 +16,7 @@ COPY modules/jars $TOMCAT_DIR/webapps/alfresco/WEB-INF/lib
 RUN java -jar $TOMCAT_DIR/alfresco-mmt/alfresco-mmt*.jar install \
     $TOMCAT_DIR/amps $TOMCAT_DIR/webapps/alfresco -directory -nobackup -force
 
-<%if (acsVersion < '7') { %>
+<%if (acsVersion < '7' && acsVersion > '5') { %>
 # Install api-explorer webapp for REST API for ACS 6.x versions
 ARG API_EXPLORER_TAG
 ENV API_EXPLORER_TAG $API_EXPLORER_TAG
