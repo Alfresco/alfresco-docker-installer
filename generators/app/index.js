@@ -108,7 +108,8 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return response.acsVersion === '7.1' || commandProps['acsVersion'] === '7.1'
+          var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
+          return version === '7.1'
         },
         type: 'list',
         name: 'solrHttpMode',
@@ -118,7 +119,8 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return compare(response.acsVersion, '7.2', '>=') || compare(commandProps['acsVersion'], '7.2', '>=')
+          var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
+          return compare(version, '7.2', '>=')
         },
         type: 'list',
         name: 'solrHttpMode',
@@ -128,7 +130,8 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return compare(response.acsVersion, '7.3', '>=')  || compare(commandProps['acsVersion'], '7.3', '>=')
+          var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
+          return compare(version, '7.3', '>=')
         },
         type: 'confirm',
         name: 'activemq',
@@ -139,7 +142,8 @@ module.exports = class extends Generator {
         when: function (response) {
           var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
           return compare(version, '7.1', '>=') &&
-                 (response.activemq === undefined || response.activemq || commandProps['activemq'])
+                 !(response.activemq === undefined) &&
+                 (response.activemq || commandProps['activemq'])
         },
         type: 'confirm',
         name: 'activeMqCredentials',

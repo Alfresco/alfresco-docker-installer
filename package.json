@@ -1,6 +1,6 @@
 {
   "name": "generator-alfresco-docker-installer",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Alfresco Docker Installer",
   "homepage": "https://github.com/Alfresco/alfresco-docker-installer",
   "author": "Angel Borroy <angel.fernandoborroy@hyland.com>",
@@ -30,7 +30,7 @@
     "chalk": "^2.4.2",
     "compare-versions": "^6.1.0",
     "smbhash": "0.0.1",
-    "wait-on": "7.0.1",
+    "wait-on": "^7.2.0",
     "yeoman-generator": "^5.10.0",
     "yosay": "^2.0.2"
   },
