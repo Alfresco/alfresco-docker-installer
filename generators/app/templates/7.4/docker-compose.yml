@@ -76,7 +76,7 @@ services:
                 -Dftp.dataPortTo=2434 <% } %>
                 -Dopencmis.server.override=true
                 -Dopencmis.server.value=http<% if (https == 'true') { %>s<%}%>://${SERVER_NAME}:<%=port%>
-                -DlocalTransform.core-aio.url=http://transform-core-aio:8090/ 
+                -DlocalTransform.core-aio.url=http://transform-core-aio:8090/
                 -Dhttpclient.config.transform.connectionRequestTimeout=500000<% if (transformerocr == 'true') { %>
                 -DlocalTransform.ocr.url=http://transform-ocr:8090/
                 -Dhttpclient.config.transform.socketTimeout=500000
@@ -92,7 +92,7 @@ services:
                 -Dmail.password=
                 -Dmail.protocol=smtp
                 -Dmail.smtps.starttls.enable=false
-                -Dmail.smtps.auth=false <% } else { %> 
+                -Dmail.smtps.auth=false <% } else { %>
                 -Ddev.email.not.sent=true <% } if (ldap == "true") { %>
                 -Dauthentication.chain=alfinst:alfrescoNtlm,ldap1:ldap
                 -Dldap.authentication.active=true
@@ -124,7 +124,7 @@ services:
 
     transform-core-aio:
         image: <%=repository%>/alfresco-transform-core-aio:${TRANSFORM_ENGINE_TAG}
-        restart: on-failure  
+        restart: on-failure
         mem_limit: 2048m
         environment:
             JAVA_OPTS: "
@@ -225,6 +225,7 @@ services:
             DISABLE_CONTENT_INDEXING: "<%=disableContentIndexing%>"
         mem_limit: <%=ram/4%>m
         environment:
+            SOLR_JAVA_MEM: "-XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80"
             #Solr needs to know how to register itself with Alfresco
             SOLR_ALFRESCO_HOST: "alfresco"
             SOLR_ALFRESCO_PORT: <% if (solrHttpMode == 'https') { %> "8443" <% } else { %> "8080" <% } %>
@@ -254,8 +255,7 @@ services:
                 -Dssl-truststore.ssl-repo-client.password=truststore
             " <% } %>
             SOLR_OPTS: "
-                -XX:-UseLargePages
-                -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80<% if (solrHttpMode == 'secret') { %>
+                -XX:-UseLargePages<% if (solrHttpMode == 'secret') { %>
                 -Dalfresco.secureComms.secret=<%=secretPassword%><% } %> <% if (solrHttpMode == 'https') { %>
                 -Dsolr.ssl.checkPeerName=false
                 -Dsolr.allow.unsafe.resourceloading=true <% } %>
