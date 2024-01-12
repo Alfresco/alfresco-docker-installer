@@ -12,7 +12,8 @@ services:
             TRUSTSTORE_TYPE: JCEKS
             TRUSTSTORE_PASS: truststore
             KEYSTORE_TYPE: JCEKS
-            KEYSTORE_PASS: keystore <% } %>
+            KEYSTORE_PASS: keystore
+            CERT_ALIAS: ssl.repo <% } %>
         mem_limit: <%=ram/2%>m
         depends_on: <% if (db == 'postgres') { %>
             - postgres <% } %> <% if (db == 'mariadb') { %>
@@ -88,7 +89,7 @@ services:
                 -Dmail.password=
                 -Dmail.protocol=smtp
                 -Dmail.smtps.starttls.enable=false
-                -Dmail.smtps.auth=false <% } else { %> 
+                -Dmail.smtps.auth=false <% } else { %>
                 -Ddev.email.not.sent=true <% } if (ldap == "true") { %>
                 -Dauthentication.chain=alfinst:alfrescoNtlm,ldap1:ldap
                 -Dldap.authentication.active=true

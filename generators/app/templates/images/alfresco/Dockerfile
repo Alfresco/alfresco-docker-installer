@@ -69,26 +69,35 @@ ARG TRUSTSTORE_TYPE
 ARG TRUSTSTORE_PASS
 ARG KEYSTORE_TYPE
 ARG KEYSTORE_PASS
+ARG CERT_ALIAS
 
 ENV TRUSTSTORE_TYPE=$TRUSTSTORE_TYPE \
     TRUSTSTORE_PASS=$TRUSTSTORE_PASS \
     KEYSTORE_TYPE=$KEYSTORE_TYPE \
-    KEYSTORE_PASS=$KEYSTORE_PASS
+    KEYSTORE_PASS=$KEYSTORE_PASS \
+    CERT_ALIAS=$CERT_ALIAS
 
 # Enable SSL by adding the proper Connector to server.xml
 RUN if [ "$SOLR_COMMS" == "https" ] ; then \
       sed -i "s/\
 [[:space:]]\+<\/Engine>/\n\
         <\/Engine>\n\
-        <Connector port=\"8443\" protocol=\"HTTP\/1.1\"\n\
-            connectionTimeout=\"20000\"\n\
-            SSLEnabled=\"true\" maxThreads=\"150\" scheme=\"https\" clientAuth=\"want\" sslProtocol=\"TLS\" sslEnabledProtocols=\"TLSv1.2\"\n\
-            keystoreFile=\"\/usr\/local\/tomcat\/keystore\/ssl.keystore\"\n\
-            keystorePass=\"${KEYSTORE_PASS}\" keystoreType=\"${KEYSTORE_TYPE}\" secure=\"true\"\n\
-            truststoreFile=\"\/usr\/local\/tomcat\/keystore\/ssl.truststore\"\n\
-            truststorePass=\"${TRUSTSTORE_PASS}\" truststoreType=\"${TRUSTSTORE_TYPE}\">\n\
+        <Connector port=\"8443\" protocol=\"org.apache.coyote.http11.Http11NioProtocol\"\n\
+            connectionTimeout=\"20000\" maxThreads=\"150\"\n\
+            SSLEnabled=\"true\" scheme=\"https\" secure=\"true\"\n\
+            defaultSSLHostConfigName=\"localhost\">\n\
+                <SSLHostConfig hostName=\"localhost\" protocols=\"TLSv1.2\"\n\
+                    certificateVerification=\"required\"\n\
+                    truststoreFile=\"\/usr\/local\/tomcat\/keystore\/ssl.truststore\"\n\
+                    truststorePassword=\"${TRUSTSTORE_PASS}\" truststoreType=\"${TRUSTSTORE_TYPE}\">\n\
+                    <Certificate certificateKeystoreFile=\"\/usr\/local\/tomcat\/keystore\/ssl.keystore\"\n\
+                       certificateKeyAlias=\"${CERT_ALIAS}\" type=\"RSA\"\n\
+                       certificateKeystorePassword=\"${KEYSTORE_PASS}\" certificateKeystoreType=\"${KEYSTORE_TYPE}\"\/>\n\
+                <\/SSLHostConfig>\n\
         <\/Connector>/g" ${TOMCAT_DIR}/conf/server.xml; \
     fi
+
+
 
 <% if (ftp == 'true') { %>
 EXPOSE 2121 2433 2434
