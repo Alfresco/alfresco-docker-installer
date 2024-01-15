@@ -41,6 +41,7 @@ services:
                 -Dcsrf.filter.enabled=false <% if (ftp == 'true') { %>
                 -Dftp.enabled=true
                 -Dftp.port=2121
+                -Dftp.externalAddress=${SERVER_NAME}
                 -Dftp.dataPortFrom=2433
                 -Dftp.dataPortTo=2434 <% } %>
                 -Dopencmis.server.override=true
@@ -69,7 +70,7 @@ services:
                 -Dmail.password=
                 -Dmail.protocol=smtp
                 -Dmail.smtps.starttls.enable=false
-                -Dmail.smtps.auth=false <% } else { %> 
+                -Dmail.smtps.auth=false <% } else { %>
                 -Ddev.email.not.sent=true <% } if (ldap == "true") { %>
                 -Dauthentication.chain=alfinst:alfrescoNtlm,ldap1:ldap
                 -Dldap.authentication.active=true

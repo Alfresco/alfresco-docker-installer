@@ -71,6 +71,7 @@ services:
                 -Dcsrf.filter.enabled=false <% if (ftp == 'true') { %>
                 -Dftp.enabled=true
                 -Dftp.port=2121
+                -Dftp.externalAddress=${SERVER_NAME}
                 -Dftp.dataPortFrom=2433
                 -Dftp.dataPortTo=2434 <% } %>
                 -Dopencmis.server.override=true
