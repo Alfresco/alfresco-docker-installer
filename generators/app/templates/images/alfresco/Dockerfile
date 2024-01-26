@@ -45,6 +45,7 @@ fi
 <% if (ocr == 'true') { %>
 # SSH keys for ocrmypdf
 COPY ssh/ /root/.ssh/
+COPY ssh/ /home/alfresco/.ssh/
 
 # Install OCR
 COPY bin/ /opt/alfresco/bin/
@@ -57,7 +58,8 @@ RUN set -x && \
     echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
     # Alfresco Image is using POSIX as Locale (!)
     sed -i '/^\s*SendEnv/ d' /etc/ssh/ssh_config && \
-    chmod 600 /root/.ssh/id_rsa
+    chmod 600 /root/.ssh/id_rsa && \
+    chown alfresco /home/alfresco/.ssh/id_rsa && chmod 600 /home/alfresco/.ssh/id_rsa
 <% } %>
 
 # COMMS
