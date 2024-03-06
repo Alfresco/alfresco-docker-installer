@@ -210,6 +210,7 @@ This service provides an internal OpenLDAP server (for authentication). If you w
   JavaScript Console 0.7                        : https://github.com/AFaust/js-console
   Order of the Bee Support Tools 1.2.1.0        : https://github.com/OrderOfTheBee/ootbee-support-tools
   Share Site Creators 0.0.8                     : https://github.com/jpotts/share-site-creators
+  Share Site Space Templates 1.1.4-SNAPSHOT     : https://github.com/jpotts/share-site-space-templates
   Simple OCR 2.3.1 (for ACS 6.x)                : https://github.com/keensoft/alfresco-simple-ocr
   Alfresco OCR Transformer 1.0.0 (for ACS 7+)   : https://github.com/aborroy/alf-tengine-ocr
   ESign Cert 1.8.4                              : https://github.com/ambientelivre/alfresco-esign-cert

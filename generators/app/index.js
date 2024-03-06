@@ -211,6 +211,11 @@ module.exports = class extends Generator {
             checked: false
           },
           {
+            name: 'Share Site Space Templates 1.1.4-SNAPSHOT',
+            value: 'share-site-space-templates',
+            checked: false
+          },
+          {
             name: 'Simple OCR 2.3.1 (for Alfresco 6.x)',
             value: 'simple-ocr',
             checked: false
@@ -425,6 +430,13 @@ module.exports = class extends Generator {
         this.templatePath('addons/amps_share/share-site-creators-share-*.amp'),
         this.destinationPath('share/modules/amps')
       )
+    }
+
+    if (this.props.addons.includes('share-site-space-templates')) {
+      this.fs.copy(
+        this.templatePath('addons/amps/share-site-space-templates-repo-*.amp'),
+        this.destinationPath('alfresco/modules/amps')
+      );
     }
 
     if (this.props.addons.includes('simple-ocr')) {
