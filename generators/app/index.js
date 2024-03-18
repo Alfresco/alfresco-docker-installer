@@ -599,6 +599,11 @@ function normalize(option, prompt) {
       return option;
   }
 
+  // Fix acsVersion value type
+  if (prompt.name === 'acsVersion') {
+    option = String(option);
+  }
+
   return option;
 
 }
