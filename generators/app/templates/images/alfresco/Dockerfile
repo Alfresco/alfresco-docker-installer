@@ -88,7 +88,7 @@ RUN if [ "$SOLR_COMMS" == "https" ] ; then \
             connectionTimeout=\"20000\" maxThreads=\"150\"\n\
             SSLEnabled=\"true\" scheme=\"https\" secure=\"true\"\n\
             defaultSSLHostConfigName=\"localhost\">\n\
-                <SSLHostConfig hostName=\"localhost\" protocols=\"TLSv1.2\"\n\
+                <SSLHostConfig hostName=\"localhost\" protocols=\"TLSv1.3\"\n\
                     certificateVerification=\"required\"\n\
                     truststoreFile=\"\/usr\/local\/tomcat\/keystore\/ssl.truststore\"\n\
                     truststorePassword=\"${TRUSTSTORE_PASS}\" truststoreType=\"${TRUSTSTORE_TYPE}\">\n\
