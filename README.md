@@ -11,7 +11,7 @@ Since Alfresco Installer was discontinued from Alfresco 5.2, this project provid
 This project generates a Docker Compose template ready to be used including following features:
 
 * RAM limits for every service according to global memory available for Docker
-* PostgreSQL or MariaDB as database (no other option but MySQL is supported for Community)
+* The project supports PostgreSQL and MariaDB as databases, but MySQL can also be used for the Community edition.
 * Search Services configured for environments using several languages for contents or from operative systems / browsers
 * Outbound Email service (smtp)
 * LDAP service for identification (based in OpenLDAP)
