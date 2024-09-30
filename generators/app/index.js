@@ -22,6 +22,62 @@ module.exports = class extends Generator {
 
     var commandProps = new Map();
 
+    const allAddons = [
+      {
+        name: 'Google Docs 3.x',
+        value: 'google-docs',
+        checked: false
+      },
+      {
+        name: 'JavaScript Console 0.7',
+        value: 'js-console',
+        checked: false
+      },
+      {
+        name: 'Order of the Bee Support Tools 1.2.2.0',
+        value: 'ootbee-support-tools',
+        checked: false
+      },
+      {
+        name: 'Share Site Creators 0.0.8',
+        value: 'share-site-creators',
+        checked: false
+      },
+      {
+        name: 'Share Site Space Templates 1.1.4-SNAPSHOT',
+        value: 'share-site-space-templates',
+        checked: false
+      },
+      {
+        name: 'Simple OCR 2.3.1 (for Alfresco 6.x)',
+        value: 'simple-ocr',
+        checked: false,
+        acsVersions: ['6.1', '6.2']
+      },
+      {
+        name: 'Alfresco OCR Transformer 1.0.0 (for Alfresco 7+)',
+        value: 'alf-tengine-ocr',
+        checked: false,
+        acsVersions: ['7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2']
+      },
+      {
+        name: 'ESign Cert 1.8.4',
+        value: 'esign-cert',
+        checked: false
+      },
+      {
+        name: 'Edit with LibreOffice in Alfresco Share 0.3.0',
+        value: 'share-online-edition',
+        checked: false
+      },
+      {
+        name: 'Alfresco PDF Toolkit 1.4.4',
+        value: 'alfresco-pdf-toolkit',
+        checked: false,
+        acsVersions: ['6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4']
+      }
+    ];
+
     const prompts = [
       {
         type: 'list',
@@ -189,58 +245,12 @@ module.exports = class extends Generator {
         name: 'addons',
         pageSize: 10,
         message: 'Select the addons to be installed:',
-        choices: [
-          {
-            name: 'Google Docs 3.1.0',
-            value: 'google-docs',
-            checked: false
-          },
-          {
-            name: 'JavaScript Console 0.7',
-            value: 'js-console',
-            checked: false
-          },
-          {
-            name: 'Order of the Bee Support Tools 1.2.2.0',
-            value: 'ootbee-support-tools',
-            checked: false
-          },
-          {
-            name: 'Share Site Creators 0.0.8',
-            value: 'share-site-creators',
-            checked: false
-          },
-          {
-            name: 'Share Site Space Templates 1.1.4-SNAPSHOT',
-            value: 'share-site-space-templates',
-            checked: false
-          },
-          {
-            name: 'Simple OCR 2.3.1 (for Alfresco 6.x)',
-            value: 'simple-ocr',
-            checked: false
-          },
-          {
-            name: 'Alfresco OCR Transformer 1.0.0 (for Alfresco 7+)',
-            value: 'alf-tengine-ocr',
-            checked: false
-          },
-          {
-            name: 'ESign Cert 1.8.4',
-            value: 'esign-cert',
-            checked: false
-          },
-          {
-            name: 'Edit with LibreOffice in Alfresco Share 0.3.0',
-            value: 'share-online-edition',
-            checked: false
-          },
-          {
-            name: 'Alfresco PDF Toolkit 1.4.4',
-            value: 'alfresco-pdf-toolkit',
-            checked: false
-          }
-        ]
+        choices: (answers) => {
+          // Filter addons based on the selected ACS version
+          return allAddons.filter(addon =>
+            !addon.acsVersions || addon.acsVersions.includes(answers.acsVersion)
+          );
+        },
       },
       {
         type: 'confirm',
