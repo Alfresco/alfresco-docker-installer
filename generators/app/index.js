@@ -344,8 +344,7 @@ module.exports = class extends Generator {
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
         ftp: (this.props.ftp ? 'true' : 'false'),
         acsVersion: this.props.acsVersion,
-        repository: (this.props.arch && this.props.acsVersion === '7.3' ? 'angelborroy' : 'alfresco'),
-        mariadb: (this.props.mariadb)
+        repository: (this.props.arch && this.props.acsVersion === '7.3' ? 'angelborroy' : 'alfresco')
       }
     );
     this.fs.copyTpl(
