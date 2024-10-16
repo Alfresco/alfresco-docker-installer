@@ -344,7 +344,8 @@ module.exports = class extends Generator {
         ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
         ftp: (this.props.ftp ? 'true' : 'false'),
         acsVersion: this.props.acsVersion,
-        repository: (this.props.arch && this.props.acsVersion === '7.3' ? 'angelborroy' : 'alfresco')
+        repository: (this.props.arch && this.props.acsVersion === '7.3' ? 'angelborroy' : 'alfresco'),
+        mariadb: (this.props.mariadb)
       }
     );
     this.fs.copyTpl(
@@ -407,6 +408,12 @@ module.exports = class extends Generator {
         this.destinationPath('alfresco/modules/jars')
       );
     }
+
+    //Solve CentOS problem with mirrorlist.centos.org
+    this.fs.copy(
+      this.templatePath('addons/CentOS/CentOS-Base.repo'),
+      this.destinationPath('alfresco/CentOS-Base.repo')
+    );
 
     // Addons
     if (this.props.addons.includes('js-console') && !this.props.addons.includes('ootbee-support-tools')) {

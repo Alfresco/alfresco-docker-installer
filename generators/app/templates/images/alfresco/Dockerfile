@@ -32,9 +32,12 @@ RUN yum -y update && \
 ARG DB
 ENV DB $DB
 
+COPY CentOS-Base.repo /etc/yum.repos.d/
+
 # Install mysql JDBC driver
 RUN if [ "$DB" == "mariadb" ] ; then \
     set -x \
+        && yum clean all \
         && yum install -y wget \
         && yum clean all \
         && wget -P /tmp/ https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/2.7.4/mariadb-java-client-2.7.4.jar \
