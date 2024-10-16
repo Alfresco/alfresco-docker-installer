@@ -408,12 +408,6 @@ module.exports = class extends Generator {
       );
     }
 
-    //Solve CentOS problem with mirrorlist.centos.org
-    this.fs.copy(
-      this.templatePath('addons/CentOS/CentOS-Base.repo'),
-      this.destinationPath('alfresco/CentOS-Base.repo')
-    );
-
     // Addons
     if (this.props.addons.includes('js-console') && !this.props.addons.includes('ootbee-support-tools')) {
       this.fs.copy(
