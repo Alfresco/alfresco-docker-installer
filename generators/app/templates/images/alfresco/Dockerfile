@@ -32,9 +32,13 @@ RUN yum -y update && \
 ARG DB
 ENV DB $DB
 
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+
 # Install mysql JDBC driver
 RUN if [ "$DB" == "mariadb" ] ; then \
     set -x \
+        && yum clean all \
         && yum install -y wget \
         && yum clean all \
         && wget -P /tmp/ https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/2.7.4/mariadb-java-client-2.7.4.jar \
