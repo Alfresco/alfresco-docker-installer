@@ -32,8 +32,12 @@ RUN yum -y update && \
 ARG DB
 ENV DB $DB
 
-RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
-sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+RUN ls -la /etc/yum.repos.d/ && \
+    ((sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* 2>/dev/null) || \
+    (sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/Rocky-* && \
+    sed -i 's|#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=http://dl.rockylinux.org/$contentdir|g' /etc/yum.repos.d/Rocky-*)) || \
+    (dnf clean all && dnf makecache && dnf update -y)
 
 # Install mysql JDBC driver
 RUN if [ "$DB" == "mariadb" ] ; then \
