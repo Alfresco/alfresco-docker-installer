@@ -24,7 +24,7 @@ RUN yum -y update && \
  yum -y install wget && \
  yum clean all && \
  set -x \
-    && wget https://artifacts.alfresco.com/nexus/service/local/repositories/releases/content/org/alfresco/api-explorer/${API_EXPLORER_TAG}/api-explorer-${API_EXPLORER_TAG}.war \
+    && wget https://artifacts.alfresco.com/nexus/repository/releases/org/alfresco/api-explorer/${API_EXPLORER_TAG}/api-explorer-${API_EXPLORER_TAG}.war \
     -O /usr/local/tomcat/webapps/api-explorer.war
 <% } %>
 
