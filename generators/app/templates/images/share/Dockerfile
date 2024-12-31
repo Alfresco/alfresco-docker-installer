@@ -5,10 +5,10 @@ ARG TOMCAT_DIR=/usr/local/tomcat
 
 # Server data
 ARG SERVER_NAME
+ENV SERVER_NAME $SERVER_NAME
 
 <%if (https == 'true') { %>
-RUN sed -i '/Connector port="8080"/a scheme="https" secure="true"' /usr/local/tomcat/conf/server.xml && \
-    sed -i "/Connector port=\"8080\"/a proxyName=\"${SERVER_NAME}\" proxyPort=\"<%=port%>\"" /usr/local/tomcat/conf/server.xml
+RUN sed -i "/<Connector port=\"8080\"/s/\/>/ scheme=\"https\" secure=\"true\" proxyName=\"${SERVER_NAME}\" proxyPort=\"443\"\/>/g" /usr/local/tomcat/conf/server.xml
 <% } %>
 
 <%if (googledocs == 'false' && acsVersion < '7' && acsVersion > '5') { %>
