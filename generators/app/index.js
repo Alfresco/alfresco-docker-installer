@@ -122,15 +122,6 @@ module.exports = class extends Generator {
       },
       {
         when: function (response) {
-          return !response.https || !commandProps['https']
-        },
-        type: 'input',
-        name: 'port',
-        message: 'What HTTP port do you want to use (all the services are using the same port)?',
-        default: '80'
-      },
-      {
-        when: function (response) {
           return response.https || commandProps['https']
         },
         type: 'input',
@@ -139,10 +130,52 @@ module.exports = class extends Generator {
         default: '443'
       },
       {
+        when: function (response) {
+          return !response.https || !commandProps['https']
+        },
+        type: 'input',
+        name: 'port',
+        message: 'What HTTP port do you want to use (all the services are using the same port)?',
+        default: '80'
+      },
+      {
+        type: 'confirm',
+        name: 'configureHttpIp',
+        message: 'Do you want to specify a custom binding IP for HTTP?',
+        default: false
+      },
+      {
+        when: function (response) {
+          return response.configureHttpIp;
+        },
+        type: 'input',
+        name: 'httpBindingIp',
+        message: 'Enter the IP address to bind the HTTP service:',
+        default: '0.0.0.0'
+      },
+      {
         type: 'confirm',
         name: 'ftp',
         message: 'Do you want to use FTP (port 2121)?',
         default: false
+      },
+      {
+        when: function (response) {
+          return response.ftp;
+        },
+        type: 'confirm',
+        name: 'configureFtpIp',
+        message: 'Do you want to specify a custom binding IP for FTP?',
+        default: false
+      },
+      {
+        when: function (response) {
+          return response.ftp && response.configureFtpIp;
+        },
+        type: 'input',
+        name: 'ftpBindingIp',
+        message: 'Enter the IP address to bind the FTP service:',
+        default: '0.0.0.0'
       },
       {
         type: 'confirm',
@@ -300,7 +333,9 @@ module.exports = class extends Generator {
       this.templatePath(this.props.acsVersion + '/.env'),
       this.destinationPath('.env'),
       {
-        serverName: this.props.serverName
+        serverName: this.props.serverName,
+        bindIpFtp: this.props.ftpBindingIp,
+        bindIpNginx: this.props.httpBindingIp
       }
     )
 
@@ -332,7 +367,7 @@ module.exports = class extends Generator {
         activeMqCredentials: (this.props.activeMqCredentials ? 'true' : 'false'),
         activeMqUser: this.props.activeMqUser,
         activeMqPassword: this.props.activeMqPassword,
-        repository: (this.props.arch ? 'angelborroy' : 'alfresco')
+        repository: (this.props.arch ? 'angelborroy' : 'alfresco'),
       }
     );
 
@@ -382,7 +417,8 @@ module.exports = class extends Generator {
       {
         port: this.props.port,
         https: (this.props.https ? 'true' : 'false'),
-        solrHttps: (this.props.solrHttpMode === 'https' ? 'true' : 'false')
+        solrHttps: (this.props.solrHttpMode === 'https' ? 'true' : 'false'),
+        ldap: (this.props.ldap ? 'true' : 'false')
       }
     );
     if (this.props.https) {

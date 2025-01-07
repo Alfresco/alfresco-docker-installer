@@ -131,9 +131,9 @@ services:
             - ./keystores/alfresco:/usr/local/tomcat/keystore <% } %>
         <% if (ftp == 'true') { %>
         ports:
-            - 2121:2121
-            - 2433:2433
-            - 2434:2434 <% } %>
+            - ${BIND_IP_FTP:-0.0.0.0}:2121:2121
+            - ${BIND_IP_FTP:-0.0.0.0}:2433:2433
+            - ${BIND_IP_FTP:-0.0.0.0}:2434:2434 <% } %>
 
     transform-core-aio:
         image: <%=repository%>/alfresco-transform-core-aio:${TRANSFORM_ENGINE_TAG}
@@ -200,8 +200,6 @@ services:
           interval: 10s
           timeout: 5s
           retries: 5
-        ports:
-            - 5432:5432
         volumes: <% if (windows == 'false') { %>
             - ./data/postgres-data:/var/lib/postgresql/data
             - ./logs/postgres:/var/log/postgresql <% } %> <% if (windows == 'true') { %>
@@ -233,8 +231,6 @@ services:
             - ./logs/mariadb:/var/log/mysql <% } %> <% if (windows == 'true') { %>
             - mariadb-data:/var/lib/mysql
             - mariadb-logs:/var/log/mysql <% } %>
-        ports:
-            - 3306:3306
     <% } %>
 
     solr6:
@@ -293,10 +289,6 @@ services:
             - ./data/solr-data:/opt/alfresco-search-services/data <% } %> <% if (windows == 'true') { %>
             - solr-data:/opt/alfresco-search-services/data <% } %> <% if (solrHttpMode == 'https') { %>
             - ./keystores/solr:/opt/alfresco-search-services/keystore <% } %>
-        <% if (solrHttpMode == 'https') { %>
-        ports:
-            - 8983:8983
-        <% } %>
 
     <% if (activemq == 'true') { %>
     activemq:
@@ -305,8 +297,6 @@ services:
         environment:
             ACTIVEMQ_ADMIN_LOGIN: "<%=activeMqUser%>"
             ACTIVEMQ_ADMIN_PASSWORD: "<%=activeMqPassword%>" <% } %>
-        ports:
-            - 8161:8161
         volumes: <% if (windows == 'false') { %>
             - ./data/activemq-data:/opt/activemq/data <% } %> <% if (windows == 'true') { %>
             - activemq-data:/opt/activemq/data <% } %>
@@ -338,7 +328,7 @@ services:
             - ./config/cert/localhost.cer:/etc/nginx/localhost.cer
             - ./config/cert/localhost.key:/etc/nginx/localhost.key <% } %>
         ports:
-            - <%=port%>:<%=port%>
+            - ${BIND_IP_NGINX:-0.0.0.0}:<%=port%>:<%=port%>
 
     <% if (smtp == 'true') { %>
     smtp:
@@ -370,8 +360,6 @@ services:
             - openldap
         depends_on:
             - openldap
-        ports:
-            - 8088:80
     <% } %>
 
     <% if (ocr == 'true') { %>

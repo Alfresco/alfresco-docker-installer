@@ -6,7 +6,7 @@
 
 ## Description
 
-Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1 and 23.2 to be used in Docker Compose installations.
+Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2, 7.x and 23.x to be used in Docker Compose installations.
 
 This project generates a Docker Compose template ready to be used including following features:
 
@@ -104,7 +104,7 @@ Several options are provided in order to build the configuration.
 ? Which ACS version do you want to use? 23.4
 ```
 
-You can use Alfresco 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3or 23.4
+You can use Alfresco 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3 or 23.4
 
 ```
 ? Do you want to deploy Alfresco in ARCH64 computer (like Apple Silicon)?
@@ -143,10 +143,27 @@ Alfresco provides `admin` password by default, choose a different one for new de
 HTTP port to be used by every service. If you are running on a Linux computer, you'll need to specify a port greater than 1024 when not starting as `root` user.
 
 ```
+? Do you want to specify a custom binding IP for HTTP? No
+```
+
+If you choose 'No', the default binding IP (0.0.0.0) will be used, allowing the HTTP service to accept requests from all network interfaces on the server. Selecting 'No' is suitable for most configurations where no specific network restrictions are required.
+
+```
 ? Do you want to use FTP (port 2121)? No
 ```
 
 Enable configuration for FTP, using by default port 2121.
+
+```
+? Do you want to specify a custom binding IP for FTP? No
+```
+
+If you choose 'No', the default binding IP (0.0.0.0) will be used, allowing the FTP service to accept requests from all network interfaces on the server. Selecting 'No' is suitable for most configurations where no specific network restrictions are required.
+
+```
+Enter the IP address to bind the FTP service:
+```
+Specify the IP address that the FTP service should bind to. The default value (0.0.0.0) allows the FTP service to listen for connections on all available network interfaces.
 
 ```
 ? Do you want to use MariaDB instead of PostgreSQL? No
