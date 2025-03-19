@@ -101,10 +101,10 @@ $ yo alfresco-docker-installer
 Several options are provided in order to build the configuration.
 
 ```
-? Which ACS version do you want to use? 23.4
+? Which ACS version do you want to use? 25.1
 ```
 
-You can use Alfresco 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3 or 23.4
+You can use Alfresco 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4 or 25.1
 
 ```
 ? Do you want to deploy Alfresco in ARCH64 computer (like Apple Silicon)?
@@ -266,7 +266,7 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 
 **Parameter names reference**
 
-* `--acsVersion`: 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3 or 23.4
+* `--acsVersion`: 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4 or 25.1
 * `--ram`: number of GB available for Docker
 * `--mariadb`: true or false
 * `--crossLocale`: true or false
