@@ -8,6 +8,10 @@ ARG IMAGEUSERNAME=alfresco
 # change to root user to be able to install the addons and packages
 USER root
 
+# Fix centos mirrors for Alfresco 6.x
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* || true && \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* || true
+
 # Install modules and addons
 RUN mkdir -p $TOMCAT_DIR/amps
 COPY modules/amps $TOMCAT_DIR/amps
