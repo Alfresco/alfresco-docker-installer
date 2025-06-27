@@ -4,7 +4,7 @@
 'use strict';
 const Generator = require('yeoman-generator');
 var banner = require('./banner')
-var nthash = require('smbhash').nthash;
+const { createMD4 } = require('hash-wasm');
 var compare = require('compare-versions').compare;
 
 /**
@@ -327,311 +327,318 @@ module.exports = class extends Generator {
 
   // Generate boilerplate from "templates" folder
   writing() {
-
-    // Docker Compose environment variables values
-    this.fs.copyTpl(
-      this.templatePath(this.props.acsVersion + '/.env'),
-      this.destinationPath('.env'),
-      {
-        serverName: this.props.serverName,
-        bindIpFtp: this.props.ftpBindingIp,
-        bindIpNginx: this.props.httpBindingIp
-      }
-    )
-
-    // Copy Docker Compose applying configuration
-    this.fs.copyTpl(
-      this.templatePath(this.props.acsVersion + '/docker-compose.yml'),
-      this.destinationPath('docker-compose.yml'),
-      {
-        ram: getAvailableMemory(this.props),
-        db: (this.props.mariadb ? 'mariadb' : 'postgres'),
-        smtp: (this.props.smtp ? 'true' : 'false'),
-        ldap: (this.props.ldap ? 'true' : 'false'),
-        crossLocale: (this.props.crossLocale ? 'true' : 'false'),
-        disableContentIndexing: (this.props.enableContentIndexing ? 'false' : 'true'),
-        ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
-        transformerocr: (this.props.addons.includes('alf-tengine-ocr') ? 'true' : 'false'),
-        port: this.props.port,
-        https: (this.props.https ? 'true' : 'false'),
-        ftp: (this.props.ftp ? 'true' : 'false'),
-        windows: (this.props.windows ? 'true' : 'false'),
-        googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false'),
-        serverName: this.props.serverName,
-        solrHttpMode: this.props.solrHttpMode,
-        secureComms: (this.props.solrHttpMode === 'http' ? 'none' : this.props.solrHttpMode),
-        // Generate random password for Repo-SOLR secret communication method
-        secretPassword: Math.random().toString(36).slice(2),
-        password: computeHashPassword(this.props.password),
-        activemq: (this.props.activemq ? 'true' : 'false'),
-        activeMqCredentials: (this.props.activeMqCredentials ? 'true' : 'false'),
-        activeMqUser: this.props.activeMqUser,
-        activeMqPassword: this.props.activeMqPassword,
-        repository: (this.props.arch ? 'angelborroy' : 'alfresco'),
-      }
-    );
-
-    // Copy Docker Image for Repository applying configuration
-    this.fs.copyTpl(
-      this.templatePath('images/alfresco/Dockerfile'),
-      this.destinationPath('alfresco/Dockerfile'),
-      {
-        ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
-        ftp: (this.props.ftp ? 'true' : 'false'),
-        acsVersion: this.props.acsVersion,
-        repository: (this.props.arch && this.props.acsVersion === '7.3' ? 'angelborroy' : 'alfresco')
-      }
-    );
-    this.fs.copyTpl(
-      this.templatePath('images/alfresco/modules'),
-      this.destinationPath('alfresco/modules')
-    );
-
-    // Copy Docker Image for Share applying configuration
-    this.fs.copyTpl(
-      this.templatePath('images/share'),
-      this.destinationPath('share'),
-      {
-        port: this.props.port,
-        https: (this.props.https ? 'true' : 'false'),
-        googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false'),
-        acsVersion: this.props.acsVersion,
-        repository: (this.props.arch && this.props.acsVersion === '7.3'  ? 'angelborroy' : 'alfresco'),
-        serverName: this.props.serverName
-      }
-    );
-
-    // Copy Docker Image for Search applying configuration
-    this.fs.copyTpl(
-      this.templatePath('images/search'),
-      this.destinationPath('search'),
-      {
-        repository: (this.props.arch ? 'angelborroy' : 'alfresco')
-      }
-    );
-
-    // Copy NGINX Configuration
-    this.fs.copyTpl(
-      this.templatePath('images/config/nginx'),
-      this.destinationPath('config'),
-      {
-        port: this.props.port,
-        https: (this.props.https ? 'true' : 'false'),
-        solrHttps: (this.props.solrHttpMode === 'https' ? 'true' : 'false'),
-        ldap: (this.props.ldap ? 'true' : 'false')
-      }
-    );
-    if (this.props.https) {
-      this.fs.copy(
-        this.templatePath('images/config/cert'),
-        this.destinationPath('config/cert')
-      );
+    try {
+      validateInputs(this.props);
+    } catch (err) {
+      this.log('Input validation error: ' + err.message);
+      throw err;
     }
+    this.copyDockerFiles();
+    this.copyAddons();
+    this.showWarnings();
+    this.showServiceUrls();
+  }
 
-    // Copy mTLS Keystores
-    if (this.props.solrHttpMode === 'https') {
-      this.fs.copy(
-        this.templatePath('keystores'),
-        this.destinationPath('keystores')
-      );
-    }
-
-    // ActiveMQ
-    if (!this.props.activemq && this.props.acsVersion < '7.4') {
-      this.fs.copy(
-        this.templatePath('addons/jars/activemq-broker-*.jar'),
-        this.destinationPath('alfresco/modules/jars')
-      );
-    }
-
-    // Addons
-    if (this.props.addons.includes('js-console') && !this.props.addons.includes('ootbee-support-tools')) {
-      this.fs.copy(
-        this.templatePath('addons/amps/javascript-console-repo-*.amp'),
-        this.destinationPath('alfresco/modules/amps')
-      );
-      this.fs.copy(
-        this.templatePath('addons/amps_share/javascript-console-share-*.amp'),
-        this.destinationPath('share/modules/amps')
-      )
-    }
-
-    if (this.props.addons.includes('ootbee-support-tools')) {
-      this.fs.copy(
-        this.templatePath('addons/amps/support-tools-repo-*.amp'),
-        this.destinationPath('alfresco/modules/amps')
-      );
-      this.fs.copy(
-        this.templatePath('addons/amps_share/support-tools-share-*.amp'),
-        this.destinationPath('share/modules/amps')
-      )
-    }
-
-    if (this.props.addons.includes('share-site-creators')) {
-      this.fs.copy(
-        this.templatePath('addons/amps/share-site-creators-repo-*.amp'),
-        this.destinationPath('alfresco/modules/amps')
-      );
-      this.fs.copy(
-        this.templatePath('addons/amps_share/share-site-creators-share-*.amp'),
-        this.destinationPath('share/modules/amps')
-      )
-    }
-
-    if (this.props.addons.includes('share-site-space-templates')) {
-      this.fs.copy(
-        this.templatePath('addons/amps/share-site-space-templates-repo-*.amp'),
-        this.destinationPath('alfresco/modules/amps')
-      );
-    }
-
-    if (this.props.addons.includes('simple-ocr')) {
-      this.fs.copy(
-        this.templatePath('addons/jars/simple-ocr-repo-*.jar'),
-        this.destinationPath('alfresco/modules/jars')
-      );
-      this.fs.copy(
-        this.templatePath('addons/jars_share/simple-ocr-share-*.jar'),
-        this.destinationPath('share/modules/jars')
-      );
-      this.fs.copy(
-        this.templatePath('addons/ocrmypdf'),
-        this.destinationPath('ocrmypdf')
-      );
-      this.fs.copy(
-        this.templatePath('images/alfresco/bin'),
-        this.destinationPath('alfresco/bin')
-      );
-      this.fs.copy(
-        this.templatePath('images/alfresco/ssh'),
-        this.destinationPath('alfresco/ssh')
-      );
-    }
-
-    if (this.props.addons.includes('alf-tengine-ocr')) {
-      this.fs.copy(
-        this.templatePath('addons/alfresco-tengine-ocr/embed-metadata-action-*.jar'),
-        this.destinationPath('alfresco/modules/jars')
-      )
-    }
-
-    if (this.props.addons.includes('esign-cert')) {
-        this.fs.copy(
-          this.templatePath('addons/amps/esign-cert-repo-*.amp'),
-          this.destinationPath('alfresco/modules/amps')
-        );
-        this.fs.copy(
-          this.templatePath('addons/amps_share/esign-cert-share-*.amp'),
-          this.destinationPath('share/modules/amps')
-        )
-    }
-
-    if (this.props.addons.includes('share-online-edition')) {
-      this.fs.copy(
-        this.templatePath('addons/amps_share/zk-libreoffice-addon-share*.amp'),
-        this.destinationPath('share/modules/amps')
-      )
-    }
-
-    if (this.props.addons.includes('alfresco-pdf-toolkit')) {
-      if (this.props.acsVersion.startsWith('7')) {
-        this.fs.copy(
-          this.templatePath('addons/amps/pdf-toolkit-repo-1.4.4-ACS-7*.amp'),
-          this.destinationPath('alfresco/modules/amps')
-        )
-      } else {
-        this.fs.copy(
-          this.templatePath('addons/amps/pdf-toolkit-repo-1.4.4-SNAPSHOT*.amp'),
-          this.destinationPath('alfresco/modules/amps')
-        )
-      }
-      this.fs.copy(
-        this.templatePath('addons/amps_share/pdf-toolkit-share*.amp'),
-        this.destinationPath('share/modules/amps')
-      )
-    }
-
-    if (this.props.startscript) {
+  /**
+   * Copy Docker Compose, Dockerfiles, and config files
+   * Adds error handling for file operations
+   */
+  copyDockerFiles() {
+    try {
+      // Docker Compose environment variables values
       this.fs.copyTpl(
-        this.templatePath('scripts/start.sh'),
-        this.destinationPath('start.sh'),
+        this.templatePath(this.props.acsVersion + '/.env'),
+        this.destinationPath('.env'),
+        {
+          serverName: this.props.serverName,
+          bindIpFtp: this.props.ftpBindingIp,
+          bindIpNginx: this.props.httpBindingIp
+        }
+      );
+      // Copy Docker Compose applying configuration
+      this.fs.copyTpl(
+        this.templatePath(this.props.acsVersion + '/docker-compose.yml'),
+        this.destinationPath('docker-compose.yml'),
+        {
+          ram: getAvailableMemory(this.props),
+          db: (this.props.mariadb ? 'mariadb' : 'postgres'),
+          smtp: (this.props.smtp ? 'true' : 'false'),
+          ldap: (this.props.ldap ? 'true' : 'false'),
+          crossLocale: (this.props.crossLocale ? 'true' : 'false'),
+          disableContentIndexing: (this.props.enableContentIndexing ? 'false' : 'true'),
+          ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
+          transformerocr: (this.props.addons.includes('alf-tengine-ocr') ? 'true' : 'false'),
+          port: this.props.port,
+          https: (this.props.https ? 'true' : 'false'),
+          ftp: (this.props.ftp ? 'true' : 'false'),
+          windows: (this.props.windows ? 'true' : 'false'),
+          googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false'),
+          serverName: this.props.serverName,
+          solrHttpMode: this.props.solrHttpMode,
+          secureComms: (this.props.solrHttpMode === 'http' ? 'none' : this.props.solrHttpMode),
+          // Generate random password for Repo-SOLR secret communication method
+          secretPassword: Math.random().toString(36).slice(2),
+          password: computeHashPassword(this.props.password),
+          activemq: (this.props.activemq ? 'true' : 'false'),
+          activeMqCredentials: (this.props.activeMqCredentials ? 'true' : 'false'),
+          activeMqUser: this.props.activeMqUser,
+          activeMqPassword: this.props.activeMqPassword,
+          repository: (this.props.arch ? 'angelborroy' : 'alfresco'),
+        }
+      );
+      // Copy Docker Image for Repository applying configuration
+      this.fs.copyTpl(
+        this.templatePath('images/alfresco/Dockerfile'),
+        this.destinationPath('alfresco/Dockerfile'),
+        {
+          ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
+          ftp: (this.props.ftp ? 'true' : 'false'),
+          acsVersion: this.props.acsVersion,
+          repository: (this.props.arch && this.props.acsVersion === '7.3' ? 'angelborroy' : 'alfresco')
+        }
+      );
+      this.fs.copyTpl(
+        this.templatePath('images/alfresco/modules'),
+        this.destinationPath('alfresco/modules')
+      );
+      // Copy Docker Image for Share applying configuration
+      this.fs.copyTpl(
+        this.templatePath('images/share'),
+        this.destinationPath('share'),
         {
           port: this.props.port,
-          serverName: this.props.serverName,
-          https: (this.props.https ? 'true' : 'false')
+          https: (this.props.https ? 'true' : 'false'),
+          googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false'),
+          acsVersion: this.props.acsVersion,
+          repository: (this.props.arch && this.props.acsVersion === '7.3'  ? 'angelborroy' : 'alfresco'),
+          serverName: this.props.serverName
         }
-      )
+      );
+      // Copy Docker Image for Search applying configuration
+      this.fs.copyTpl(
+        this.templatePath('images/search'),
+        this.destinationPath('search'),
+        {
+          repository: (this.props.arch ? 'angelborroy' : 'alfresco')
+        }
+      );
+      // Copy NGINX Configuration
+      this.fs.copyTpl(
+        this.templatePath('images/config/nginx'),
+        this.destinationPath('config'),
+        {
+          port: this.props.port,
+          https: (this.props.https ? 'true' : 'false'),
+          solrHttps: (this.props.solrHttpMode === 'https' ? 'true' : 'false'),
+          ldap: (this.props.ldap ? 'true' : 'false')
+        }
+      );
+      if (this.props.https) {
+        this.fs.copy(
+          this.templatePath('images/config/cert'),
+          this.destinationPath('config/cert')
+        );
+      }
+      // Copy mTLS Keystores
+      if (this.props.solrHttpMode === 'https') {
+        this.fs.copy(
+          this.templatePath('keystores'),
+          this.destinationPath('keystores')
+        );
+      }
+      // ActiveMQ
+      if (!this.props.activemq && this.props.acsVersion < '7.4') {
+        this.fs.copy(
+          this.templatePath('addons/jars/activemq-broker-*.jar'),
+          this.destinationPath('alfresco/modules/jars')
+        );
+      }
+      if (this.props.startscript) {
+        this.fs.copyTpl(
+          this.templatePath('scripts/start.sh'),
+          this.destinationPath('start.sh'),
+          {
+            port: this.props.port,
+            serverName: this.props.serverName,
+            https: (this.props.https ? 'true' : 'false')
+          }
+        );
+      }
+      if (this.props.volumesscript) {
+        this.fs.copy(
+          this.templatePath('scripts/create_volumes.sh'),
+          this.destinationPath('create_volumes.sh')
+        );
+      }
+    } catch (err) {
+      this.log('Error copying Docker files: ' + err.message);
     }
+  }
 
-    if (this.props.volumesscript) {
-      this.fs.copy(
-        this.templatePath('scripts/create_volumes.sh'),
-        this.destinationPath('create_volumes.sh')
-      )
+  /**
+   * Copy selected addons to their destinations
+   * Adds error handling for file operations
+   */
+  copyAddons() {
+    const ADDON_COPY_MAP = [
+      {
+        name: 'js-console',
+        condition: (props) => props.addons.includes('js-console') && !props.addons.includes('ootbee-support-tools'),
+        actions: [
+          { src: 'addons/amps/javascript-console-repo-*.amp', dest: 'alfresco/modules/amps' },
+          { src: 'addons/amps_share/javascript-console-share-*.amp', dest: 'share/modules/amps' }
+        ]
+      },
+      {
+        name: 'ootbee-support-tools',
+        condition: (props) => props.addons.includes('ootbee-support-tools'),
+        actions: [
+          { src: 'addons/amps/support-tools-repo-*.amp', dest: 'alfresco/modules/amps' },
+          { src: 'addons/amps_share/support-tools-share-*.amp', dest: 'share/modules/amps' }
+        ]
+      },
+      {
+        name: 'share-site-creators',
+        condition: (props) => props.addons.includes('share-site-creators'),
+        actions: [
+          { src: 'addons/amps/share-site-creators-repo-*.amp', dest: 'alfresco/modules/amps' },
+          { src: 'addons/amps_share/share-site-creators-share-*.amp', dest: 'share/modules/amps' }
+        ]
+      },
+      {
+        name: 'share-site-space-templates',
+        condition: (props) => props.addons.includes('share-site-space-templates'),
+        actions: [
+          { src: 'addons/amps/share-site-space-templates-repo-*.amp', dest: 'alfresco/modules/amps' }
+        ]
+      },
+      {
+        name: 'simple-ocr',
+        condition: (props) => props.addons.includes('simple-ocr'),
+        actions: [
+          { src: 'addons/jars/simple-ocr-repo-*.jar', dest: 'alfresco/modules/jars' },
+          { src: 'addons/jars_share/simple-ocr-share-*.jar', dest: 'share/modules/jars' },
+          { src: 'addons/ocrmypdf', dest: 'ocrmypdf' },
+          { src: 'images/alfresco/bin', dest: 'alfresco/bin' },
+          { src: 'images/alfresco/ssh', dest: 'alfresco/ssh' }
+        ]
+      },
+      {
+        name: 'alf-tengine-ocr',
+        condition: (props) => props.addons.includes('alf-tengine-ocr'),
+        actions: [
+          { src: 'addons/alfresco-tengine-ocr/embed-metadata-action-*.jar', dest: 'alfresco/modules/jars' }
+        ]
+      },
+      {
+        name: 'esign-cert',
+        condition: (props) => props.addons.includes('esign-cert'),
+        actions: [
+          { src: 'addons/amps/esign-cert-repo-*.amp', dest: 'alfresco/modules/amps' },
+          { src: 'addons/amps_share/esign-cert-share-*.amp', dest: 'share/modules/amps' }
+        ]
+      },
+      {
+        name: 'share-online-edition',
+        condition: (props) => props.addons.includes('share-online-edition'),
+        actions: [
+          { src: 'addons/amps_share/zk-libreoffice-addon-share*.amp', dest: 'share/modules/amps' }
+        ]
+      },
+      {
+        name: 'alfresco-pdf-toolkit',
+        condition: (props) => props.addons.includes('alfresco-pdf-toolkit'),
+        actions: [
+          {
+            src: (props) => props.acsVersion.startsWith('7') ? 'addons/amps/pdf-toolkit-repo-1.4.4-ACS-7*.amp' : 'addons/amps/pdf-toolkit-repo-1.4.4-SNAPSHOT*.amp',
+            dest: 'alfresco/modules/amps'
+          },
+          { src: 'addons/amps_share/pdf-toolkit-share*.amp', dest: 'share/modules/amps' }
+        ]
+      }
+    ];
+
+    try {
+      for (const addon of ADDON_COPY_MAP) {
+        if (addon.condition(this.props)) {
+          for (const action of addon.actions) {
+            const src = typeof action.src === 'function' ? action.src(this.props) : action.src;
+            this.fs.copy(
+              this.templatePath(src),
+              this.destinationPath(action.dest)
+            );
+          }
+        }
+      }
+    } catch (err) {
+      this.log('Error copying addon files: ' + err.message);
     }
+  }
 
+  /**
+   * Show warnings and informational messages
+   */
+  showWarnings() {
     if (this.props.addons.includes('share-site-creators')) {
-        this.log('\n   ---------------------------------------------------\n' +
+      this.log('\n   ---------------------------------------------------\n' +
         '   WARNING: You selected the addon share-site-creators. \n' +
         '   Remember to add any user to group GROUP_SITE_CREATORS \n' +
         '   ---------------------------------------------------\n');
     }
-
     if (this.props.https) {
       this.log('\n   ---------------------------------------------------------------\n' +
-      '   WARNING: You selected HTTPs for the NGINX Web Proxy. \n' +
-      '   Default certificates localhost.cer and localhost.key have been \n' +
-      '   provided in config/cert folder. \n' +
-      '   You may replace these certificates by your own. \n' +
-      '   ---------------------------------------------------------------\n');
+        '   WARNING: You selected HTTPs for the NGINX Web Proxy. \n' +
+        '   Default certificates localhost.cer and localhost.key have been \n' +
+        '   provided in config/cert folder. \n' +
+        '   You may replace these certificates by your own. \n' +
+        '   ---------------------------------------------------------------\n');
     }
-
     if (this.props.solrHttpMode === 'https') {
       this.log('\n   ---------------------------------------------------------------\n' +
-      '   WARNING: You selected HTTPs communication for Alfresco-Solr. \n' +
-      '   Default keystores have been provided in keystores folder. \n' +
-      '   You may replace these certificates by your own. \n' +
-      '   Check https://github.com/Alfresco/alfresco-ssl-generator \n' +
-      '   ---------------------------------------------------------------\n');
+        '   WARNING: You selected HTTPs communication for Alfresco-Solr. \n' +
+        '   Default keystores have been provided in keystores folder. \n' +
+        '   You may replace these certificates by your own. \n' +
+        '   Check https://github.com/Alfresco/alfresco-ssl-generator \n' +
+        '   ---------------------------------------------------------------\n');
     }
-
     if (this.props.addons.includes('alf-tengine-ocr')) {
       this.log('\n   ---------------------------------------------------------------\n' +
-      '   NOTE: You selected to use Alfresco OCR Transformer 1.0.0 (for Alfresco 7+). \n' +
-      '   Default Docker Image (angelborroy/alfresco-tengine-ocr:1.0.0) only includes support for English. \n' +
-      '   You may replace this in docker-compose.yml by "angelborroy/alfresco-tengine-ocr:1.0.0-deu-fra-spa-ita" \n' +
-      '   to provide support for English, German, French, Spanish and Italian. \n' +
-      '   Or you may build your customized Docker Image using https://github.com/aborroy/alf-tengine-ocr/tree/master/ats-transformer-ocr \n' +
-      '   ---------------------------------------------------------------\n');
+        '   NOTE: You selected to use Alfresco OCR Transformer 1.0.0 (for Alfresco 7+). \n' +
+        '   Default Docker Image (angelborroy/alfresco-tengine-ocr:1.0.0) only includes support for English. \n' +
+        '   You may replace this in docker-compose.yml by "angelborroy/alfresco-tengine-ocr:1.0.0-deu-fra-spa-ita" \n' +
+        '   to provide support for English, German, French, Spanish and Italian. \n' +
+        '   Or you may build your customized Docker Image using https://github.com/aborroy/alf-tengine-ocr/tree/master/ats-transformer-ocr \n' +
+        '   ---------------------------------------------------------------\n');
     }
-
     if (this.props.addons.includes('share-online-edition')) {
       this.log('\n   ---------------------------------------------------\n' +
-      '   WARNING: You selected the addon share-online-edition. \n' +
-      '   Remember to register required protocol in your client computer. \n' +
-      '   Check https://github.com/zylklab/alfresco-share-online-edition-addon#registering-the-protocols \n' +
-      '   ---------------------------------------------------\n');
+        '   WARNING: You selected the addon share-online-edition. \n' +
+        '   Remember to register required protocol in your client computer. \n' +
+        '   Check https://github.com/zylklab/alfresco-share-online-edition-addon#registering-the-protocols \n' +
+        '   ---------------------------------------------------\n');
     }
-
-    // Service URLs
-    let protocol = this.props.https ? 'https://' : 'http://'
-    let port = this.props.port !== 80 && this.props.port !== 443 ? ':' + this.props.port : ''
-    this.log('\n---------------------------------------------------\n' +
-    'STARTING ALFRESCO\n\n' +
-    'Start Alfresco using the command "docker compose up"\n' +
-    'Once the plaform is ready, you will find a line similar to the following one in the terminal:\n' +
-    'alfresco-1 | org.apache.catalina.startup.Catalina.start Server startup in [NNNNN] milliseconds\n\n' +
-    'SERVICE URLs\n\n' +
-    '   * UI: ' + protocol + this.props.serverName + port + '/\n' +
-    '   * Legacy UI (users & groups management): ' + protocol + this.props.serverName + port + '/share\n' +
-    '   * Repository (REST API): ' + protocol + this.props.serverName + port + '/alfresco\n\n' +
-    'Remember to use as credentials: \n\n' +
-    '   * username: admin \n' +
-    '   * password: ' + this.props.password + '\n\n' +
-    '---------------------------------------------------\n');
-
   }
 
+  /**
+   * Show service URLs and startup info
+   */
+  showServiceUrls() {
+    let protocol = this.props.https ? 'https://' : 'http://';
+    let port = this.props.port !== 80 && this.props.port !== 443 ? ':' + this.props.port : '';
+    this.log('\n---------------------------------------------------\n' +
+      'STARTING ALFRESCO\n\n' +
+      'Start Alfresco using the command "docker compose up"\n' +
+      'Once the plaform is ready, you will find a line similar to the following one in the terminal:\n' +
+      'alfresco-1 | org.apache.catalina.startup.Catalina.start Server startup in [NNNNN] milliseconds\n\n' +
+      'SERVICE URLs\n\n' +
+      `   * UI: ${protocol}${this.props.serverName}${port}/\n` +
+      `   * Legacy UI (users & groups management): ${protocol}${this.props.serverName}${port}/share\n` +
+      `   * Repository (REST API): ${protocol}${this.props.serverName}${port}/alfresco\n\n` +
+      'Remember to use as credentials: \n\n' +
+      '   * username: admin \n' +
+      `   * password: ${this.props.password}\n\n` +
+      '---------------------------------------------------\n');
+  }
 };
 
 // Convert parameter string value to boolean value
@@ -680,7 +687,23 @@ function getAvailableMemory(props) {
 }
 
 // Compute NTLMv1 MD4 Hash for Alfresco DB
-function computeHashPassword(password) {
-  return nthash(password).toLowerCase();
+async function computeHashPassword(password) {
+  const md4 = await createMD4();
+  md4.init();
+  md4.update(Buffer.from(password, 'utf16le'));
+  return md4.digest('hex');
+}
+
+// Add input validation for RAM, port, and password
+function validateInputs(props) {
+  if (isNaN(props.ram) || props.ram < 16) {
+    throw new Error('RAM must be a number and at least 16 GB.');
+  }
+  if (isNaN(props.port) || props.port < 1 || props.port > 65535) {
+    throw new Error('Port must be a valid number between 1 and 65535.');
+  }
+  if (!props.password || props.password.length < 4) {
+    throw new Error('Password must be at least 4 characters long.');
+  }
 }
 
