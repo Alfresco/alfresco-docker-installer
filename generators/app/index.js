@@ -58,7 +58,7 @@ module.exports = class extends Generator {
         name: 'Alfresco OCR Transformer 1.0.0 (for Alfresco 7+)',
         value: 'alf-tengine-ocr',
         checked: false,
-        acsVersions: ['7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1']
+        acsVersions: ['7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2']
       },
       {
         name: 'ESign Cert 1.8.4',
@@ -83,8 +83,8 @@ module.exports = class extends Generator {
         type: 'list',
         name: 'acsVersion',
         message: 'Which ACS version do you want to use?',
-        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1' ],
-        default: '25.1'
+        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2' ],
+        default: '25.2'
       },
       {
         when: function (response) {
@@ -326,7 +326,7 @@ module.exports = class extends Generator {
   }
 
   // Generate boilerplate from "templates" folder
-  writing() {
+  async writing() {
     try {
       validateInputs(this.props);
     } catch (err) {
@@ -343,7 +343,7 @@ module.exports = class extends Generator {
    * Copy Docker Compose, Dockerfiles, and config files
    * Adds error handling for file operations
    */
-  copyDockerFiles() {
+  async copyDockerFiles() {
     try {
       // Docker Compose environment variables values
       this.fs.copyTpl(
@@ -356,6 +356,7 @@ module.exports = class extends Generator {
         }
       );
       // Copy Docker Compose applying configuration
+      const ntlmHash = await computeHashPassword(this.props.password);
       this.fs.copyTpl(
         this.templatePath(this.props.acsVersion + '/docker-compose.yml'),
         this.destinationPath('docker-compose.yml'),
@@ -378,7 +379,7 @@ module.exports = class extends Generator {
           secureComms: (this.props.solrHttpMode === 'http' ? 'none' : this.props.solrHttpMode),
           // Generate random password for Repo-SOLR secret communication method
           secretPassword: Math.random().toString(36).slice(2),
-          password: computeHashPassword(this.props.password),
+          password: ntlmHash,
           activemq: (this.props.activemq ? 'true' : 'false'),
           activeMqCredentials: (this.props.activeMqCredentials ? 'true' : 'false'),
           activeMqUser: this.props.activeMqUser,
