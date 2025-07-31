@@ -114,6 +114,7 @@ services:
           args:
             SHARE_TAG: ${SHARE_TAG}
             SERVER_NAME: ${SERVER_NAME}
+            HTTP_PORT: <%=port%>
         mem_limit: <%=ram/8%>m
         environment:
             REPO_HOST: "alfresco"

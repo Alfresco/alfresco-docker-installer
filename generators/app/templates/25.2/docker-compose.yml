@@ -162,6 +162,7 @@ services:
           args:
             SHARE_TAG: ${SHARE_TAG}
             SERVER_NAME: ${SERVER_NAME}
+            HTTP_PORT: <%=port%>
         mem_limit: <%=ram/8%>m
         environment:
             REPO_HOST: "alfresco"
@@ -307,6 +308,7 @@ services:
         mem_limit: 256m
         environment:
             APP_BASE_SHARE_URL: "http://${SERVER_NAME}:<%=port%>/#/preview/s"
+            APP_CONFIG_PLUGIN_PROCESS_SERVICE: false
         depends_on:
           alfresco:
             condition: service_healthy
