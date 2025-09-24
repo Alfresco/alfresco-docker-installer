@@ -378,7 +378,7 @@ services:
 
     <% if (transformerocr == 'true') { %>
     transform-ocr:
-        image: angelborroy/alfresco-tengine-ocr:1.0.0
+        image: angelborroy/alfresco-tengine-ocr:2.0.0
         mem_limit: 1536m
         environment:
           JAVA_OPTS: "
