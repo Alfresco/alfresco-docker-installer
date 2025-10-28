@@ -1,17 +1,16 @@
 /* eslint-disable complexity */
 /* eslint-disable dot-notation */
 /* eslint-disable prettier/prettier */
-'use strict';
-const Generator = require('yeoman-generator');
-var banner = require('./banner')
-const { createMD4 } = require('hash-wasm');
-var compare = require('compare-versions').compare;
 
+import Generator from 'yeoman-generator';
+import banner from './banner.js';
+import { createMD4 } from 'hash-wasm';
+import { compare } from 'compare-versions';
 /**
  * This module builds a Docker Compose template to use
  * Alfresco Repository and Search Services
 */
-module.exports = class extends Generator {
+export default class AppGenerator extends Generator {
 
   // Options to be chosen by the user
   prompting() {

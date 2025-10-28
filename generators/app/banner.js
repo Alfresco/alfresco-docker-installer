@@ -1,6 +1,5 @@
-var chalk = require('chalk');
-var _ = require('lodash');
-
+import chalk from 'chalk';
+import _ from 'lodash';
 // Extracted from https://github.com/binduwavell/generator-alfresco
 
 var ALF_BLUE    = _.flow(chalk.bold, chalk.blue);
@@ -35,4 +34,4 @@ var banner = [
   ''
 ].join('\n');
 
-module.exports = banner;
+export default banner;
