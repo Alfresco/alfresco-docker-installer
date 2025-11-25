@@ -57,7 +57,7 @@ export default class AppGenerator extends Generator {
         name: 'Alfresco OCR Transformer 1.0.0 (for Alfresco 7+)',
         value: 'alf-tengine-ocr',
         checked: false,
-        acsVersions: ['7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2']
+        acsVersions: ['7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2', '25.3']
       },
       {
         name: 'ESign Cert 1.8.4',
@@ -82,8 +82,8 @@ export default class AppGenerator extends Generator {
         type: 'list',
         name: 'acsVersion',
         message: 'Which ACS version do you want to use?',
-        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2' ],
-        default: '25.2'
+        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2', '25.3' ],
+        default: '25.3'
       },
       {
         when: function (response) {
