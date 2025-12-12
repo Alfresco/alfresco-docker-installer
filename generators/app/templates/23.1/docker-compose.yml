@@ -125,7 +125,7 @@ services:
             - 2434:2434 <% } %>
 
     transform-core-aio:
-        image: <%=repository%>/alfresco-transform-core-aio:${TRANSFORM_ENGINE_TAG}
+        image: alfresco/alfresco-transform-core-aio:${TRANSFORM_ENGINE_TAG}
         restart: on-failure
         mem_limit: 2048m
         environment:
