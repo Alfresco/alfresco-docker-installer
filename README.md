@@ -206,7 +206,7 @@ This question is only available from ACS 7.3+. ActiveMQ for Community Edition is
 ? Do you want to use credentials for Events service (ActiveMQ)? No
 ```
 
-By default, there is no authentication for ActiveMQ service. When choosing `Yes` for this option, you'll be prompted for username and password to be used to access ActiveMQ Alfresco Broker. In case you enable this option, remember to use these credentials to consume messages from ActiveMQ when using Out of Process SDK or similar.
+By default, there is no authentication for ActiveMQ service on older ACS releases. When choosing `Yes` for this option, you'll be prompted for username and password to be used to access ActiveMQ Alfresco Broker. Starting with ACS 26.1, the broker image requires credentials, so the generator will always ask for username and password when Events service is enabled. In all cases, remember to use these credentials to consume messages from ActiveMQ when using Out of Process SDK or similar.
 
 
 ```

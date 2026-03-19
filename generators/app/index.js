@@ -231,7 +231,8 @@ export default class AppGenerator extends Generator {
           var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
           return compare(version, '7.1', '>=') &&
                  !(response.activemq === undefined) &&
-                 (response.activemq || commandProps['activemq'])
+                 (response.activemq || commandProps['activemq']) &&
+                 !requiresActiveMqCredentials(version);
         },
         type: 'confirm',
         name: 'activeMqCredentials',
@@ -241,8 +242,9 @@ export default class AppGenerator extends Generator {
       {
         when: function (response) {
           var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
-          var creds = response.activeMqCredentials ? response.activeMqCredentials: commandProps['activeMqCredentials'];
-          return compare(version, '7.1', '>=') && creds;
+          var activeMqEnabled = response.activemq !== undefined ? response.activemq : commandProps['activemq'];
+          var creds = requiresActiveMqCredentials(version) || response.activeMqCredentials || commandProps['activeMqCredentials'];
+          return compare(version, '7.1', '>=') && activeMqEnabled && creds;
         },
         type: 'input',
         name: 'activeMqUser',
@@ -252,8 +254,9 @@ export default class AppGenerator extends Generator {
       {
         when: function (response) {
           var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
-          var creds = response.activeMqCredentials ? response.activeMqCredentials: commandProps['activeMqCredentials'];
-          return compare(version, '7.1', '>=') && creds;
+          var activeMqEnabled = response.activemq !== undefined ? response.activemq : commandProps['activemq'];
+          var creds = requiresActiveMqCredentials(version) || response.activeMqCredentials || commandProps['activeMqCredentials'];
+          return compare(version, '7.1', '>=') && activeMqEnabled && creds;
         },
         type: 'input',
         name: 'activeMqPassword',
@@ -320,6 +323,7 @@ export default class AppGenerator extends Generator {
     return this.prompt(filteredPrompts).then(props => {
       this.props = props;
       Object.assign(props, commandProps);
+      applyDerivedDefaults(props);
     });
 
   }
@@ -380,7 +384,7 @@ export default class AppGenerator extends Generator {
           secretPassword: Math.random().toString(36).slice(2),
           password: ntlmHash,
           activemq: (this.props.activemq ? 'true' : 'false'),
-          activeMqCredentials: (this.props.activeMqCredentials ? 'true' : 'false'),
+          activeMqCredentials: (usesActiveMqCredentials(this.props) ? 'true' : 'false'),
           activeMqUser: this.props.activeMqUser,
           activeMqPassword: this.props.activeMqPassword,
           repository: (this.props.arch ? 'angelborroy' : 'alfresco'),
@@ -661,6 +665,25 @@ function normalize(option, prompt) {
 
 }
 
+function requiresActiveMqCredentials(acsVersion) {
+  return !!acsVersion && compare(acsVersion, '26.1', '>=');
+}
+
+function usesActiveMqCredentials(props) {
+  return !!props.activemq && (requiresActiveMqCredentials(props.acsVersion) || !!props.activeMqCredentials);
+}
+
+function applyDerivedDefaults(props) {
+  if (props.activemq && requiresActiveMqCredentials(props.acsVersion)) {
+    props.activeMqCredentials = true;
+  }
+
+  if (usesActiveMqCredentials(props)) {
+    props.activeMqUser = props.activeMqUser || 'admin';
+    props.activeMqPassword = props.activeMqPassword || 'password';
+  }
+}
+
 // Calculate available memory for Repository, SOLR and Share
 function getAvailableMemory(props) {
 
@@ -706,4 +729,3 @@ function validateInputs(props) {
     throw new Error('Password must be at least 4 characters long.');
   }
 }
-
