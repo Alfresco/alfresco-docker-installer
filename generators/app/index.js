@@ -12,6 +12,41 @@ import { compare } from 'compare-versions';
 */
 export default class AppGenerator extends Generator {
 
+  constructor(args, opts) {
+    super(args, opts);
+
+    // Register all command-line options
+    // Note: For booleans, use --flag to set true, omit the flag for false (don't use --flag=false)
+    this.option('acsVersion', { type: String, description: 'ACS version (6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3, 26.1)' });
+    this.option('arch', { type: Boolean, description: 'Use ARCH64 Docker images for Apple Silicon (ACS 7.3+ only)' });
+    this.option('ram', { type: String, description: 'RAM in GB available for Alfresco (minimum 16)' });
+    this.option('https', { type: Boolean, description: 'Use HTTPS for Web Proxy' });
+    this.option('proxyType', { type: String, description: 'Proxy type: nginx or traefik (ACS 26.1 only)' });
+    this.option('serverName', { type: String, description: 'Server name (e.g., localhost, alfresco.com)' });
+    this.option('password', { type: String, description: 'Admin user password' });
+    this.option('port', { type: String, description: 'HTTP/HTTPS port' });
+    this.option('configureHttpIp', { type: Boolean, description: 'Configure custom binding IP for HTTP' });
+    this.option('httpBindingIp', { type: String, description: 'HTTP service binding IP address' });
+    this.option('ftp', { type: Boolean, description: 'Enable FTP service (port 2121)' });
+    this.option('configureFtpIp', { type: Boolean, description: 'Configure custom binding IP for FTP' });
+    this.option('ftpBindingIp', { type: String, description: 'FTP service binding IP address' });
+    this.option('mariadb', { type: Boolean, description: 'Use MariaDB instead of PostgreSQL' });
+    this.option('crossLocale', { type: Boolean, description: 'Support multiple languages' });
+    this.option('enableContentIndexing', { type: Boolean, description: 'Enable content indexing in documents' });
+    this.option('solrHttpMode', { type: String, description: 'Alfresco-SOLR communication: http, https, or secret' });
+    this.option('activemq', { type: Boolean, description: 'Enable Events service (ActiveMQ)' });
+    this.option('activeMqCredentials', { type: Boolean, description: 'Use credentials for ActiveMQ' });
+    this.option('activeMqUser', { type: String, description: 'ActiveMQ username' });
+    this.option('activeMqPassword', { type: String, description: 'ActiveMQ password' });
+    this.option('smtp', { type: Boolean, description: 'Enable SMTP service' });
+    this.option('ldap', { type: Boolean, description: 'Enable LDAP service' });
+    this.option('addons', { type: String, description: 'Comma-separated list of addon values (e.g., google-docs,js-console)' });
+    this.option('windows', { type: Boolean, description: 'Use Docker-managed volumes (recommended for Windows)' });
+    this.option('startscript', { type: Boolean, description: 'Generate start script' });
+    this.option('volumesscript', { type: Boolean, description: 'Generate volume creation script for Linux' });
+    this.option('dockerDesktop', { type: Boolean, description: 'Deprecated: retained for backwards compatibility, no longer affects Traefik configuration' });
+  }
+
   // Options to be chosen by the user
   prompting() {
 
@@ -20,6 +55,7 @@ export default class AppGenerator extends Generator {
     }
 
     var commandProps = new Map();
+    const self = this; // Make 'this' accessible in when functions
 
     const allAddons = [
       {
@@ -87,7 +123,7 @@ export default class AppGenerator extends Generator {
       },
       {
         when: function (response) {
-          var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
+          var version = response.acsVersion || self.options.acsVersion;
           return compare(version, '7.3', '>=') && compare(version, '23', '<');
         },
         type: 'confirm',
@@ -108,6 +144,17 @@ export default class AppGenerator extends Generator {
         default: false
       },
       {
+        when: function (response) {
+          var version = response.acsVersion || self.options.acsVersion;
+          return version === '26.1';
+        },
+        type: 'list',
+        name: 'proxyType',
+        message: 'Which proxy would you like to use?',
+        choices: ['nginx', 'traefik'],
+        default: 'nginx'
+      },
+      {
         type: 'input',
         name: 'serverName',
         message: 'What is the name of your server?',
@@ -121,7 +168,7 @@ export default class AppGenerator extends Generator {
       },
       {
         when: function (response) {
-          return response.https || commandProps['https']
+          return response.https || self.options.https;
         },
         type: 'input',
         name: 'port',
@@ -130,7 +177,7 @@ export default class AppGenerator extends Generator {
       },
       {
         when: function (response) {
-          return !response.https || !commandProps['https']
+          return !(response.https || self.options.https);
         },
         type: 'input',
         name: 'port',
@@ -145,7 +192,8 @@ export default class AppGenerator extends Generator {
       },
       {
         when: function (response) {
-          return response.configureHttpIp;
+          const configureHttp = response.configureHttpIp !== undefined ? response.configureHttpIp : self.options.configureHttpIp;
+          return configureHttp === true;
         },
         type: 'input',
         name: 'httpBindingIp',
@@ -160,7 +208,8 @@ export default class AppGenerator extends Generator {
       },
       {
         when: function (response) {
-          return response.ftp;
+          const ftpEnabled = response.ftp !== undefined ? response.ftp : self.options.ftp;
+          return ftpEnabled === true;
         },
         type: 'confirm',
         name: 'configureFtpIp',
@@ -169,7 +218,9 @@ export default class AppGenerator extends Generator {
       },
       {
         when: function (response) {
-          return response.ftp && response.configureFtpIp;
+          const ftpEnabled = response.ftp !== undefined ? response.ftp : self.options.ftp;
+          const configureFtp = response.configureFtpIp !== undefined ? response.configureFtpIp : self.options.configureFtpIp;
+          return ftpEnabled === true && configureFtp === true;
         },
         type: 'input',
         name: 'ftpBindingIp',
@@ -196,8 +247,8 @@ export default class AppGenerator extends Generator {
       },
       {
         when: function (response) {
-          var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
-          return version === '7.1'
+          var version = response.acsVersion || self.options.acsVersion;
+          return version === '7.1';
         },
         type: 'list',
         name: 'solrHttpMode',
@@ -207,8 +258,8 @@ export default class AppGenerator extends Generator {
       },
       {
         when: function (response) {
-          var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
-          return compare(version, '7.2', '>=')
+          var version = response.acsVersion || self.options.acsVersion;
+          return compare(version, '7.2', '>=');
         },
         type: 'list',
         name: 'solrHttpMode',
@@ -218,8 +269,8 @@ export default class AppGenerator extends Generator {
       },
       {
         when: function (response) {
-          var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
-          return compare(version, '7.3', '>=')
+          var version = response.acsVersion || self.options.acsVersion;
+          return compare(version, '7.3', '>=');
         },
         type: 'confirm',
         name: 'activemq',
@@ -228,10 +279,11 @@ export default class AppGenerator extends Generator {
       },
       {
         when: function (response) {
-          var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
+          var version = response.acsVersion || self.options.acsVersion;
+          var activemq = response.activemq !== undefined ? response.activemq : self.options.activemq;
           return compare(version, '7.1', '>=') &&
-                 !(response.activemq === undefined) &&
-                 (response.activemq || commandProps['activemq']) &&
+                 activemq !== undefined &&
+                 activemq &&
                  !requiresActiveMqCredentials(version);
         },
         type: 'confirm',
@@ -241,9 +293,9 @@ export default class AppGenerator extends Generator {
       },
       {
         when: function (response) {
-          var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
-          var activeMqEnabled = response.activemq !== undefined ? response.activemq : commandProps['activemq'];
-          var creds = requiresActiveMqCredentials(version) || response.activeMqCredentials || commandProps['activeMqCredentials'];
+          var version = response.acsVersion || self.options.acsVersion;
+          var activeMqEnabled = response.activemq !== undefined ? response.activemq : self.options.activemq;
+          var creds = requiresActiveMqCredentials(version) || response.activeMqCredentials || self.options.activeMqCredentials;
           return compare(version, '7.1', '>=') && activeMqEnabled && creds;
         },
         type: 'input',
@@ -253,9 +305,9 @@ export default class AppGenerator extends Generator {
       },
       {
         when: function (response) {
-          var version = response.acsVersion ? response.acsVersion : commandProps['acsVersion'];
-          var activeMqEnabled = response.activemq !== undefined ? response.activemq : commandProps['activemq'];
-          var creds = requiresActiveMqCredentials(version) || response.activeMqCredentials || commandProps['activeMqCredentials'];
+          var version = response.acsVersion || self.options.acsVersion;
+          var activeMqEnabled = response.activemq !== undefined ? response.activemq : self.options.activemq;
+          var creds = requiresActiveMqCredentials(version) || response.activeMqCredentials || self.options.activeMqCredentials;
           return compare(version, '7.1', '>=') && activeMqEnabled && creds;
         },
         type: 'input',
@@ -388,6 +440,7 @@ export default class AppGenerator extends Generator {
           activeMqUser: this.props.activeMqUser,
           activeMqPassword: this.props.activeMqPassword,
           repository: (this.props.arch ? 'angelborroy' : 'alfresco'),
+          proxyType: this.props.proxyType,
         }
       );
       // Copy Docker Image for Repository applying configuration
@@ -426,7 +479,7 @@ export default class AppGenerator extends Generator {
           repository: (this.props.arch ? 'angelborroy' : 'alfresco')
         }
       );
-      // Copy NGINX Configuration
+      // Copy Proxy Configuration (nginx.conf for nginx, nginx.htpasswd for both nginx and Traefik)
       this.fs.copyTpl(
         this.templatePath('images/config/nginx'),
         this.destinationPath('config'),
@@ -590,12 +643,22 @@ export default class AppGenerator extends Generator {
         '   ---------------------------------------------------\n');
     }
     if (this.props.https) {
+      const proxyName = this.props.proxyType === 'traefik' ? 'Traefik' : 'NGINX';
       this.log('\n   ---------------------------------------------------------------\n' +
-        '   WARNING: You selected HTTPs for the NGINX Web Proxy. \n' +
+        `   WARNING: You selected HTTPs for the ${proxyName} Web Proxy. \n` +
         '   Default certificates localhost.cer and localhost.key have been \n' +
         '   provided in config/cert folder. \n' +
         '   You may replace these certificates by your own. \n' +
         '   ---------------------------------------------------------------\n');
+    }
+    if (this.props.proxyType === 'traefik') {
+      this.log('\n   ---------------------------------------------------------------\n' +
+        '   NOTE: You selected Traefik as the Web Proxy. \n' +
+        '   Traefik dashboard is available at http://localhost:8888 \n' +
+        '   All routing is configured via Docker labels on each service. \n' +
+        '   SOLR API endpoints are protected to prevent unauthorized access. \n' +
+        '   ---------------------------------------------------------------\n');
+
     }
     if (this.props.solrHttpMode === 'https') {
       this.log('\n   ---------------------------------------------------------------\n' +
@@ -661,6 +724,14 @@ function normalize(option, prompt) {
     option = String(option);
   }
 
+  // Handle checkbox (array) type - convert comma-separated string to array
+  if (prompt.type === 'checkbox' && typeof option === 'string') {
+    if (option === '') {
+      return [];
+    }
+    return option.split(',').map(s => s.trim()).filter(s => s.length > 0);
+  }
+
   return option;
 
 }
@@ -681,6 +752,14 @@ function applyDerivedDefaults(props) {
   if (usesActiveMqCredentials(props)) {
     props.activeMqUser = props.activeMqUser || 'admin';
     props.activeMqPassword = props.activeMqPassword || 'password';
+  }
+
+  // Default to nginx for all versions (only 26.1 can select traefik)
+  props.proxyType = props.proxyType || 'nginx';
+
+  // Retain deprecated dockerDesktop option for backwards compatibility
+  if (props.dockerDesktop === undefined) {
+    props.dockerDesktop = false;
   }
 }
 

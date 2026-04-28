@@ -1,0 +1,80 @@
+# Traefik Labels Template
+# This file contains label configurations for all services when using Traefik
+
+# Alfresco Repository Labels
+alfresco:
+  labels:
+    - "traefik.enable=true"<% if (https == 'true') { %>
+    - "traefik.http.routers.alfresco.entrypoints=websecure"<% } else { %>
+    - "traefik.http.routers.alfresco.entrypoints=web"<% } %>
+    - "traefik.http.routers.alfresco.rule=PathPrefix(`/alfresco`) || PathPrefix(`/api-explorer`)"
+    - "traefik.http.services.alfresco.loadbalancer.server.port=8080"
+    - "traefik.http.middlewares.alfresco-redirect.redirectregex.regex=^https?://[^/]+/([^/.]+)$$"
+    - "traefik.http.middlewares.alfresco-redirect.redirectregex.replacement=$$0/"
+    - "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=5368709120"
+    - "traefik.http.middlewares.alfresco-chain.chain.middlewares=alfresco-redirect@docker,limit@docker"
+    - "traefik.http.routers.alfresco.middlewares=alfresco-chain@docker"
+    # Protect SOLR API endpoints
+    - "traefik.http.routers.solrapideny.rule=PathRegexp(`^/alfresco/(wc)?s(ervice)?/api/solr/.*$$`)"
+    - "traefik.http.routers.solrapideny.priority=100"
+    - "traefik.http.middlewares.acsfakeauth.basicauth.users=fake:"
+    - "traefik.http.routers.solrapideny.middlewares=acsfakeauth@docker"<% if (https == 'true') { %>
+    - "traefik.http.routers.solrapideny.entrypoints=websecure"<% } else { %>
+    - "traefik.http.routers.solrapideny.entrypoints=web"<% } %>
+
+# Share Labels
+share:
+  labels:
+    - "traefik.enable=true"<% if (https == 'true') { %>
+    - "traefik.http.routers.share.entrypoints=websecure"<% } else { %>
+    - "traefik.http.routers.share.entrypoints=web"<% } %>
+    - "traefik.http.routers.share.rule=PathPrefix(`/share`)"
+    - "traefik.http.services.share.loadbalancer.server.port=8080"
+    - "traefik.http.middlewares.share-redirect.redirectregex.regex=/share$$"
+    - "traefik.http.middlewares.share-redirect.redirectregex.replacement=/share/"
+    - "traefik.http.middlewares.share-chain.chain.middlewares=share-redirect@docker,limit@docker"
+    - "traefik.http.routers.share.middlewares=share-chain@docker"
+    # Protect proxied SOLR API endpoints
+    - "traefik.http.routers.proxiedsolrapideny.rule=PathRegexp(`^/share/proxy/alfresco(-(noauth|feed|api))?/api/solr/`)"
+    - "traefik.http.routers.proxiedsolrapideny.priority=100"
+    - "traefik.http.middlewares.sharefakeauth.basicauth.users=fake:"
+    - "traefik.http.routers.proxiedsolrapideny.middlewares=sharefakeauth@docker"<% if (https == 'true') { %>
+    - "traefik.http.routers.proxiedsolrapideny.entrypoints=websecure"<% } else { %>
+    - "traefik.http.routers.proxiedsolrapideny.entrypoints=web"<% } %>
+
+# Content App Labels
+content-app:
+  labels:
+    - "traefik.enable=true"<% if (https == 'true') { %>
+    - "traefik.http.routers.contentapp.entrypoints=websecure"<% } else { %>
+    - "traefik.http.routers.contentapp.entrypoints=web"<% } %>
+    - "traefik.http.routers.contentapp.rule=PathPrefix(`/`)"
+    - "traefik.http.routers.contentapp.priority=1"
+    - "traefik.http.services.contentapp.loadbalancer.server.port=8080"
+    - "traefik.http.routers.contentapp.middlewares=limit@docker"
+
+# SOLR6 Labels (only if not using HTTPS for SOLR communication)
+<% if (solrHttps == 'false') { %>
+solr6:
+  labels:
+    - "traefik.enable=true"<% if (https == 'true') { %>
+    - "traefik.http.routers.solr.entrypoints=websecure"<% } else { %>
+    - "traefik.http.routers.solr.entrypoints=web"<% } %>
+    - "traefik.http.routers.solr.rule=PathPrefix(`/solr`)"
+    - "traefik.http.services.solr.loadbalancer.server.port=8983"
+    - "traefik.http.middlewares.solrauth.basicauth.usersfile=/etc/traefik/nginx.htpasswd"
+    - "traefik.http.routers.solr.middlewares=solrauth@docker"
+<% } %>
+
+# PHPLDAPAdmin Labels (conditional)
+<% if (ldap == 'true') { %>
+phpldapadmin:
+  labels:
+    - "traefik.enable=true"<% if (https == 'true') { %>
+    - "traefik.http.routers.phpldapadmin.entrypoints=websecure"<% } else { %>
+    - "traefik.http.routers.phpldapadmin.entrypoints=web"<% } %>
+    - "traefik.http.routers.phpldapadmin.rule=PathPrefix(`/phpldapadmin`)"
+    - "traefik.http.services.phpldapadmin.loadbalancer.server.port=80"
+    - "traefik.http.middlewares.phpldapadmin-strip.stripprefix.prefixes=/phpldapadmin"
+    - "traefik.http.routers.phpldapadmin.middlewares=phpldapadmin-strip@docker"
+<% } %>

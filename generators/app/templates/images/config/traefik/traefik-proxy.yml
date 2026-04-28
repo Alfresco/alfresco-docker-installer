@@ -1,0 +1,40 @@
+# Traefik Proxy Service Definition
+# This file contains the service configuration for Traefik
+# It will be merged into the main docker-compose.yml
+
+proxy:
+    image: traefik:3.6
+    mem_limit: 128m
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"<% if (https == 'true') { %>
+      - "--entrypoints.websecure.address=:<%=port%>"
+      - "--entrypoints.websecure.http.tls=true"<% } else { %>
+      - "--entrypoints.web.address=:<%=port%>"<% } %>
+      - "--entrypoints.web.transport.respondingTimeouts.readTimeout=20m"
+      - "--entryPoints.traefik.address=:8888"
+      - "--accesslog=true"
+      - "--ping.entrypoint=<% if (https == 'true') { %>websecure<% } else { %>web<% } %>"
+      - "--ping=true"
+    ports:
+      - "${BIND_IP_NGINX:-0.0.0.0}:<%=port%>:<%=port%>"
+      - "${BIND_IP_NGINX:-0.0.0.0}:8888:8888"
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    security_opt:
+      - label=disable
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro<% if (https == 'true') { %>
+      - ./config/cert/localhost.cer:/certs/localhost.cer:ro
+      - ./config/cert/localhost.key:/certs/localhost.key:ro<% } %>
+    depends_on:
+      - alfresco
+      - solr6
+      - share
+      - content-app

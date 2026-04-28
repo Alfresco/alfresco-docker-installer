@@ -11,7 +11,28 @@ services:
             KEYSTORE_TYPE: JCEKS
             KEYSTORE_PASS: keystore
             CERT_ALIAS: ssl.repo <% } %>
-        mem_limit: <%=ram/2%>m
+        deploy:
+            resources:
+                limits:
+                    memory: <%=ram/2%>m<% if (proxyType == 'traefik') { %>
+        labels:
+            - "traefik.enable=true"<% if (https == 'true') { %>
+            - "traefik.http.routers.alfresco.entrypoints=websecure"<% } else { %>
+            - "traefik.http.routers.alfresco.entrypoints=web"<% } %>
+            - "traefik.http.routers.alfresco.rule=PathPrefix(`/alfresco`) || PathPrefix(`/api-explorer`)"
+            - "traefik.http.services.alfresco.loadbalancer.server.port=8080"
+            - "traefik.http.middlewares.alfresco-redirect.redirectregex.regex=^https?://[^/]+/([^/.]+)$$"
+            - "traefik.http.middlewares.alfresco-redirect.redirectregex.replacement=$$0/"
+            - "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=5368709120"
+            - "traefik.http.middlewares.alfresco-chain.chain.middlewares=alfresco-redirect@docker,limit@docker"
+            - "traefik.http.routers.alfresco.middlewares=alfresco-chain@docker"
+            - "traefik.http.routers.solrapideny.rule=PathRegexp(`^/alfresco/(wc)?s(ervice)?/api/solr/.*$$`)"
+            - "traefik.http.routers.solrapideny.priority=100"
+            - "traefik.http.middlewares.acsfakeauth.basicauth.users=fake:"
+            - "traefik.http.routers.solrapideny.middlewares=acsfakeauth@docker"<% if (https == 'true') { %>
+            - "traefik.http.routers.solrapideny.entrypoints=websecure"<% } else { %>
+            - "traefik.http.routers.solrapideny.entrypoints=web"<% } %>
+<% } %>
         depends_on: <% if (db == 'postgres') { %>
           postgres:
             condition: service_healthy
@@ -138,7 +159,10 @@ services:
     transform-core-aio:
         image: <%=repository%>/alfresco-transform-core-aio:${TRANSFORM_ENGINE_TAG}
         restart: on-failure
-        mem_limit: 2048m
+        deploy:
+            resources:
+                limits:
+                    memory: 2048m
         environment:
             JAVA_OPTS: "
               -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
@@ -163,7 +187,10 @@ services:
             SHARE_TAG: ${SHARE_TAG}
             SERVER_NAME: ${SERVER_NAME}
             HTTP_PORT: <%=port%>
-        mem_limit: <%=ram/8%>m
+        deploy:
+            resources:
+                limits:
+                    memory: <%=ram/8%>m
         environment:
             REPO_HOST: "alfresco"
             REPO_PORT: "8080"
@@ -176,7 +203,24 @@ services:
                 "
         depends_on:
           alfresco:
-            condition: service_healthy
+            condition: service_healthy<% if (proxyType == 'traefik') { %>
+        labels:
+            - "traefik.enable=true"<% if (https == 'true') { %>
+            - "traefik.http.routers.share.entrypoints=websecure"<% } else { %>
+            - "traefik.http.routers.share.entrypoints=web"<% } %>
+            - "traefik.http.routers.share.rule=PathPrefix(`/share`)"
+            - "traefik.http.services.share.loadbalancer.server.port=8080"
+            - "traefik.http.middlewares.share-redirect.redirectregex.regex=/share$$"
+            - "traefik.http.middlewares.share-redirect.redirectregex.replacement=/share/"
+            - "traefik.http.middlewares.share-chain.chain.middlewares=share-redirect@docker,limit@docker"
+            - "traefik.http.routers.share.middlewares=share-chain@docker"
+            - "traefik.http.routers.proxiedsolrapideny.rule=PathRegexp(`^/share/proxy/alfresco(-(noauth|feed|api))?/api/solr/`)"
+            - "traefik.http.routers.proxiedsolrapideny.priority=100"
+            - "traefik.http.middlewares.sharefakeauth.basicauth.users=fake:"
+            - "traefik.http.routers.proxiedsolrapideny.middlewares=sharefakeauth@docker"<% if (https == 'true') { %>
+            - "traefik.http.routers.proxiedsolrapideny.entrypoints=websecure"<% } else { %>
+            - "traefik.http.routers.proxiedsolrapideny.entrypoints=web"<% } %>
+<% } %>
         volumes: <% if (windows == 'false') { %>
             - ./logs/share:/usr/local/tomcat/logs <% } %> <% if (windows == 'true') { %>
             - alf-share-logs:/usr/local/tomcat/logs <% } %>
@@ -184,7 +228,10 @@ services:
     <% if (db == 'postgres') { %>
     postgres:
         image: postgres:${POSTGRES_TAG}
-        mem_limit: <%=ram/8%>m
+        deploy:
+            resources:
+                limits:
+                    memory: <%=ram/8%>m
         environment:
             - POSTGRES_PASSWORD=alfresco
             - POSTGRES_USER=alfresco
@@ -209,7 +256,10 @@ services:
     <% } %> <% if (db == 'mariadb') { %>
     mariadb:
         image: mariadb:${MARIADB_TAG}
-        mem_limit: <%=ram/8%>m
+        deploy:
+            resources:
+                limits:
+                    memory: <%=ram/8%>m
         environment:
             - MYSQL_ROOT_PASSWORD=alfresco
             - MYSQL_DATABASE=alfresco
@@ -246,7 +296,10 @@ services:
             KEYSTORE_TYPE: JCEKS <% } %>
             CROSS_LOCALE: "<%=crossLocale%>"
             DISABLE_CONTENT_INDEXING: "<%=disableContentIndexing%>"
-        mem_limit: <%=ram/4%>m
+        deploy:
+            resources:
+                limits:
+                    memory: <%=ram/4%>m
         environment:
             SOLR_JAVA_MEM: "-XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80"
             #Solr needs to know how to register itself with Alfresco
@@ -285,7 +338,15 @@ services:
             "
         depends_on:
           alfresco:
-            condition: service_healthy
+            condition: service_healthy<% if (proxyType == 'traefik' && solrHttpMode != 'https') { %>
+        labels:
+            - "traefik.enable=true"<% if (https == 'true') { %>
+            - "traefik.http.routers.solr.entrypoints=websecure"<% } else { %>
+            - "traefik.http.routers.solr.entrypoints=web"<% } %>
+            - "traefik.http.routers.solr.rule=PathPrefix(`/solr`)"
+            - "traefik.http.services.solr.loadbalancer.server.port=8983"
+            - "traefik.http.middlewares.solrauth.basicauth.usersfile=/etc/nginx/conf.d/nginx.htpasswd"
+            - "traefik.http.routers.solr.middlewares=solrauth@docker"<% } %>
         volumes: <% if (windows == 'false') { %>
             - ./data/solr-data:/opt/alfresco-search-services/data <% } %> <% if (windows == 'true') { %>
             - solr-data:/opt/alfresco-search-services/data <% } %> <% if (solrHttpMode == 'https') { %>
@@ -294,7 +355,10 @@ services:
     <% if (activemq == 'true') { %>
     activemq:
         image: alfresco/alfresco-activemq:${ACTIVEMQ_TAG}
-        mem_limit: 1g<% if (activeMqCredentials == 'true') { %>
+        deploy:
+            resources:
+                limits:
+                    memory: 1g<% if (activeMqCredentials == 'true') { %>
         environment:
             ACTIVEMQ_ADMIN_LOGIN: "<%=activeMqUser%>"
             ACTIVEMQ_ADMIN_PASSWORD: "<%=activeMqPassword%>" <% } %>
@@ -305,20 +369,34 @@ services:
 
     content-app:
         image: <%=repository%>/alfresco-content-app:${ACA_TAG}
-        mem_limit: 256m
+        deploy:
+            resources:
+                limits:
+                    memory: 256m
         environment:
             APP_BASE_SHARE_URL: "http://${SERVER_NAME}:<%=port%>/#/preview/s"
             APP_CONFIG_PLUGIN_PROCESS_SERVICE: false
         depends_on:
           alfresco:
-            condition: service_healthy
+            condition: service_healthy<% if (proxyType == 'traefik') { %>
+        labels:
+            - "traefik.enable=true"<% if (https == 'true') { %>
+            - "traefik.http.routers.contentapp.entrypoints=websecure"<% } else { %>
+            - "traefik.http.routers.contentapp.entrypoints=web"<% } %>
+            - "traefik.http.routers.contentapp.rule=PathPrefix(`/`)"
+            - "traefik.http.routers.contentapp.priority=1"
+            - "traefik.http.services.contentapp.loadbalancer.server.port=8080"
+            - "traefik.http.routers.contentapp.middlewares=limit@docker"<% } %>
 
 
     # HTTP proxy to provide HTTP Default port access to services
     # SOLR API and SOLR Web Console are protected to avoid unauthenticated access
-    proxy:
+    proxy:<% if (proxyType == 'nginx') { %>
         image: nginx:stable-alpine
-        mem_limit: 128m
+        deploy:
+            resources:
+                limits:
+                    memory: 128m
         depends_on:
             - alfresco
             - solr6
@@ -330,18 +408,64 @@ services:
             - ./config/cert/localhost.cer:/etc/nginx/localhost.cer
             - ./config/cert/localhost.key:/etc/nginx/localhost.key <% } %>
         ports:
-            - ${BIND_IP_NGINX:-0.0.0.0}:<%=port%>:<%=port%>
+            - ${BIND_IP_NGINX:-0.0.0.0}:<%=port%>:<%=port%><% } else { %>
+        image: traefik:3.6
+        deploy:
+            resources:
+                limits:
+                    memory: 128m
+        command:
+            - "--api.insecure=true"
+            - "--providers.docker=true"
+            - "--providers.docker.exposedByDefault=false"
+            - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+<% if (https == 'true') { %>
+            - "--entrypoints.websecure.address=:<%=port%>"
+            - "--entrypoints.websecure.http.tls=true"<% } else { %>
+            - "--entrypoints.web.address=:<%=port%>"<% } %>
+            - "--entrypoints.web.transport.respondingTimeouts.readTimeout=20m"
+            - "--entryPoints.traefik.address=:8888"
+            - "--accesslog=true"
+            - "--ping.entrypoint=<% if (https == 'true') { %>websecure<% } else { %>web<% } %>"
+            - "--ping=true"
+        ports:
+            - "${BIND_IP_NGINX:-0.0.0.0}:<%=port%>:<%=port%>"
+            - "${BIND_IP_NGINX:-0.0.0.0}:8888:8888"
+        healthcheck:
+            test: ["CMD", "traefik", "healthcheck", "--ping"]
+            interval: 20s
+            timeout: 10s
+            retries: 3
+            start_period: 10s
+        security_opt:
+            - label=disable
+        depends_on:
+            - alfresco
+            - solr6
+            - share
+            - content-app
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - ./config/nginx.htpasswd:/etc/nginx/conf.d/nginx.htpasswd:ro<% if (https == 'true') { %>
+            - ./config/cert/localhost.cer:/certs/localhost.cer:ro
+            - ./config/cert/localhost.key:/certs/localhost.key:ro<% } %><% } %>
 
     <% if (smtp == 'true') { %>
     smtp:
         image: mwader/postfix-relay
-        mem_limit: 128m
+        deploy:
+            resources:
+                limits:
+                    memory: 128m
     <% } %>
 
     <% if (ldap == 'true') { %>
     openldap:
         image: osixia/openldap:1.4.0
-        mem_limit: 128m
+        deploy:
+            resources:
+                limits:
+                    memory: 128m
         container_name: openldap
         environment:
           LDAP_DOMAIN: "alfresco.org"
@@ -353,11 +477,22 @@ services:
 
     phpldapadmin:
         image: osixia/phpldapadmin
-        mem_limit: 128m
+        deploy:
+            resources:
+                limits:
+                    memory: 128m
         container_name: phpldapadmin
         environment:
           PHPLDAPADMIN_LDAP_HOSTS: "openldap"
-          PHPLDAPADMIN_HTTPS=false:
+          PHPLDAPADMIN_HTTPS=false:<% if (proxyType == 'traefik') { %>
+        labels:
+            - "traefik.enable=true"<% if (https == 'true') { %>
+            - "traefik.http.routers.phpldapadmin.entrypoints=websecure"<% } else { %>
+            - "traefik.http.routers.phpldapadmin.entrypoints=web"<% } %>
+            - "traefik.http.routers.phpldapadmin.rule=PathPrefix(`/phpldapadmin`)"
+            - "traefik.http.services.phpldapadmin.loadbalancer.server.port=80"
+            - "traefik.http.middlewares.phpldapadmin-strip.stripprefix.prefixes=/phpldapadmin"
+            - "traefik.http.routers.phpldapadmin.middlewares=phpldapadmin-strip@docker"<% } %>
         links:
             - openldap
         depends_on:
@@ -367,7 +502,10 @@ services:
     <% if (ocr == 'true') { %>
     ocrmypdf:
         build: ./ocrmypdf
-        mem_limit: 512m
+        deploy:
+            resources:
+                limits:
+                    memory: 512m
         hostname: ocrmypdf
         volumes: <% if (windows == 'false') { %>
             - ./data/ocr/input:/ocr_input
@@ -379,7 +517,10 @@ services:
     <% if (transformerocr == 'true') { %>
     transform-ocr:
         image: angelborroy/alfresco-tengine-ocr:2.0.0
-        mem_limit: 1536m
+        deploy:
+            resources:
+                limits:
+                    memory: 1536m
         environment:
           JAVA_OPTS: "
               -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
