@@ -302,6 +302,23 @@ By default, many organizations are storing documents in different languages or t
 By default, Alfresco is indexing the content of a document (in addition to the metadata). Disable this option if you don't require searching by the content of the documents.
 
 ```
+? Which search engine would you like to use?
+  Alfresco Search Services (stock, Solr 6)
+  Jeci community fork (vanilla Solr 9 / Java 17, standalone trackers)
+```
+
+This question is **only available for ACS 26.1**. By default the stock **Alfresco Search Services** image (Apache Solr 6) is used.
+
+The **Jeci community fork** ([jecicorp/AlfrescoSearchServices](https://github.com/jecicorp/AlfrescoSearchServices)) runs search on **vanilla Apache Solr 9 / Java 17** and splits the search tier into **two services**: `solr6` (query serving + index storage) and `trackers` (the indexing trackers, externalized into a standalone Spring Boot service). The trackers can be re-tuned live through `ALFRESCO_TRACKER_*` environment variables without rebuilding any image.
+
+Notes when selecting the Jeci fork:
+
+* It is a **beta**, community-maintained fork — not affiliated with Hyland and not recommended for production yet.
+* Communication with the Repository is forced to **shared secret** (the `Alfresco-SOLR communication` question below is skipped); the fork does not yet support mTLS on the trackers → Solr leg.
+* The images are **not published to a public registry** yet, so build them locally and point `SEARCH_JECI_IMAGE` / `TRACKERS_JECI_IMAGE` in `.env` at your local tags (defaults: `alfresco/alfresco-search-services:local` and `alfresco/alfresco-indexing-trackers:local`).
+* A full re-index is required (Lucene 9 cannot read a Solr 6 index); start with empty cores and let the trackers rebuild from the Repository.
+
+```
 ? Would you like to use HTTP or Shared Secret for Alfresco-SOLR communication?
   http  << Not available when using ACS 7.2+
   https
@@ -396,6 +413,7 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 * `--mariadb`: true or false
 * `--crossLocale`: true or false
 * `--enableContentIndexing`: true or false
+* `--searchType`: alfresco or jeci (only for ACS 26.1, defaults to alfresco; `jeci` forces `--solrHttpMode=secret`)
 * `--solrHttpMode`: http, https or secret
 * `--activemq`: true or false (ACS 7.3+)
 * `--smtp`: true or false
@@ -414,6 +432,29 @@ yo alfresco-docker-installer \
   --https=true \
   --serverName=alfresco.example.com \
   --port=443
+```
+
+**Example with the Jeci Solr 9 community fork (ACS 26.1 only):**
+
+```bash
+yo alfresco-docker-installer \
+  --acsVersion=26.1 \
+  --searchType=jeci \
+  --ram=16 \
+  --serverName=localhost \
+  --port=80
+```
+
+Before `docker compose up`, build the fork's images locally (they are not published to a public registry yet) and, if you tagged them differently, set `SEARCH_JECI_IMAGE` / `TRACKERS_JECI_IMAGE` in the generated `.env`:
+
+```bash
+git clone https://github.com/jecicorp/AlfrescoSearchServices.git
+cd AlfrescoSearchServices
+mise run install && mise run trackers:build
+docker build -t alfresco/alfresco-search-services:local search-services/packaging/target/docker-resources/
+docker build -t alfresco/alfresco-indexing-trackers:local \
+  -f search-services/packaging/src/docker/Dockerfile.trackers \
+  search-services/alfresco-indexing-trackers/target/
 ```
 
 **Note on boolean flags**: Yeoman treats boolean flags as true when present. To set a flag to true, include it (e.g., `--https`). To set it to false, omit the flag entirely. Do NOT use `--flag=false` syntax as it will be interpreted as true.
@@ -504,7 +545,9 @@ Runtime bind-mount folders under `data/` and `logs/` are typically created after
 │   ├── slapd               > [LDAP] OpenLDAP storage
 │   │   ├── config
 │   │   └── database
-│   └── solr-data           > Internal storage for Search Services
+│   ├── solr-data           > Internal storage for Search Services
+│   ├── solr-solrhome        > [searchType=jeci] Solr 9 cores/config (solrhome)
+│   └── trackers-data        > [searchType=jeci] Standalone trackers model store
 
 ├── docker-compose.yml      > Main Docker Compose template
 ├── create_volumes.sh       > [Optional] Helper script to prepare Linux/macOS bind mounts
@@ -524,7 +567,7 @@ Runtime bind-mount folders under `data/` and `logs/` are typically created after
 │   ├── Dockerfile          > Docker image for ocrmypdf
 │   └── assets              > OCR service configuration assets
 
-├── search                  > Search Services image build context
+├── search                  > Search Services image build context (omitted when searchType=jeci, which uses prebuilt images)
 │   └── Dockerfile          > Docker image for Search Services
 
 ├── share                   > Share image build context

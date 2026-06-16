@@ -33,6 +33,7 @@ export default class AppGenerator extends Generator {
     this.option('mariadb', { type: Boolean, description: 'Use MariaDB instead of PostgreSQL' });
     this.option('crossLocale', { type: Boolean, description: 'Support multiple languages' });
     this.option('enableContentIndexing', { type: Boolean, description: 'Enable content indexing in documents' });
+    this.option('searchType', { type: String, description: 'Search engine: alfresco (stock Search Services) or jeci (Solr 9 / Java 17 community fork with standalone trackers) (ACS 26.1 only)' });
     this.option('solrHttpMode', { type: String, description: 'Alfresco-SOLR communication: http, https, or secret' });
     this.option('activemq', { type: Boolean, description: 'Enable Events service (ActiveMQ)' });
     this.option('activeMqCredentials', { type: Boolean, description: 'Use credentials for ActiveMQ' });
@@ -115,7 +116,7 @@ export default class AppGenerator extends Generator {
 
     const prompts = [
       {
-        type: 'list',
+        type: 'select',
         name: 'acsVersion',
         message: 'Which ACS version do you want to use?',
         choices: [ '6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2', '25.3', '26.1' ],
@@ -148,7 +149,7 @@ export default class AppGenerator extends Generator {
           var version = response.acsVersion || self.options.acsVersion;
           return version === '26.1';
         },
-        type: 'list',
+        type: 'select',
         name: 'proxyType',
         message: 'Which proxy would you like to use?',
         choices: ['nginx', 'traefik'],
@@ -248,9 +249,24 @@ export default class AppGenerator extends Generator {
       {
         when: function (response) {
           var version = response.acsVersion || self.options.acsVersion;
-          return version === '7.1';
+          return version === '26.1';
         },
-        type: 'list',
+        type: 'select',
+        name: 'searchType',
+        message: 'Which search engine would you like to use?',
+        choices: [
+          { name: 'Alfresco Search Services (stock, Solr 6)', value: 'alfresco' },
+          { name: 'Jeci community fork (vanilla Solr 9 / Java 17, standalone trackers)', value: 'jeci' }
+        ],
+        default: 'alfresco'
+      },
+      {
+        when: function (response) {
+          var version = response.acsVersion || self.options.acsVersion;
+          var search = response.searchType !== undefined ? response.searchType : self.options.searchType;
+          return version === '7.1' && search !== 'jeci';
+        },
+        type: 'select',
         name: 'solrHttpMode',
         message: 'Would you like to use HTTP, HTTPs or Shared Secret for Alfresco-SOLR communication?',
         choices: [ 'http', 'https', 'secret' ],
@@ -259,9 +275,12 @@ export default class AppGenerator extends Generator {
       {
         when: function (response) {
           var version = response.acsVersion || self.options.acsVersion;
-          return compare(version, '7.2', '>=');
+          var search = response.searchType !== undefined ? response.searchType : self.options.searchType;
+          // The Jeci fork only supports shared-secret end to end (its trackers->Solr
+          // leg has no mTLS), so solrHttpMode is forced to 'secret' for it.
+          return compare(version, '7.2', '>=') && search !== 'jeci';
         },
-        type: 'list',
+        type: 'select',
         name: 'solrHttpMode',
         message: 'Would you like to use Shared Secret or HTTPs for Alfresco-SOLR communication?',
         choices: [ 'secret', 'https' ],
@@ -430,6 +449,7 @@ export default class AppGenerator extends Generator {
           windows: (this.props.windows ? 'true' : 'false'),
           googledocs: (this.props.addons.includes('google-docs') ? 'true' : 'false'),
           serverName: this.props.serverName,
+          searchType: this.props.searchType,
           solrHttpMode: this.props.solrHttpMode,
           secureComms: (this.props.solrHttpMode === 'http' ? 'none' : this.props.solrHttpMode),
           // Generate random password for Repo-SOLR secret communication method
@@ -471,14 +491,24 @@ export default class AppGenerator extends Generator {
           serverName: this.props.serverName
         }
       );
-      // Copy Docker Image for Search applying configuration
-      this.fs.copyTpl(
-        this.templatePath('images/search'),
-        this.destinationPath('search'),
-        {
-          repository: (this.props.arch ? 'angelborroy' : 'alfresco')
-        }
-      );
+      // Copy Docker Image for Search applying configuration.
+      // The Jeci fork ships a multi-stage Dockerfile that compiles the fork from
+      // source (so no local JDK/Maven or manual clone is needed); the stock build
+      // uses the prebuilt Search Services image as a base.
+      if (this.props.searchType === 'jeci') {
+        this.fs.copy(
+          this.templatePath('images/search-jeci'),
+          this.destinationPath('search')
+        );
+      } else {
+        this.fs.copyTpl(
+          this.templatePath('images/search'),
+          this.destinationPath('search'),
+          {
+            repository: (this.props.arch ? 'angelborroy' : 'alfresco')
+          }
+        );
+      }
       // Copy Proxy Configuration (nginx.conf for nginx, nginx.htpasswd for both nginx and Traefik)
       this.fs.copyTpl(
         this.templatePath('images/config/nginx'),
@@ -636,6 +666,23 @@ export default class AppGenerator extends Generator {
    * Show warnings and informational messages
    */
   showWarnings() {
+    if (this.props.searchType === 'jeci') {
+      this.log('\n   ---------------------------------------------------------------\n' +
+        '   NOTE: You selected the Jeci community fork of Alfresco Search \n' +
+        '   Services (vanilla Apache Solr 9 / Java 17). This is a BETA, \n' +
+        '   community-maintained fork, not affiliated with Hyland and not \n' +
+        '   for production use yet. \n\n' +
+        '   The search tier now runs as TWO services: "solr6" (query + index \n' +
+        '   storage) and "trackers" (the standalone indexing trackers). \n' +
+        '   Communication with the Repository uses shared secret. \n\n' +
+        '   The ./search Dockerfile compiles the fork FROM SOURCE (Java 17) on \n' +
+        '   first build, so no local JDK/Maven is needed. The initial \n' +
+        '   "docker compose up --build" downloads + compiles and may take a \n' +
+        '   while; later builds are cached. Pick a branch/tag/commit with \n' +
+        '   JECI_REPO / JECI_REF in .env. \n' +
+        '   https://github.com/jecicorp/AlfrescoSearchServices \n' +
+        '   ---------------------------------------------------------------\n');
+    }
     if (this.props.addons.includes('share-site-creators')) {
       this.log('\n   ---------------------------------------------------\n' +
         '   WARNING: You selected the addon share-site-creators. \n' +
@@ -745,6 +792,17 @@ function usesActiveMqCredentials(props) {
 }
 
 function applyDerivedDefaults(props) {
+  // Search engine: only ACS 26.1 can select the Jeci fork; everything else uses stock.
+  if (props.searchType !== 'jeci' || props.acsVersion !== '26.1') {
+    props.searchType = 'alfresco';
+  }
+
+  // The Jeci fork (Solr 9 / standalone trackers) only supports shared-secret
+  // communication end to end, so force it regardless of any solrHttpMode input.
+  if (props.searchType === 'jeci') {
+    props.solrHttpMode = 'secret';
+  }
+
   if (props.activemq && requiresActiveMqCredentials(props.acsVersion)) {
     props.activeMqCredentials = true;
   }
@@ -782,6 +840,10 @@ function getAvailableMemory(props) {
     ram -= 256;
   }
   if (props.ocr) {
+    ram -= 512;
+  }
+  // The Jeci fork adds a standalone trackers service (fixed 512m).
+  if (props.searchType === 'jeci') {
     ram -= 512;
   }
   return ram;
