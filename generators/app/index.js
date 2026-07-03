@@ -6,6 +6,11 @@ import Generator from 'yeoman-generator';
 import banner from './banner.js';
 import { createMD4 } from 'hash-wasm';
 import { compare } from 'compare-versions';
+
+// Strip non-numeric suffixes (e.g. '26.2-preview' -> '26.2') so compare-versions accepts them
+function semver(version) {
+  return version ? version.replace(/-.*$/, '') : version;
+}
 /**
  * This module builds a Docker Compose template to use
  * Alfresco Repository and Search Services
@@ -17,7 +22,7 @@ export default class AppGenerator extends Generator {
 
     // Register all command-line options
     // Note: For booleans, use --flag to set true, omit the flag for false (don't use --flag=false)
-    this.option('acsVersion', { type: String, description: 'ACS version (6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3, 26.1)' });
+    this.option('acsVersion', { type: String, description: 'ACS version (6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3, 26.1, 26.2-preview)' });
     this.option('arch', { type: Boolean, description: 'Use ARCH64 Docker images for Apple Silicon (ACS 7.3+ only)' });
     this.option('ram', { type: String, description: 'RAM in GB available for Alfresco (minimum 16)' });
     this.option('https', { type: Boolean, description: 'Use HTTPS for Web Proxy' });
@@ -46,6 +51,7 @@ export default class AppGenerator extends Generator {
     this.option('startscript', { type: Boolean, description: 'Generate start script' });
     this.option('volumesscript', { type: Boolean, description: 'Generate volume creation script for Linux' });
     this.option('dockerDesktop', { type: Boolean, description: 'Deprecated: retained for backwards compatibility, no longer affects Traefik configuration' });
+    this.option('searchType', { type: String, description: 'Search engine for ACS 26.2-preview: alfresco (stock Solr 6), jeci (Solr 9 community fork), or opensearch (EXPERIMENTAL)' });
   }
 
   // Options to be chosen by the user
@@ -119,13 +125,13 @@ export default class AppGenerator extends Generator {
         type: 'select',
         name: 'acsVersion',
         message: 'Which ACS version do you want to use?',
-        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2', '25.3', '26.1' ],
+        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2', '25.3', '26.1', '26.2-preview' ],
         default: '26.1'
       },
       {
         when: function (response) {
           var version = response.acsVersion || self.options.acsVersion;
-          return compare(version, '7.3', '>=') && compare(version, '23', '<');
+          return compare(semver(version),'7.3', '>=') && compare(semver(version),'23', '<');
         },
         type: 'confirm',
         name: 'arch',
@@ -147,13 +153,28 @@ export default class AppGenerator extends Generator {
       {
         when: function (response) {
           var version = response.acsVersion || self.options.acsVersion;
-          return version === '26.1';
+          return version === '26.1' || version === '26.2-preview';
         },
         type: 'select',
         name: 'proxyType',
         message: 'Which proxy would you like to use?',
         choices: ['nginx', 'traefik'],
         default: 'nginx'
+      },
+      {
+        when: function (response) {
+          var version = response.acsVersion || self.options.acsVersion;
+          return version === '26.2-preview';
+        },
+        type: 'list',
+        name: 'searchType',
+        message: 'Which search engine would you like to use?',
+        choices: [
+          { name: 'Alfresco Search Services (stock, Solr 6)', value: 'alfresco' },
+          { name: 'Jeci community fork (vanilla Solr 9 / Java 17, standalone trackers)', value: 'jeci' },
+          { name: 'OpenSearch + batch-indexer (EXPERIMENTAL)', value: 'opensearch' }
+        ],
+        default: 'alfresco'
       },
       {
         type: 'input',
@@ -275,10 +296,10 @@ export default class AppGenerator extends Generator {
       {
         when: function (response) {
           var version = response.acsVersion || self.options.acsVersion;
-          var search = response.searchType !== undefined ? response.searchType : self.options.searchType;
+          var searchType = response.searchType !== undefined ? response.searchType : self.options.searchType;
           // The Jeci fork only supports shared-secret end to end (its trackers->Solr
           // leg has no mTLS), so solrHttpMode is forced to 'secret' for it.
-          return compare(version, '7.2', '>=') && search !== 'jeci';
+          return compare(semver(version), '7.2', '>=') && searchType !== 'jeci' && searchType !== 'opensearch';
         },
         type: 'select',
         name: 'solrHttpMode',
@@ -289,7 +310,7 @@ export default class AppGenerator extends Generator {
       {
         when: function (response) {
           var version = response.acsVersion || self.options.acsVersion;
-          return compare(version, '7.3', '>=');
+          return compare(semver(version),'7.3', '>=');
         },
         type: 'confirm',
         name: 'activemq',
@@ -300,7 +321,7 @@ export default class AppGenerator extends Generator {
         when: function (response) {
           var version = response.acsVersion || self.options.acsVersion;
           var activemq = response.activemq !== undefined ? response.activemq : self.options.activemq;
-          return compare(version, '7.1', '>=') &&
+          return compare(semver(version),'7.1', '>=') &&
                  activemq !== undefined &&
                  activemq &&
                  !requiresActiveMqCredentials(version);
@@ -315,7 +336,7 @@ export default class AppGenerator extends Generator {
           var version = response.acsVersion || self.options.acsVersion;
           var activeMqEnabled = response.activemq !== undefined ? response.activemq : self.options.activemq;
           var creds = requiresActiveMqCredentials(version) || response.activeMqCredentials || self.options.activeMqCredentials;
-          return compare(version, '7.1', '>=') && activeMqEnabled && creds;
+          return compare(semver(version),'7.1', '>=') && activeMqEnabled && creds;
         },
         type: 'input',
         name: 'activeMqUser',
@@ -327,7 +348,7 @@ export default class AppGenerator extends Generator {
           var version = response.acsVersion || self.options.acsVersion;
           var activeMqEnabled = response.activemq !== undefined ? response.activemq : self.options.activemq;
           var creds = requiresActiveMqCredentials(version) || response.activeMqCredentials || self.options.activeMqCredentials;
-          return compare(version, '7.1', '>=') && activeMqEnabled && creds;
+          return compare(semver(version),'7.1', '>=') && activeMqEnabled && creds;
         },
         type: 'input',
         name: 'activeMqPassword',
@@ -461,6 +482,7 @@ export default class AppGenerator extends Generator {
           activeMqPassword: this.props.activeMqPassword,
           repository: (this.props.arch ? 'angelborroy' : 'alfresco'),
           proxyType: this.props.proxyType,
+          searchType: this.props.searchType,
         }
       );
       // Copy Docker Image for Repository applying configuration
@@ -495,12 +517,13 @@ export default class AppGenerator extends Generator {
       // The Jeci fork ships a multi-stage Dockerfile that compiles the fork from
       // source (so no local JDK/Maven or manual clone is needed); the stock build
       // uses the prebuilt Search Services image as a base.
+      // OpenSearch uses its upstream image directly - no local Dockerfile needed.
       if (this.props.searchType === 'jeci') {
         this.fs.copy(
           this.templatePath('images/search-jeci'),
           this.destinationPath('search')
         );
-      } else {
+      } else if (this.props.searchType !== 'opensearch') {
         this.fs.copyTpl(
           this.templatePath('images/search'),
           this.destinationPath('search'),
@@ -517,7 +540,8 @@ export default class AppGenerator extends Generator {
           port: this.props.port,
           https: (this.props.https ? 'true' : 'false'),
           solrHttps: (this.props.solrHttpMode === 'https' ? 'true' : 'false'),
-          ldap: (this.props.ldap ? 'true' : 'false')
+          ldap: (this.props.ldap ? 'true' : 'false'),
+          searchType: this.props.searchType
         }
       );
       if (this.props.https) {
@@ -683,6 +707,13 @@ export default class AppGenerator extends Generator {
         '   https://github.com/jecicorp/AlfrescoSearchServices \n' +
         '   ---------------------------------------------------------------\n');
     }
+    if (this.props.searchType === 'opensearch') {
+      this.log('\n   ---------------------------------------------------------------\n' +
+        '   EXPERIMENTAL: You selected OpenSearch + batch-indexer as the  \n' +
+        '   search backend. This configuration is not production-ready and \n' +
+        '   is provided for evaluation purposes only (ACS 26.2-preview).   \n' +
+        '   ---------------------------------------------------------------\n');
+    }
     if (this.props.addons.includes('share-site-creators')) {
       this.log('\n   ---------------------------------------------------\n' +
         '   WARNING: You selected the addon share-site-creators. \n' +
@@ -738,7 +769,7 @@ export default class AppGenerator extends Generator {
    */
   showServiceUrls() {
     let protocol = this.props.https ? 'https://' : 'http://';
-    let port = this.props.port !== 80 && this.props.port !== 443 ? ':' + this.props.port : '';
+    let port = Number(this.props.port) !== 80 && Number(this.props.port) !== 443 ? ':' + this.props.port : '';
     this.log('\n---------------------------------------------------\n' +
       'STARTING ALFRESCO\n\n' +
       'Start Alfresco using the command "docker compose up"\n' +
@@ -784,7 +815,7 @@ function normalize(option, prompt) {
 }
 
 function requiresActiveMqCredentials(acsVersion) {
-  return !!acsVersion && compare(acsVersion, '26.1', '>=');
+  return !!acsVersion && compare(semver(acsVersion), '26.1', '>=');
 }
 
 function usesActiveMqCredentials(props) {
@@ -814,6 +845,12 @@ function applyDerivedDefaults(props) {
 
   // Default to nginx for all versions (only 26.1 can select traefik)
   props.proxyType = props.proxyType || 'nginx';
+
+  // Default to alfresco for all versions (only 26.2-preview can select jeci or opensearch)
+  props.searchType = props.searchType || 'alfresco';
+  if (props.searchType === 'opensearch') {
+    props.solrHttpMode = props.solrHttpMode || 'none';
+  }
 
   // Retain deprecated dockerDesktop option for backwards compatibility
   if (props.dockerDesktop === undefined) {
@@ -846,6 +883,9 @@ function getAvailableMemory(props) {
   if (props.searchType === 'jeci') {
     ram -= 512;
   }
+  if (props.searchType === 'opensearch') {
+    ram -= 2048;
+  }
   return ram;
 
 }
@@ -862,6 +902,9 @@ async function computeHashPassword(password) {
 function validateInputs(props) {
   if (isNaN(props.ram) || props.ram < 16) {
     throw new Error('RAM must be a number and at least 16 GB.');
+  }
+  if (props.searchType === 'opensearch' && props.mariadb) {
+    throw new Error('OpenSearch search backend is only supported with PostgreSQL database.');
   }
   if (isNaN(props.port) || props.port < 1 || props.port > 65535) {
     throw new Error('Port must be a valid number between 1 and 65535.');

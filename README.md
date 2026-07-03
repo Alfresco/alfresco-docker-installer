@@ -3,7 +3,7 @@
 
 [![Node.js >=18](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Docker Compose](https://img.shields.io/badge/docker%20compose-v2-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
-[![ACS 6.1-26.1](https://img.shields.io/badge/ACS-6.1--26.1-0A6EBD)](https://github.com/Alfresco/alfresco-docker-installer)
+[![ACS 6.1-26.2-preview](https://img.shields.io/badge/ACS-6.1--26.2--preview-0A6EBD)](https://github.com/Alfresco/alfresco-docker-installer)
 [![License: LGPL v3+](https://img.shields.io/badge/license-LGPL%20v3%2B-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.html)
 
 ## Table of Contents
@@ -20,7 +20,7 @@
 - [Docker Volumes](#docker-volumes)
 - [Docker Images](#docker-images)
 - [Service URLs](#service-urls)
-- [Traefik Dashboard](#traefik-dashboard-acs-261-when-using-traefik-proxy)
+- [Traefik Dashboard](#traefik-dashboard-acs-261-and-262-preview-when-using-traefik-proxy)
 - [Troubleshooting](#troubleshooting)
 - [Security Best Practices](#security-best-practices)
 - [Upgrading and Migration](#upgrading-and-migration)
@@ -28,7 +28,7 @@
 
 ## Description
 
-Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2, 7.x, 23.x, 25.x and 26.x to be used in Docker Compose installations.
+Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2, 7.x, 23.x, 25.x, 26.1 and 26.2-preview to be used in Docker Compose installations.
 
 This project generates a Docker Compose template ready to be used including the following features:
 
@@ -199,7 +199,7 @@ Several options are provided in order to build the configuration.
 ? Which ACS version do you want to use? 26.1
 ```
 
-You can use Alfresco 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3 or 26.1
+You can use Alfresco 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3, 26.1 or 26.2-preview
 
 ```
 ? Do you want to deploy Alfresco in ARCH64 computer (like Apple Silicon)?
@@ -225,9 +225,9 @@ This option enables HTTPs for every service. Default SSL certificates (public an
   traefik
 ```
 
-> **Note**: This prompt only appears when deploying ACS 26.1. For all previous ACS versions (6.x, 7.x, 23.x, 25.x), only nginx is available and no selection is prompted.
+> **Note**: This prompt only appears when deploying ACS 26.1 or 26.2-preview. For all previous ACS versions (6.x, 7.x, 23.x, 25.x), only nginx is available and no selection is prompted.
 
-**Proxy Selection Guide** (ACS 26.1 only):
+**Proxy Selection Guide** (ACS 26.1 and 26.2-preview only):
 
 - **nginx** (Default): Traditional, file-based configuration using `nginx.conf`. Battle-tested and widely used.
   - + Proven reliability and performance
@@ -246,6 +246,19 @@ This option enables HTTPs for every service. Default SSL certificates (public an
 Both proxies support HTTP and HTTPS protocols with equivalent functionality. Choose based on your preference and operational requirements.
 
 > **Note**: For ACS 26.1, Traefik now follows the same Docker provider model used by `acs-deployment`: it mounts `/var/run/docker.sock` and connects through the Unix socket on macOS, Linux and Windows Docker Desktop/WSL2.
+
+```
+? Which search engine would you like to use?
+  Alfresco Search Services (stock, Solr 6)
+  Jeci community fork (vanilla Solr 9 / Java 17, standalone trackers)
+  OpenSearch + batch-indexer (EXPERIMENTAL)
+```
+
+> **Note**: This prompt only appears when deploying ACS 26.2-preview.
+
+- **Alfresco Search Services** (Default): Stock Alfresco Search Services based on Solr 6.
+- **Jeci community fork**: Community-maintained Solr 9 / Java 17 fork with standalone trackers.
+- **OpenSearch + batch-indexer** (EXPERIMENTAL): Deploys OpenSearch instead of Solr, with the `alfresco-elasticsearch-batch-indexer` service handling continuous indexing. The ACS subsystem name remains `elasticsearch` as required by Alfresco internals. Only supported with PostgreSQL. Not recommended for production use.
 
 ```
 ? What is the name of your server?
@@ -400,11 +413,12 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 
 **Parameter names reference**
 
-* `--acsVersion`: 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3 or 26.1
+* `--acsVersion`: 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3, 26.1 or 26.2-preview
 * `--arch`: true or false (use ARCH64 Docker Images for Apple Silicon, ACS 7.3+ only)
 * `--ram`: number of GB available for Docker
 * `--https`: true or false
-* `--proxyType`: nginx or traefik (only for ACS 26.1, defaults to nginx)
+* `--proxyType`: nginx or traefik (only for ACS 26.1 and 26.2-preview, defaults to nginx)
+* `--searchType`: alfresco, jeci or opensearch (only for ACS 26.2-preview, defaults to alfresco)
 * `--serverName`: localhost default
 * `--password`: admin user default password
 * `--port`: 80 default (443 for HTTPS)
@@ -741,6 +755,8 @@ $ docker volume rm $(docker volume ls -q --filter name=tmp_)
 * [alfresco-content-repository-community](https://hub.docker.com/r/alfresco/alfresco-content-repository-community)
 * [alfresco-share](https://hub.docker.com/r/alfresco/alfresco-share)
 * [alfresco-search-services](https://hub.docker.com/r/alfresco/alfresco-search-services)
+* [opensearchproject/opensearch](https://hub.docker.com/r/opensearchproject/opensearch) - Search engine (ACS 26.2-preview, EXPERIMENTAL)
+* [alfresco-elasticsearch-batch-indexing](https://hub.docker.com/r/alfresco/alfresco-elasticsearch-batch-indexing) - Batch indexer for OpenSearch (ACS 26.2-preview, EXPERIMENTAL)
 * [postgres](https://hub.docker.com/_/postgres)
 * [nginx:stable-alpine](https://hub.docker.com/_/nginx) - Traditional reverse proxy
 * [traefik:3.6](https://hub.docker.com/_/traefik) - Modern reverse proxy (ACS 26.1+)
@@ -802,7 +818,7 @@ Default credentials
 * user: cn=admin,dc=alfresco,dc=org
 * password: admin
 
-## Traefik Dashboard (ACS 26.1+ when using Traefik proxy)
+## Traefik Dashboard (ACS 26.1 and 26.2-preview when using Traefik proxy)
 
 When selecting Traefik as the proxy, an additional dashboard is available for monitoring and managing routing:
 
