@@ -823,8 +823,12 @@ function usesActiveMqCredentials(props) {
 }
 
 function applyDerivedDefaults(props) {
-  // Search engine: only ACS 26.1 can select the Jeci fork; everything else uses stock.
-  if (props.searchType !== 'jeci' || props.acsVersion !== '26.1') {
+  // Search engine: jeci only for ACS 26.1, opensearch only for ACS 26.2-preview, everything else uses stock.
+  if (props.searchType === 'jeci' && props.acsVersion !== '26.1') {
+    props.searchType = 'alfresco';
+  } else if (props.searchType === 'opensearch' && props.acsVersion !== '26.2-preview') {
+    props.searchType = 'alfresco';
+  } else if (props.searchType !== 'jeci' && props.searchType !== 'opensearch') {
     props.searchType = 'alfresco';
   }
 
@@ -832,6 +836,11 @@ function applyDerivedDefaults(props) {
   // communication end to end, so force it regardless of any solrHttpMode input.
   if (props.searchType === 'jeci') {
     props.solrHttpMode = 'secret';
+  }
+
+  // OpenSearch does not use Solr communication; default solrHttpMode to avoid undefined.
+  if (props.searchType === 'opensearch') {
+    props.solrHttpMode = props.solrHttpMode || 'none';
   }
 
   if (props.activemq && requiresActiveMqCredentials(props.acsVersion)) {
@@ -843,14 +852,8 @@ function applyDerivedDefaults(props) {
     props.activeMqPassword = props.activeMqPassword || 'password';
   }
 
-  // Default to nginx for all versions (only 26.1 can select traefik)
+  // Default to nginx for all versions (only 26.1 and 26.2-preview can select traefik)
   props.proxyType = props.proxyType || 'nginx';
-
-  // Default to alfresco for all versions (only 26.2-preview can select jeci or opensearch)
-  props.searchType = props.searchType || 'alfresco';
-  if (props.searchType === 'opensearch') {
-    props.solrHttpMode = props.solrHttpMode || 'none';
-  }
 
   // Retain deprecated dockerDesktop option for backwards compatibility
   if (props.dockerDesktop === undefined) {
