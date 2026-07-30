@@ -7,7 +7,7 @@ import banner from './banner.js';
 import { createMD4 } from 'hash-wasm';
 import { compare } from 'compare-versions';
 
-// Strip non-numeric suffixes (e.g. '26.2-preview' -> '26.2') so compare-versions accepts them
+// Strip non-numeric suffixes (e.g. a '-preview' or '-RC' tag) so compare-versions accepts them
 function semver(version) {
   return version ? version.replace(/-.*$/, '') : version;
 }
@@ -22,7 +22,7 @@ export default class AppGenerator extends Generator {
 
     // Register all command-line options
     // Note: For booleans, use --flag to set true, omit the flag for false (don't use --flag=false)
-    this.option('acsVersion', { type: String, description: 'ACS version (6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3, 26.1, 26.2-preview)' });
+    this.option('acsVersion', { type: String, description: 'ACS version (6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3, 26.1, 26.2)' });
     this.option('arch', { type: Boolean, description: 'Use ARCH64 Docker images for Apple Silicon (ACS 7.3+ only)' });
     this.option('ram', { type: String, description: 'RAM in GB available for Alfresco (minimum 16)' });
     this.option('https', { type: Boolean, description: 'Use HTTPS for Web Proxy' });
@@ -38,7 +38,7 @@ export default class AppGenerator extends Generator {
     this.option('mariadb', { type: Boolean, description: 'Use MariaDB instead of PostgreSQL' });
     this.option('crossLocale', { type: Boolean, description: 'Support multiple languages' });
     this.option('enableContentIndexing', { type: Boolean, description: 'Enable content indexing in documents' });
-    this.option('searchType', { type: String, description: 'Search engine: alfresco (stock Search Services) or jeci (Solr 9 / Java 17 community fork with standalone trackers) (ACS 26.1 only)' });
+    this.option('searchType', { type: String, description: 'Search engine: alfresco (stock Search Services) or jeci (Solr 9 / Java 17 community fork with standalone trackers) (ACS 26.1); opensearch or jeci (ACS 26.2)' });
     this.option('solrHttpMode', { type: String, description: 'Alfresco-SOLR communication: http, https, or secret' });
     this.option('activemq', { type: Boolean, description: 'Enable Events service (ActiveMQ)' });
     this.option('activeMqCredentials', { type: Boolean, description: 'Use credentials for ActiveMQ' });
@@ -51,7 +51,7 @@ export default class AppGenerator extends Generator {
     this.option('startscript', { type: Boolean, description: 'Generate start script' });
     this.option('volumesscript', { type: Boolean, description: 'Generate volume creation script for Linux' });
     this.option('dockerDesktop', { type: Boolean, description: 'Deprecated: retained for backwards compatibility, no longer affects Traefik configuration' });
-    this.option('searchType', { type: String, description: 'Search engine for ACS 26.2-preview: alfresco (stock Solr 6), jeci (Solr 9 community fork), or opensearch (EXPERIMENTAL)' });
+    this.option('searchType', { type: String, description: 'Search engine for ACS 26.2: opensearch (OpenSearch + batch-indexer) or jeci (Solr 9 community fork)' });
   }
 
   // Options to be chosen by the user
@@ -125,8 +125,8 @@ export default class AppGenerator extends Generator {
         type: 'select',
         name: 'acsVersion',
         message: 'Which ACS version do you want to use?',
-        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2', '25.3', '26.1', '26.2-preview' ],
-        default: '26.1'
+        choices: [ '6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2', '25.3', '26.1', '26.2' ],
+        default: '26.2'
       },
       {
         when: function (response) {
@@ -153,7 +153,7 @@ export default class AppGenerator extends Generator {
       {
         when: function (response) {
           var version = response.acsVersion || self.options.acsVersion;
-          return version === '26.1' || version === '26.2-preview';
+          return version === '26.1' || version === '26.2';
         },
         type: 'select',
         name: 'proxyType',
@@ -164,17 +164,16 @@ export default class AppGenerator extends Generator {
       {
         when: function (response) {
           var version = response.acsVersion || self.options.acsVersion;
-          return version === '26.2-preview';
+          return version === '26.2';
         },
         type: 'list',
         name: 'searchType',
         message: 'Which search engine would you like to use?',
         choices: [
-          { name: 'Alfresco Search Services (stock, Solr 6)', value: 'alfresco' },
-          { name: 'Jeci community fork (vanilla Solr 9 / Java 17, standalone trackers)', value: 'jeci' },
-          { name: 'OpenSearch + batch-indexer (EXPERIMENTAL)', value: 'opensearch' }
+          { name: 'OpenSearch + batch-indexer', value: 'opensearch' },
+          { name: 'Jeci community fork (vanilla Solr 9 / Java 17, standalone trackers)', value: 'jeci' }
         ],
-        default: 'alfresco'
+        default: 'opensearch'
       },
       {
         type: 'input',
@@ -576,9 +575,12 @@ export default class AppGenerator extends Generator {
         );
       }
       if (this.props.volumesscript) {
-        this.fs.copy(
+        this.fs.copyTpl(
           this.templatePath('scripts/create_volumes.sh'),
-          this.destinationPath('create_volumes.sh')
+          this.destinationPath('create_volumes.sh'),
+          {
+            searchType: this.props.searchType
+          }
         );
       }
     } catch (err) {
@@ -707,13 +709,6 @@ export default class AppGenerator extends Generator {
         '   https://github.com/jecicorp/AlfrescoSearchServices \n' +
         '   ---------------------------------------------------------------\n');
     }
-    if (this.props.searchType === 'opensearch') {
-      this.log('\n   ---------------------------------------------------------------\n' +
-        '   EXPERIMENTAL: You selected OpenSearch + batch-indexer as the  \n' +
-        '   search backend. This configuration is not production-ready and \n' +
-        '   is provided for evaluation purposes only (ACS 26.2-preview).   \n' +
-        '   ---------------------------------------------------------------\n');
-    }
     if (this.props.addons.includes('share-site-creators')) {
       this.log('\n   ---------------------------------------------------\n' +
         '   WARNING: You selected the addon share-site-creators. \n' +
@@ -823,12 +818,18 @@ function usesActiveMqCredentials(props) {
 }
 
 function applyDerivedDefaults(props) {
-  // Search engine: jeci only for ACS 26.1, opensearch only for ACS 26.2-preview, everything else uses stock.
-  if (props.searchType === 'jeci' && props.acsVersion !== '26.1') {
+  // Search engine.
+  // ACS 26.2 dropped stock Alfresco Search Services (Solr 6): the only backends are
+  // opensearch (default) and jeci. All other versions default to stock 'alfresco',
+  // with jeci also selectable on 26.1.
+  if (props.acsVersion === '26.2') {
+    if (props.searchType !== 'jeci' && props.searchType !== 'opensearch') {
+      props.searchType = 'opensearch';
+    }
+  } else if (props.searchType === 'jeci' && props.acsVersion !== '26.1') {
     props.searchType = 'alfresco';
-  } else if (props.searchType === 'opensearch' && props.acsVersion !== '26.2-preview') {
-    props.searchType = 'alfresco';
-  } else if (props.searchType !== 'jeci' && props.searchType !== 'opensearch') {
+  } else if (props.searchType !== 'jeci') {
+    // opensearch is exclusive to 26.2; any non-jeci value elsewhere falls back to stock.
     props.searchType = 'alfresco';
   }
 
@@ -852,7 +853,7 @@ function applyDerivedDefaults(props) {
     props.activeMqPassword = props.activeMqPassword || 'password';
   }
 
-  // Default to nginx for all versions (only 26.1 and 26.2-preview can select traefik)
+  // Default to nginx for all versions (only 26.1 and 26.2 can select traefik)
   props.proxyType = props.proxyType || 'nginx';
 
   // Retain deprecated dockerDesktop option for backwards compatibility

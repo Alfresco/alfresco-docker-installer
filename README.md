@@ -3,7 +3,7 @@
 
 [![Node.js >=18](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Docker Compose](https://img.shields.io/badge/docker%20compose-v2-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
-[![ACS 6.1-26.2-preview](https://img.shields.io/badge/ACS-6.1--26.2--preview-0A6EBD)](https://github.com/Alfresco/alfresco-docker-installer)
+[![ACS 6.1-26.2](https://img.shields.io/badge/ACS-6.1--26.2-0A6EBD)](https://github.com/Alfresco/alfresco-docker-installer)
 [![License: LGPL v3+](https://img.shields.io/badge/license-LGPL%20v3%2B-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.html)
 
 ## Table of Contents
@@ -20,7 +20,7 @@
 - [Docker Volumes](#docker-volumes)
 - [Docker Images](#docker-images)
 - [Service URLs](#service-urls)
-- [Traefik Dashboard](#traefik-dashboard-acs-261-and-262-preview-when-using-traefik-proxy)
+- [Traefik Dashboard](#traefik-dashboard-acs-261-and-262-when-using-traefik-proxy)
 - [Troubleshooting](#troubleshooting)
 - [Security Best Practices](#security-best-practices)
 - [Upgrading and Migration](#upgrading-and-migration)
@@ -28,12 +28,12 @@
 
 ## Description
 
-Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2, 7.x, 23.x, 25.x, 26.1 and 26.2-preview to be used in Docker Compose installations.
+Since Alfresco Installer was discontinued from Alfresco 5.2, this project provides a command line installer for Alfresco Community 6.1, 6.2, 7.x, 23.x, 25.x, 26.1 and 26.2 to be used in Docker Compose installations.
 
 This project generates a Docker Compose template ready to be used including the following features:
 
 * Memory limits for every service according to global memory available for Docker (using modern Docker Compose syntax)
-* Proxy selection: Choose between nginx (traditional) or Traefik (modern, label-based routing) for ACS 26.1
+* Proxy selection: Choose between nginx (traditional) or Traefik (modern, label-based routing) for ACS 26.1 and 26.2
 * The project supports PostgreSQL and MariaDB as databases, but MySQL can also be used for the Community edition.
 * Search Services configured for environments using several languages for contents or from operative systems / browsers
 * Outbound Email service (smtp)
@@ -78,7 +78,7 @@ Get up and running with Alfresco in 5 minutes:
    ```
    
    Accept the defaults or customize as needed. For a quick test, use:
-   - ACS Version: 26.1 (latest)
+   - ACS Version: 26.2 (latest)
    - RAM: 16 GB (minimum)
    - HTTPS: No (for quick testing)
    - Proxy: nginx (traditional, default)
@@ -196,10 +196,10 @@ yo alfresco-docker-installer
 Several options are provided in order to build the configuration.
 
 ```
-? Which ACS version do you want to use? 26.1
+? Which ACS version do you want to use? 26.2
 ```
 
-You can use Alfresco 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3, 26.1 or 26.2-preview
+You can use Alfresco 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3, 26.1 or 26.2
 
 ```
 ? Do you want to deploy Alfresco in ARCH64 computer (like Apple Silicon)?
@@ -225,9 +225,9 @@ This option enables HTTPs for every service. Default SSL certificates (public an
   traefik
 ```
 
-> **Note**: This prompt only appears when deploying ACS 26.1 or 26.2-preview. For all previous ACS versions (6.x, 7.x, 23.x, 25.x), only nginx is available and no selection is prompted.
+> **Note**: This prompt only appears when deploying ACS 26.1 or 26.2. For all previous ACS versions (6.x, 7.x, 23.x, 25.x), only nginx is available and no selection is prompted.
 
-**Proxy Selection Guide** (ACS 26.1 and 26.2-preview only):
+**Proxy Selection Guide** (ACS 26.1 and 26.2 only):
 
 - **nginx** (Default): Traditional, file-based configuration using `nginx.conf`. Battle-tested and widely used.
   - + Proven reliability and performance
@@ -249,16 +249,14 @@ Both proxies support HTTP and HTTPS protocols with equivalent functionality. Cho
 
 ```
 ? Which search engine would you like to use?
-  Alfresco Search Services (stock, Solr 6)
+  OpenSearch + batch-indexer
   Jeci community fork (vanilla Solr 9 / Java 17, standalone trackers)
-  OpenSearch + batch-indexer (EXPERIMENTAL)
 ```
 
-> **Note**: This prompt only appears when deploying ACS 26.2-preview.
+> **Note**: This prompt only appears when deploying ACS 26.2. Stock Alfresco Search Services (Solr 6) is not available for ACS 26.2.
 
-- **Alfresco Search Services** (Default): Stock Alfresco Search Services based on Solr 6.
+- **OpenSearch + batch-indexer** (Default): Deploys OpenSearch instead of Solr, with the `alfresco-elasticsearch-batch-indexer` service handling continuous indexing. The ACS subsystem name remains `elasticsearch` as required by Alfresco internals. Only supported with PostgreSQL.
 - **Jeci community fork**: Community-maintained Solr 9 / Java 17 fork with standalone trackers.
-- **OpenSearch + batch-indexer** (EXPERIMENTAL): Deploys OpenSearch instead of Solr, with the `alfresco-elasticsearch-batch-indexer` service handling continuous indexing. The ACS subsystem name remains `elasticsearch` as required by Alfresco internals. Only supported with PostgreSQL. Not recommended for production use.
 
 ```
 ? What is the name of your server?
@@ -326,9 +324,9 @@ The **Jeci community fork** ([jecicorp/AlfrescoSearchServices](https://github.co
 
 Notes when selecting the Jeci fork:
 
-* It is a **beta**, community-maintained fork — not affiliated with Hyland and not recommended for production yet.
-* Communication with the Repository is forced to **shared secret** (the `Alfresco-SOLR communication` question below is skipped); the fork does not yet support mTLS on the trackers → Solr leg.
-* The images are **not published to a public registry** yet, so build them locally and point `SEARCH_JECI_IMAGE` / `TRACKERS_JECI_IMAGE` in `.env` at your local tags (defaults: `alfresco/alfresco-search-services:local` and `alfresco/alfresco-indexing-trackers:local`).
+* It is a **beta**, community-maintained fork - not affiliated with Hyland and not recommended for production yet.
+* Communication with the Repository is forced to **shared secret** (the `Alfresco-SOLR communication` question below is skipped); the fork does not yet support mTLS on the trackers -> Solr leg.
+* The images are **not published to a public registry** yet, so the generated `search/` Dockerfile compiles the fork from source during `docker compose build` (no local JDK/Maven or manual clone needed). Pick a different fork, branch, tag or commit with `JECI_REPO` / `JECI_REF` in the generated `.env`.
 * A full re-index is required (Lucene 9 cannot read a Solr 6 index); start with empty cores and let the trackers rebuild from the Repository.
 
 ```
@@ -413,12 +411,12 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 
 **Parameter names reference**
 
-* `--acsVersion`: 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3, 26.1 or 26.2-preview
+* `--acsVersion`: 6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3, 26.1 or 26.2
 * `--arch`: true or false (use ARCH64 Docker Images for Apple Silicon, ACS 7.3+ only)
 * `--ram`: number of GB available for Docker
 * `--https`: true or false
-* `--proxyType`: nginx or traefik (only for ACS 26.1 and 26.2-preview, defaults to nginx)
-* `--searchType`: alfresco, jeci or opensearch (only for ACS 26.2-preview, defaults to alfresco)
+* `--proxyType`: nginx or traefik (only for ACS 26.1 and 26.2, defaults to nginx)
+* `--searchType`: opensearch or jeci (only for ACS 26.2, defaults to opensearch; stock Solr is not available for 26.2)
 * `--serverName`: localhost default
 * `--password`: admin user default password
 * `--port`: 80 default (443 for HTTPS)
@@ -448,28 +446,24 @@ yo alfresco-docker-installer \
   --port=443
 ```
 
-**Example with the Jeci Solr 9 community fork (ACS 26.1 only):**
+**Example with the Jeci Solr 9 community fork (ACS 26.1 and 26.2):**
 
 ```bash
 yo alfresco-docker-installer \
-  --acsVersion=26.1 \
+  --acsVersion=26.2 \
   --searchType=jeci \
   --ram=16 \
   --serverName=localhost \
   --port=80
 ```
 
-Before `docker compose up`, build the fork's images locally (they are not published to a public registry yet) and, if you tagged them differently, set `SEARCH_JECI_IMAGE` / `TRACKERS_JECI_IMAGE` in the generated `.env`:
+The fork's images are not published to a public registry yet, so the generated `search/` Dockerfile compiles them from source. Just run:
 
 ```bash
-git clone https://github.com/jecicorp/AlfrescoSearchServices.git
-cd AlfrescoSearchServices
-mise run install && mise run trackers:build
-docker build -t alfresco/alfresco-search-services:local search-services/packaging/target/docker-resources/
-docker build -t alfresco/alfresco-indexing-trackers:local \
-  -f search-services/packaging/src/docker/Dockerfile.trackers \
-  search-services/alfresco-indexing-trackers/target/
+docker compose up --build
 ```
+
+The first build clones the fork (see `JECI_REPO` / `JECI_REF` in the generated `.env`) and compiles it with Java 17, so it may take a while; later builds are cached. Override `JECI_REPO` / `JECI_REF` in `.env` to build a different fork, branch, tag or commit.
 
 **Note on boolean flags**: Yeoman treats boolean flags as true when present. To set a flag to true, include it (e.g., `--https`). To set it to false, omit the flag entirely. Do NOT use `--flag=false` syntax as it will be interpreted as true.
 
@@ -481,9 +475,9 @@ If you want to deploy additional addons, use deployment folders for Alfresco and
 
 ```
 ├── alfresco
-│   ├── modules             > Deployment directory for addons
-│   │   ├── amps            > Repository addons with AMP format
-│   │   └── jars            > Repository addons with JAR format
+│   ├── modules             > Deployment directory for addons
+│   │   ├── amps            > Repository addons with AMP format
+│   │   └── jars            > Repository addons with JAR format
 ```
 
 **Share**
@@ -535,62 +529,62 @@ Runtime bind-mount folders under `data/` and `logs/` are typically created after
 
 ```
 ├── alfresco                > Repository image build context
-│   ├── Dockerfile          > Docker image for Alfresco Repository
-│   ├── modules             > Deployment directory for repository addons
-│   │   ├── amps            > Repository addons with AMP format
-│   │   └── jars            > Repository addons with JAR format
-│   ├── bin                 > [OCR] Helper script to communicate with OCR service
-│   └── ssh                 > [OCR] Shared key to communicate with OCR service
+│   ├── Dockerfile          > Docker image for Alfresco Repository
+│   ├── modules             > Deployment directory for repository addons
+│   │   ├── amps            > Repository addons with AMP format
+│   │   └── jars            > Repository addons with JAR format
+│   ├── bin                 > [OCR] Helper script to communicate with OCR service
+│   └── ssh                 > [OCR] Shared key to communicate with OCR service
 
 ├── config                  > Proxy and access configuration
-│   ├── nginx.conf          > NGINX configuration file
-│   ├── nginx.htpasswd      > Password file protecting Solr Web Console access
-│   └── cert                > [HTTPS] Self-signed certificate placeholders
-│       ├── localhost.cer   > Public part of the SSL certificate
-│       └── localhost.key   > Private part of the SSL certificate
+│   ├── nginx.conf          > NGINX configuration file
+│   ├── nginx.htpasswd      > Password file protecting Solr Web Console access
+│   └── cert                > [HTTPS] Self-signed certificate placeholders
+│       ├── localhost.cer   > Public part of the SSL certificate
+│       └── localhost.key   > Private part of the SSL certificate
 
 ├── data                    > Runtime bind-mount data (back this up when used)
-│   ├── alf-repo-data       > Content store for Alfresco Repository
-│   ├── activemq-data       > Message store for ActiveMQ
-│   ├── ocr                 > [OCR] Shared OCR input/output folders
-│   │   ├── input
-│   │   └── output
-│   ├── postgres-data       > Internal storage for PostgreSQL
-│   ├── slapd               > [LDAP] OpenLDAP storage
-│   │   ├── config
-│   │   └── database
-│   ├── solr-data           > Internal storage for Search Services
-│   ├── solr-solrhome        > [searchType=jeci] Solr 9 cores/config (solrhome)
-│   └── trackers-data        > [searchType=jeci] Standalone trackers model store
+│   ├── alf-repo-data       > Content store for Alfresco Repository
+│   ├── activemq-data       > Message store for ActiveMQ
+│   ├── ocr                 > [OCR] Shared OCR input/output folders
+│   │   ├── input
+│   │   └── output
+│   ├── postgres-data       > Internal storage for PostgreSQL
+│   ├── slapd               > [LDAP] OpenLDAP storage
+│   │   ├── config
+│   │   └── database
+│   ├── solr-data           > [searchType=jeci] Internal storage for Solr 9 (index)
+│   ├── trackers-data       > [searchType=jeci] Standalone trackers model store
+│   └── opensearch-data     > [searchType=opensearch] Internal storage for OpenSearch
 
 ├── docker-compose.yml      > Main Docker Compose template
 ├── create_volumes.sh       > [Optional] Helper script to prepare Linux/macOS bind mounts
 
 ├── keystores               > [SOLR HTTPS] mTLS keystores for Repository and Search
-│   ├── alfresco
-│   ├── client
-│   │   └── browser.p12
-│   └── solr
+│   ├── alfresco
+│   ├── client
+│   │   └── browser.p12
+│   └── solr
 
 ├── logs                    > Runtime bind-mount logs
-│   ├── alfresco            > Alfresco Repository logs
-│   ├── postgres            > PostgreSQL logs
-│   └── share               > Share web application logs
+│   ├── alfresco            > Alfresco Repository logs
+│   ├── postgres            > PostgreSQL logs
+│   └── share               > Share web application logs
 
 ├── ocrmypdf                > [OCR] OCR service image build context
-│   ├── Dockerfile          > Docker image for ocrmypdf
-│   └── assets              > OCR service configuration assets
+│   ├── Dockerfile          > Docker image for ocrmypdf
+│   └── assets              > OCR service configuration assets
 
-├── search                  > Search Services image build context (omitted when searchType=jeci, which uses prebuilt images)
-│   └── Dockerfile          > Docker image for Search Services
+├── search                  > Search image build context (omitted when searchType=opensearch; for searchType=jeci it compiles the Solr 9 fork from source)
+│   └── Dockerfile          > Docker image for Search (stock Solr, or the Jeci Solr 9 fork)
 
 ├── share                   > Share image build context
-│   ├── Dockerfile          > Docker image for Share
-│   ├── modules             > Deployment directory for Share addons
-│   │   ├── amps            > Share addons with AMP format
-│   │   └── jars            > Share addons with JAR format
-│   └── web-extension
-│       └── share-config-custom-dev.xml
+│   ├── Dockerfile          > Docker image for Share
+│   ├── modules             > Deployment directory for Share addons
+│   │   ├── amps            > Share addons with AMP format
+│   │   └── jars            > Share addons with JAR format
+│   └── web-extension
+│       └── share-config-custom-dev.xml
 
 └── start.sh                > [Optional] Convenience script to start and stop the stack
 ```
@@ -755,8 +749,8 @@ $ docker volume rm $(docker volume ls -q --filter name=tmp_)
 * [alfresco-content-repository-community](https://hub.docker.com/r/alfresco/alfresco-content-repository-community)
 * [alfresco-share](https://hub.docker.com/r/alfresco/alfresco-share)
 * [alfresco-search-services](https://hub.docker.com/r/alfresco/alfresco-search-services)
-* [opensearchproject/opensearch](https://hub.docker.com/r/opensearchproject/opensearch) - Search engine (ACS 26.2-preview, EXPERIMENTAL)
-* [alfresco-elasticsearch-batch-indexing](https://hub.docker.com/r/alfresco/alfresco-elasticsearch-batch-indexing) - Batch indexer for OpenSearch (ACS 26.2-preview, EXPERIMENTAL)
+* [opensearchproject/opensearch](https://hub.docker.com/r/opensearchproject/opensearch) - Search engine (ACS 26.2)
+* [alfresco-elasticsearch-batch-indexing](https://hub.docker.com/r/alfresco/alfresco-elasticsearch-batch-indexing) - Batch indexer for OpenSearch (ACS 26.2)
 * [postgres](https://hub.docker.com/_/postgres)
 * [nginx:stable-alpine](https://hub.docker.com/_/nginx) - Traditional reverse proxy
 * [traefik:3.6](https://hub.docker.com/_/traefik) - Modern reverse proxy (ACS 26.1+)
@@ -818,7 +812,7 @@ Default credentials
 * user: cn=admin,dc=alfresco,dc=org
 * password: admin
 
-## Traefik Dashboard (ACS 26.1 and 26.2-preview when using Traefik proxy)
+## Traefik Dashboard (ACS 26.1 and 26.2 when using Traefik proxy)
 
 When selecting Traefik as the proxy, an additional dashboard is available for monitoring and managing routing:
 
@@ -893,7 +887,7 @@ yo alfresco-docker-installer --port=8080
    docker system info | grep Memory
    ```
 
-2. Increase Docker memory (Docker Desktop: Settings → Resources → Memory)
+2. Increase Docker memory (Docker Desktop: Settings -> Resources -> Memory)
 
 3. Minimum requirement: 16GB RAM
 
