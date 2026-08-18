@@ -11,6 +11,73 @@ import { compare } from 'compare-versions';
 function semver(version) {
   return version ? version.replace(/-.*$/, '') : version;
 }
+
+// Addon catalog. An addon without `acsVersions` is offered for every ACS version;
+// otherwise it is only offered for the versions listed, so each new ACS release
+// must be added here explicitly for the version-restricted addons.
+export const ALL_ADDONS = [
+  {
+    name: 'Google Docs 3.x',
+    value: 'google-docs',
+    checked: false
+  },
+  {
+    name: 'JavaScript Console 0.7',
+    value: 'js-console',
+    checked: false
+  },
+  {
+    name: 'Order of the Bee Support Tools 1.2.2.0',
+    value: 'ootbee-support-tools',
+    checked: false
+  },
+  {
+    name: 'Share Site Creators 0.0.8',
+    value: 'share-site-creators',
+    checked: false
+  },
+  {
+    name: 'Share Site Space Templates 1.1.4-SNAPSHOT',
+    value: 'share-site-space-templates',
+    checked: false
+  },
+  {
+    name: 'Simple OCR 2.3.1 (for Alfresco 6.x)',
+    value: 'simple-ocr',
+    checked: false,
+    acsVersions: ['6.1', '6.2']
+  },
+  {
+    name: 'Alfresco OCR Transformer 1.0.0 (for Alfresco 7+)',
+    value: 'alf-tengine-ocr',
+    checked: false,
+    acsVersions: ['7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2', '25.3', '26.1', '26.2']
+  },
+  {
+    name: 'ESign Cert 1.8.4',
+    value: 'esign-cert',
+    checked: false
+  },
+  {
+    name: 'Edit with LibreOffice in Alfresco Share 0.3.0',
+    value: 'share-online-edition',
+    checked: false
+  },
+  {
+    name: 'Alfresco PDF Toolkit 1.4.4',
+    value: 'alfresco-pdf-toolkit',
+    checked: false,
+    acsVersions: ['6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4']
+  }
+];
+
+// Addons available for a given ACS version, in catalog order.
+export function addonsForVersion(acsVersion) {
+  return ALL_ADDONS.filter(
+    addon => !addon.acsVersions || addon.acsVersions.includes(acsVersion)
+  );
+}
+
 /**
  * This module builds a Docker Compose template to use
  * Alfresco Repository and Search Services
@@ -63,62 +130,6 @@ export default class AppGenerator extends Generator {
 
     var commandProps = new Map();
     const self = this; // Make 'this' accessible in when functions
-
-    const allAddons = [
-      {
-        name: 'Google Docs 3.x',
-        value: 'google-docs',
-        checked: false
-      },
-      {
-        name: 'JavaScript Console 0.7',
-        value: 'js-console',
-        checked: false
-      },
-      {
-        name: 'Order of the Bee Support Tools 1.2.2.0',
-        value: 'ootbee-support-tools',
-        checked: false
-      },
-      {
-        name: 'Share Site Creators 0.0.8',
-        value: 'share-site-creators',
-        checked: false
-      },
-      {
-        name: 'Share Site Space Templates 1.1.4-SNAPSHOT',
-        value: 'share-site-space-templates',
-        checked: false
-      },
-      {
-        name: 'Simple OCR 2.3.1 (for Alfresco 6.x)',
-        value: 'simple-ocr',
-        checked: false,
-        acsVersions: ['6.1', '6.2']
-      },
-      {
-        name: 'Alfresco OCR Transformer 1.0.0 (for Alfresco 7+)',
-        value: 'alf-tengine-ocr',
-        checked: false,
-        acsVersions: ['7.0', '7.1', '7.2', '7.3', '7.4', '23.1', '23.2', '23.3', '23.4', '25.1', '25.2', '25.3', '26.1']
-      },
-      {
-        name: 'ESign Cert 1.8.4',
-        value: 'esign-cert',
-        checked: false
-      },
-      {
-        name: 'Edit with LibreOffice in Alfresco Share 0.3.0',
-        value: 'share-online-edition',
-        checked: false
-      },
-      {
-        name: 'Alfresco PDF Toolkit 1.4.4',
-        value: 'alfresco-pdf-toolkit',
-        checked: false,
-        acsVersions: ['6.1', '6.2', '7.0', '7.1', '7.2', '7.3', '7.4']
-      }
-    ];
 
     const prompts = [
       {
@@ -371,12 +382,7 @@ export default class AppGenerator extends Generator {
         name: 'addons',
         pageSize: 10,
         message: 'Select the addons to be installed:',
-        choices: (answers) => {
-          // Filter addons based on the selected ACS version
-          return allAddons.filter(addon =>
-            !addon.acsVersions || addon.acsVersions.includes(answers.acsVersion)
-          );
-        },
+        choices: (answers) => addonsForVersion(answers.acsVersion),
       },
       {
         type: 'confirm',

@@ -10,6 +10,7 @@ rendering, file emission) and never drifts from the generator's behavior.
 - `helpers/combinations.mjs` - enumerates the valid deployment combinations for ACS 26.1 and 26.2.
 - `helpers/docker.mjs` - thin wrappers over `docker compose config` (syntactic validation) and `docker compose build` (deep build).
 - `combinations.test.mjs` - generates all combinations and validates the produced Docker assets.
+- `addons.test.mjs` - addon availability per ACS version, plus OCR Transformer wiring on the latest version.
 - `validator.test.mjs` - self-tests proving the `docker compose config` validator actually discriminates.
 - `build.test.mjs` - opt-in: builds real images for one representative combination per search backend.
 
@@ -21,7 +22,7 @@ Default suite (generation + structural checks + `docker compose config` syntacti
 npm test
 ```
 
-This covers 112 combinations (64 for 26.1, 48 for 26.2) plus 3 validator self-tests.
+This covers 112 combinations (64 for 26.1, 48 for 26.2), 7 addon tests and 3 validator self-tests.
 If `docker compose` is not available it still runs generation and structural
 assertions; the syntactic validation is skipped with a warning.
 
