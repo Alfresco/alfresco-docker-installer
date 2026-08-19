@@ -7,6 +7,8 @@
 //   - proxy: nginx or traefik (both versions)
 //   - opensearch is incompatible with MariaDB (generator throws), so that
 //     pairing is skipped on purpose.
+//   - OpenSearch Dashboards is only offered for 26.2 + opensearch, so it is
+//     varied only within that slice.
 //
 // The axes below are deliberately a curated cross-section rather than a full
 // cartesian explosion of every prompt: each axis value is guaranteed to appear
@@ -32,7 +34,8 @@ function label(o) {
     o.https ? 'https' : 'http',
     o.mariadb ? 'mariadb' : 'postgres',
     o.activemq ? 'amq' : 'noamq',
-    o.windows ? 'winvol' : 'bindvol'
+    o.windows ? 'winvol' : 'bindvol',
+    ...(o.opensearchDashboards ? ['dashboards'] : [])
   ].join('-');
 }
 
@@ -49,19 +52,27 @@ export function buildCombinations() {
                 // rejects it with MariaDB, so don't emit that pairing.
                 if (searchType === 'opensearch' && mariadb) continue;
 
-                const overrides = {
-                  acsVersion,
-                  searchType,
-                  proxyType,
-                  https,
-                  port: https ? '443' : '80',
-                  mariadb,
-                  activemq,
-                  windows,
-                  // ACS 26.1+ ActiveMQ broker requires credentials.
-                  activeMqCredentials: activemq
-                };
-                combos.push({ label: label(overrides), overrides });
+                // OpenSearch Dashboards is an opensearch-only add-on, so the
+                // axis collapses to [false] for every other backend.
+                const dashboardsValues =
+                  searchType === 'opensearch' ? [false, true] : [false];
+
+                for (const opensearchDashboards of dashboardsValues) {
+                  const overrides = {
+                    acsVersion,
+                    searchType,
+                    proxyType,
+                    https,
+                    port: https ? '443' : '80',
+                    mariadb,
+                    activemq,
+                    windows,
+                    // ACS 26.1+ ActiveMQ broker requires credentials.
+                    activeMqCredentials: activemq,
+                    opensearchDashboards
+                  };
+                  combos.push({ label: label(overrides), overrides });
+                }
               }
             }
           }

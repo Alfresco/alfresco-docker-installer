@@ -68,6 +68,18 @@ describe(`ACS 26.1 / 26.2 deployment combinations (${combinations.length} total)
         assert.doesNotMatch(compose, /^\s{4}trackers:/m, 'unexpected trackers service');
       }
 
+      // OpenSearch Dashboards presence and port exposure match the selection.
+      assert.equal(
+        /^\s{4}opensearch-dashboards:/m.test(compose),
+        Boolean(overrides.opensearchDashboards),
+        'opensearch-dashboards service presence does not match selection'
+      );
+      assert.equal(
+        /:5601:5601/.test(compose),
+        Boolean(overrides.opensearchDashboards),
+        'port 5601 exposure does not match selection'
+      );
+
       // Database service matches the selection.
       assert.match(
         compose,

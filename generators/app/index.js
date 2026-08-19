@@ -106,6 +106,7 @@ export default class AppGenerator extends Generator {
     this.option('crossLocale', { type: Boolean, description: 'Support multiple languages' });
     this.option('enableContentIndexing', { type: Boolean, description: 'Enable content indexing in documents' });
     this.option('searchType', { type: String, description: 'Search engine: alfresco (stock Search Services) or jeci (Solr 9 / Java 17 community fork with standalone trackers) (ACS 26.1); opensearch or jeci (ACS 26.2)' });
+    this.option('opensearchDashboards', { type: Boolean, description: 'Deploy OpenSearch Dashboards on port 5601 (ACS 26.2 with the opensearch search backend only)' });
     this.option('solrHttpMode', { type: String, description: 'Alfresco-SOLR communication: http, https, or secret' });
     this.option('activemq', { type: Boolean, description: 'Enable Events service (ActiveMQ)' });
     this.option('activeMqCredentials', { type: Boolean, description: 'Use credentials for ActiveMQ' });
@@ -185,6 +186,19 @@ export default class AppGenerator extends Generator {
           { name: 'Jeci community fork (vanilla Solr 9 / Java 17, standalone trackers)', value: 'jeci' }
         ],
         default: 'opensearch'
+      },
+      {
+        when: function (response) {
+          var version = response.acsVersion || self.options.acsVersion;
+          var search = response.searchType !== undefined ? response.searchType : self.options.searchType;
+          // OpenSearch Dashboards is only meaningful for the opensearch backend,
+          // which exists from ACS 26.2 onwards.
+          return supportsOpenSearchDashboards(version) && search === 'opensearch';
+        },
+        type: 'confirm',
+        name: 'opensearchDashboards',
+        message: 'Do you want to use OpenSearch Dashboards (port 5601)?',
+        default: false
       },
       {
         type: 'input',
@@ -488,6 +502,7 @@ export default class AppGenerator extends Generator {
           repository: (this.props.arch ? 'angelborroy' : 'alfresco'),
           proxyType: this.props.proxyType,
           searchType: this.props.searchType,
+          opensearchDashboards: (this.props.opensearchDashboards ? 'true' : 'false'),
         }
       );
       // Copy Docker Image for Repository applying configuration
@@ -715,6 +730,15 @@ export default class AppGenerator extends Generator {
         '   https://github.com/jecicorp/AlfrescoSearchServices \n' +
         '   ---------------------------------------------------------------\n');
     }
+    if (this.props.opensearchDashboards) {
+      this.log('\n   ---------------------------------------------------------------\n' +
+        '   NOTE: You selected OpenSearch Dashboards. \n' +
+        '   It is available at http://' + this.props.serverName + ':5601 with no \n' +
+        '   authentication (the security plugin is disabled), so it must not be \n' +
+        '   exposed to untrusted networks. \n' +
+        '   Restrict access with a firewall rule or bind it to a private IP. \n' +
+        '   ---------------------------------------------------------------\n');
+    }
     if (this.props.addons.includes('share-site-creators')) {
       this.log('\n   ---------------------------------------------------\n' +
         '   WARNING: You selected the addon share-site-creators. \n' +
@@ -771,6 +795,11 @@ export default class AppGenerator extends Generator {
   showServiceUrls() {
     let protocol = this.props.https ? 'https://' : 'http://';
     let port = Number(this.props.port) !== 80 && Number(this.props.port) !== 443 ? ':' + this.props.port : '';
+    // OpenSearch Dashboards is published directly on 5601, bypassing the Web Proxy,
+    // so it is always plain HTTP on that port.
+    let dashboardsUrl = this.props.opensearchDashboards
+      ? `   * OpenSearch Dashboards: http://${this.props.serverName}:5601\n`
+      : '';
     this.log('\n---------------------------------------------------\n' +
       'STARTING ALFRESCO\n\n' +
       'Start Alfresco using the command "docker compose up"\n' +
@@ -779,7 +808,8 @@ export default class AppGenerator extends Generator {
       'SERVICE URLs\n\n' +
       `   * UI: ${protocol}${this.props.serverName}${port}/\n` +
       `   * Legacy UI (users & groups management): ${protocol}${this.props.serverName}${port}/share\n` +
-      `   * Repository (REST API): ${protocol}${this.props.serverName}${port}/alfresco\n\n` +
+      `   * Repository (REST API): ${protocol}${this.props.serverName}${port}/alfresco\n` +
+      dashboardsUrl + '\n' +
       'Remember to use as credentials: \n\n' +
       '   * username: admin \n' +
       `   * password: ${this.props.password}\n\n` +
@@ -819,6 +849,12 @@ function requiresActiveMqCredentials(acsVersion) {
   return !!acsVersion && compare(semver(acsVersion), '26.1', '>=');
 }
 
+// OpenSearch Dashboards rides along with the opensearch search backend, which is
+// only available from ACS 26.2.
+function supportsOpenSearchDashboards(acsVersion) {
+  return !!acsVersion && compare(semver(acsVersion), '26.2', '>=');
+}
+
 function usesActiveMqCredentials(props) {
   return !!props.activemq && (requiresActiveMqCredentials(props.acsVersion) || !!props.activeMqCredentials);
 }
@@ -848,6 +884,14 @@ function applyDerivedDefaults(props) {
   // OpenSearch does not use Solr communication; default solrHttpMode to avoid undefined.
   if (props.searchType === 'opensearch') {
     props.solrHttpMode = props.solrHttpMode || 'none';
+  }
+
+  // OpenSearch Dashboards is an optional companion of the opensearch backend
+  // (ACS 26.2+); it has no meaning for any other version or search engine.
+  if (!supportsOpenSearchDashboards(props.acsVersion) || props.searchType !== 'opensearch') {
+    props.opensearchDashboards = false;
+  } else {
+    props.opensearchDashboards = !!props.opensearchDashboards;
   }
 
   if (props.activemq && requiresActiveMqCredentials(props.acsVersion)) {
@@ -895,6 +939,10 @@ function getAvailableMemory(props) {
   }
   if (props.searchType === 'opensearch') {
     ram -= 2048;
+  }
+  // OpenSearch Dashboards runs with a fixed 1g limit.
+  if (props.opensearchDashboards) {
+    ram -= 1024;
   }
   return ram;
 

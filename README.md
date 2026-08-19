@@ -259,6 +259,16 @@ Both proxies support HTTP and HTTPS protocols with equivalent functionality. Cho
 - **Jeci community fork**: Community-maintained Solr 9 / Java 17 fork with standalone trackers.
 
 ```
+? Do you want to use OpenSearch Dashboards (port 5601)? No
+```
+
+> **Note**: This prompt only appears when deploying ACS 26.2 with the **OpenSearch + batch-indexer** search engine. It is not available for previous ACS versions or for the Jeci community fork.
+
+Deploys an `opensearch-dashboards` service to browse and query the indexes created by the batch indexer. It is published directly on port 5601, bypassing the Web Proxy, so it is always reached over plain HTTP at `http://<serverName>:5601` regardless of the HTTPS selection. The service reserves 1 GB of the RAM budget, which is deducted from the amount available to the rest of the platform.
+
+The dashboards security plugin is disabled, so the UI requires no authentication. Do not expose port 5601 to untrusted networks: restrict it with a firewall rule or bind it to a private IP.
+
+```
 ? What is the name of your server?
 ```
 
@@ -417,6 +427,7 @@ $ yo alfresco-docker-installer --acsVersion=6.1
 * `--https`: true or false
 * `--proxyType`: nginx or traefik (only for ACS 26.1 and 26.2, defaults to nginx)
 * `--searchType`: opensearch or jeci (only for ACS 26.2, defaults to opensearch; stock Solr is not available for 26.2)
+* `--opensearchDashboards`: true or false (only for ACS 26.2 with `--searchType=opensearch`, defaults to false; exposes OpenSearch Dashboards on port 5601)
 * `--serverName`: localhost default
 * `--password`: admin user default password
 * `--port`: 80 default (443 for HTTPS)
@@ -751,6 +762,7 @@ $ docker volume rm $(docker volume ls -q --filter name=tmp_)
 * [alfresco-search-services](https://hub.docker.com/r/alfresco/alfresco-search-services)
 * [opensearchproject/opensearch](https://hub.docker.com/r/opensearchproject/opensearch) - Search engine (ACS 26.2)
 * [alfresco-elasticsearch-batch-indexing](https://hub.docker.com/r/alfresco/alfresco-elasticsearch-batch-indexing) - Batch indexer for OpenSearch (ACS 26.2)
+* [opensearchproject/opensearch-dashboards](https://hub.docker.com/r/opensearchproject/opensearch-dashboards) - Optional OpenSearch UI (ACS 26.2)
 * [postgres](https://hub.docker.com/_/postgres)
 * [nginx:stable-alpine](https://hub.docker.com/_/nginx) - Traditional reverse proxy
 * [traefik:3.6](https://hub.docker.com/_/traefik) - Modern reverse proxy (ACS 26.1+)
@@ -801,6 +813,12 @@ http://localhost/api-explorer
 Default credentials
 * user: admin
 * password: admin (or chosen password)
+
+http://localhost:5601
+
+OpenSearch Dashboards, when selected for ACS 26.2 with the OpenSearch search engine.
+
+Default credentials: none (the security plugin is disabled)
 
 http://localhost:8161
 
@@ -1169,6 +1187,12 @@ Binding IPs
 yo alfresco-docker-installer --configureHttpIp=true
 # Then specify your server's IP address
 ```
+
+OpenSearch Dashboards (ACS 26.2)
+
+- Port 5601 is published directly and the dashboards security plugin is disabled, so anyone reaching that port has full read access to the search indexes
+- Leave `--opensearchDashboards` off for production deployments, or restrict port 5601 with a firewall rule
+- The custom HTTP binding IP (`--configureHttpIp`) also applies to port 5601, so it can be bound to a private interface
 
 #### 4. SOLR Protection
 

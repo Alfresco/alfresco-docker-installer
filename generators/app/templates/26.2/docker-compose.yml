@@ -416,7 +416,24 @@ services:
                 condition: service_healthy
             transform-core-aio:
                 condition: service_started
-<% } %>
+<% if (opensearchDashboards == 'true') { %>
+    # Web UI to explore the OpenSearch indexes created by the batch-indexer.
+    # Exposed directly on port 5601 (not routed through the Web Proxy).
+    opensearch-dashboards:
+        image: opensearchproject/opensearch-dashboards:${OPENSEARCH_DASHBOARDS_TAG}
+        deploy:
+            resources:
+                limits:
+                    memory: 1g
+        environment:
+            - OPENSEARCH_HOSTS=["http://opensearch:9200"]
+            - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
+        depends_on:
+            opensearch:
+                condition: service_healthy
+        ports:
+            - ${BIND_IP_NGINX:-0.0.0.0}:5601:5601
+<% } %><% } %>
 
     <% if (activemq == 'true') { %>
     activemq:
