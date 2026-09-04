@@ -415,8 +415,37 @@ When using Linux as host, you can get the script `create_volumes.sh` in Docker C
 
 Default values for options can be specified in the command line, using a `--name=value` pattern. When an option is specified in the command line, the question is not prompted to the user, so you can generate a Docker Compose template with no user interaction.
 
+Boolean options accept `--name=true` or `--name=false`. A bare `--name` is also accepted as shorthand for `--name=true`. Use an explicit value in unattended scripts so the intended configuration is clear.
+
 ```
 $ yo alfresco-docker-installer --acsVersion=6.1
+```
+
+**Unattended ACS 26.1 example:**
+
+```bash
+yo alfresco-docker-installer \
+  --acsVersion=26.1 \
+  --ram=16 \
+  --https=false \
+  --proxyType=nginx \
+  --serverName=localhost \
+  --password=admin \
+  --port=80 \
+  --configureHttpIp=false \
+  --ftp=false \
+  --mariadb=false \
+  --crossLocale=true \
+  --enableContentIndexing=true \
+  --searchType=alfresco \
+  --solrHttpMode=secret \
+  --activemq=false \
+  --smtp=false \
+  --ldap=false \
+  --addons= \
+  --windows=false \
+  --startscript=false \
+  --volumesscript=false
 ```
 
 **Parameter names reference**

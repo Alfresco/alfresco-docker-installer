@@ -7,6 +7,30 @@ import banner from './banner.js';
 import { createMD4 } from 'hash-wasm';
 import { compare } from 'compare-versions';
 
+const BOOLEAN_OPTION_NAMES = new Set([
+  'arch',
+  'https',
+  'configureHttpIp',
+  'ftp',
+  'configureFtpIp',
+  'mariadb',
+  'crossLocale',
+  'enableContentIndexing',
+  'opensearchDashboards',
+  'activemq',
+  'activeMqCredentials',
+  'smtp',
+  'ldap',
+  'windows',
+  'startscript',
+  'volumesscript',
+  'dockerDesktop'
+]);
+
+function booleanOption(description) {
+  return { type: String, required: false, description };
+}
+
 // Strip non-numeric suffixes (e.g. a '-preview' or '-RC' tag) so compare-versions accepts them
 function semver(version) {
   return version ? version.replace(/-.*$/, '') : version;
@@ -87,43 +111,45 @@ export default class AppGenerator extends Generator {
   constructor(args, opts) {
     super(args, opts);
 
-    // Register all command-line options
-    // Note: For booleans, use --flag to set true, omit the flag for false (don't use --flag=false)
+    // Register all command-line options. Boolean values are accepted as optional
+    // strings so both --flag and the documented --flag=true|false forms work.
     this.option('acsVersion', { type: String, description: 'ACS version (6.1, 6.2, 7.0, 7.1, 7.2, 7.3, 7.4, 23.1, 23.2, 23.3, 23.4, 25.1, 25.2, 25.3, 26.1, 26.2)' });
-    this.option('arch', { type: Boolean, description: 'Use ARCH64 Docker images for Apple Silicon (ACS 7.3+ only)' });
+    this.option('arch', booleanOption('Use ARCH64 Docker images for Apple Silicon (ACS 7.3+ only)'));
     this.option('ram', { type: String, description: 'RAM in GB available for Alfresco (minimum 16)' });
-    this.option('https', { type: Boolean, description: 'Use HTTPS for Web Proxy' });
+    this.option('https', booleanOption('Use HTTPS for Web Proxy'));
     this.option('proxyType', { type: String, description: 'Proxy type: nginx or traefik (ACS 26.1 only)' });
     this.option('serverName', { type: String, description: 'Server name (e.g., localhost, alfresco.com)' });
     this.option('password', { type: String, description: 'Admin user password' });
     this.option('port', { type: String, description: 'HTTP/HTTPS port' });
-    this.option('configureHttpIp', { type: Boolean, description: 'Configure custom binding IP for HTTP' });
+    this.option('configureHttpIp', booleanOption('Configure custom binding IP for HTTP'));
     this.option('httpBindingIp', { type: String, description: 'HTTP service binding IP address' });
-    this.option('ftp', { type: Boolean, description: 'Enable FTP service (port 2121)' });
-    this.option('configureFtpIp', { type: Boolean, description: 'Configure custom binding IP for FTP' });
+    this.option('ftp', booleanOption('Enable FTP service (port 2121)'));
+    this.option('configureFtpIp', booleanOption('Configure custom binding IP for FTP'));
     this.option('ftpBindingIp', { type: String, description: 'FTP service binding IP address' });
-    this.option('mariadb', { type: Boolean, description: 'Use MariaDB instead of PostgreSQL' });
-    this.option('crossLocale', { type: Boolean, description: 'Support multiple languages' });
-    this.option('enableContentIndexing', { type: Boolean, description: 'Enable content indexing in documents' });
+    this.option('mariadb', booleanOption('Use MariaDB instead of PostgreSQL'));
+    this.option('crossLocale', booleanOption('Support multiple languages'));
+    this.option('enableContentIndexing', booleanOption('Enable content indexing in documents'));
     this.option('searchType', { type: String, description: 'Search engine: alfresco (stock Search Services) or jeci (Solr 9 / Java 17 community fork with standalone trackers) (ACS 26.1); opensearch or jeci (ACS 26.2)' });
-    this.option('opensearchDashboards', { type: Boolean, description: 'Deploy OpenSearch Dashboards on port 5601 (ACS 26.2 with the opensearch search backend only)' });
+    this.option('opensearchDashboards', booleanOption('Deploy OpenSearch Dashboards on port 5601 (ACS 26.2 with the opensearch search backend only)'));
     this.option('solrHttpMode', { type: String, description: 'Alfresco-SOLR communication: http, https, or secret' });
-    this.option('activemq', { type: Boolean, description: 'Enable Events service (ActiveMQ)' });
-    this.option('activeMqCredentials', { type: Boolean, description: 'Use credentials for ActiveMQ' });
+    this.option('activemq', booleanOption('Enable Events service (ActiveMQ)'));
+    this.option('activeMqCredentials', booleanOption('Use credentials for ActiveMQ'));
     this.option('activeMqUser', { type: String, description: 'ActiveMQ username' });
     this.option('activeMqPassword', { type: String, description: 'ActiveMQ password' });
-    this.option('smtp', { type: Boolean, description: 'Enable SMTP service' });
-    this.option('ldap', { type: Boolean, description: 'Enable LDAP service' });
+    this.option('smtp', booleanOption('Enable SMTP service'));
+    this.option('ldap', booleanOption('Enable LDAP service'));
     this.option('addons', { type: String, description: 'Comma-separated list of addon values (e.g., google-docs,js-console)' });
-    this.option('windows', { type: Boolean, description: 'Use Docker-managed volumes (recommended for Windows)' });
-    this.option('startscript', { type: Boolean, description: 'Generate start script' });
-    this.option('volumesscript', { type: Boolean, description: 'Generate volume creation script for Linux' });
-    this.option('dockerDesktop', { type: Boolean, description: 'Deprecated: retained for backwards compatibility, no longer affects Traefik configuration' });
+    this.option('windows', booleanOption('Use Docker-managed volumes (recommended for Windows)'));
+    this.option('startscript', booleanOption('Generate start script'));
+    this.option('volumesscript', booleanOption('Generate volume creation script for Linux'));
+    this.option('dockerDesktop', booleanOption('Deprecated: retained for backwards compatibility, no longer affects Traefik configuration'));
     this.option('searchType', { type: String, description: 'Search engine for ACS 26.2: opensearch (OpenSearch + batch-indexer) or jeci (Solr 9 community fork)' });
   }
 
   // Options to be chosen by the user
   prompting() {
+
+    normalizeBooleanOptions(this.options);
 
     if (!this.options['skip-install-message']) {
       this.log(banner);
@@ -820,12 +846,8 @@ export default class AppGenerator extends Generator {
 // Convert parameter string value to boolean value
 function normalize(option, prompt) {
 
-  if (prompt.type === 'confirm' && typeof option === 'string') {
-    let lc = option.toLowerCase();
-    if (lc === 'true' || lc === 'false') {
-      return (lc === 'true');
-    }
-      return option;
+  if (prompt.type === 'confirm') {
+    return normalizeBooleanOption(prompt.name, option);
   }
 
   // Fix acsVersion value type
@@ -843,6 +865,32 @@ function normalize(option, prompt) {
 
   return option;
 
+}
+
+function normalizeBooleanOptions(options) {
+  for (const name of BOOLEAN_OPTION_NAMES) {
+    if (options[name] !== undefined) {
+      options[name] = normalizeBooleanOption(name, options[name]);
+    }
+  }
+}
+
+function normalizeBooleanOption(name, option) {
+  if (typeof option === 'boolean') {
+    return option;
+  }
+
+  if (typeof option === 'string') {
+    const value = option.trim().toLowerCase();
+    if (value === '' || value === 'true') {
+      return true;
+    }
+    if (value === 'false') {
+      return false;
+    }
+  }
+
+  throw new Error(`Option --${name} must be true or false.`);
 }
 
 function requiresActiveMqCredentials(acsVersion) {
