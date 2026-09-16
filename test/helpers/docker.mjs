@@ -57,9 +57,9 @@ export function undefinedVariableWarnings(stderr) {
 
 /**
  * Actually builds every service with a build context in a generated project via
- * `docker compose build`. This pulls base images and runs the Dockerfiles (for
- * jeci it compiles the Solr 9 fork from source), so it is slow and network-bound
- * - reserved for the opt-in deep test, never the default suite.
+ * `docker compose build`. This pulls base images and runs the Dockerfiles, so it
+ * is slow and network-bound - reserved for the opt-in deep test, never the
+ * default suite.
  *
  * @param {string} projectDir directory containing the full generated project
  * @param {number} timeoutMs kill the build after this long

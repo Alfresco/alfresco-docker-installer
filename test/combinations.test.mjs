@@ -59,9 +59,20 @@ describe(`ACS 26.1 / 26.2 deployment combinations (${combinations.length} total)
         assert.match(compose, /^\s{4}batch-indexer:/m, 'batch-indexer service missing');
         assert.doesNotMatch(compose, /^\s{4}trackers:/m, 'unexpected trackers service');
       } else if (overrides.searchType === 'jeci') {
-        assert.match(compose, /^\s{4}solr6:/m, 'solr6 service missing');
+        assert.match(compose, /^\s{4}solr:/m, 'solr service missing');
         assert.match(compose, /^\s{4}trackers:/m, 'trackers service missing');
-        assert.match(env, /^JECI_REPO=/m, 'JECI_REPO missing from .env');
+        assert.match(env, /^JECI_SEARCH_TAG=/m, 'JECI_SEARCH_TAG missing from .env');
+        assert.match(env, /^JECI_TRACKERS_TAG=/m, 'JECI_TRACKERS_TAG missing from .env');
+        assert.match(
+          compose,
+          /image: jeci\/pristy-search-services:/,
+          'solr does not use the published search image'
+        );
+        assert.match(
+          compose,
+          /image: jeci\/pristy-indexing-trackers:/,
+          'trackers does not use the published trackers image'
+        );
       } else {
         // stock alfresco (26.1 only)
         assert.match(compose, /^\s{4}solr6:/m, 'solr6 service missing');

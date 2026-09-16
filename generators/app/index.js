@@ -347,9 +347,7 @@ export default class AppGenerator extends Generator {
         when: function (response) {
           var version = response.acsVersion || self.options.acsVersion;
           var searchType = response.searchType !== undefined ? response.searchType : self.options.searchType;
-          // The Jeci fork only supports shared-secret end to end (its trackers->Solr
-          // leg has no mTLS), so solrHttpMode is forced to 'secret' for it.
-          return compare(semver(version), '7.2', '>=') && searchType !== 'jeci' && searchType !== 'opensearch';
+          return compare(semver(version), '7.2', '>=') && searchType !== 'opensearch';
         },
         type: 'select',
         name: 'solrHttpMode',
@@ -529,6 +527,10 @@ export default class AppGenerator extends Generator {
           proxyType: this.props.proxyType,
           searchType: this.props.searchType,
           opensearchDashboards: (this.props.opensearchDashboards ? 'true' : 'false'),
+          sslStoreType: (this.props.searchType === 'jeci' ? 'PKCS12' : 'JCEKS'),
+          sslKeystorePassword: (this.props.searchType === 'jeci' ? 'changeit' : 'keystore'),
+          sslTruststorePassword: (this.props.searchType === 'jeci' ? 'changeit' : 'truststore'),
+          sslCertAlias: (this.props.searchType === 'jeci' ? 'alfresco' : 'ssl.repo'),
         }
       );
       // Copy Docker Image for Repository applying configuration
@@ -560,16 +562,8 @@ export default class AppGenerator extends Generator {
         }
       );
       // Copy Docker Image for Search applying configuration.
-      // The Jeci fork ships a multi-stage Dockerfile that compiles the fork from
-      // source (so no local JDK/Maven or manual clone is needed); the stock build
-      // uses the prebuilt Search Services image as a base.
       // OpenSearch uses its upstream image directly - no local Dockerfile needed.
-      if (this.props.searchType === 'jeci') {
-        this.fs.copy(
-          this.templatePath('images/search-jeci'),
-          this.destinationPath('search')
-        );
-      } else if (this.props.searchType !== 'opensearch') {
+      if (this.props.searchType !== 'jeci' && this.props.searchType !== 'opensearch') {
         this.fs.copyTpl(
           this.templatePath('images/search'),
           this.destinationPath('search'),
@@ -599,7 +593,7 @@ export default class AppGenerator extends Generator {
       // Copy mTLS Keystores
       if (this.props.solrHttpMode === 'https') {
         this.fs.copy(
-          this.templatePath('keystores'),
+          this.templatePath(this.props.searchType === 'jeci' ? 'keystores-jeci' : 'keystores'),
           this.destinationPath('keystores')
         );
       }
@@ -741,19 +735,20 @@ export default class AppGenerator extends Generator {
   showWarnings() {
     if (this.props.searchType === 'jeci') {
       this.log('\n   ---------------------------------------------------------------\n' +
-        '   NOTE: You selected the Jeci community fork of Alfresco Search \n' +
-        '   Services (vanilla Apache Solr 9 / Java 17). This is a BETA, \n' +
-        '   community-maintained fork, not affiliated with Hyland and not \n' +
-        '   for production use yet. \n\n' +
-        '   The search tier now runs as TWO services: "solr6" (query + index \n' +
+        '   NOTE: You selected Jeci community fork (vanilla Apache Solr 9 / \n' +
+        '   Java 17), the community fork of Alfresco Search Services \n' +
+        '   maintained by Jeci. It is not affiliated with Hyland. \n\n' +
+        '   The search tier runs as TWO services: "solr" (query + index \n' +
         '   storage) and "trackers" (the standalone indexing trackers). \n' +
-        '   Communication with the Repository uses shared secret. \n\n' +
-        '   The ./search Dockerfile compiles the fork FROM SOURCE (Java 17) on \n' +
-        '   first build, so no local JDK/Maven is needed. The initial \n' +
-        '   "docker compose up --build" downloads + compiles and may take a \n' +
-        '   while; later builds are cached. Pick a branch/tag/commit with \n' +
-        '   JECI_REPO / JECI_REF in .env. \n' +
-        '   https://github.com/jecicorp/AlfrescoSearchServices \n' +
+        '   Communication with the Repository uses ' + this.props.solrHttpMode + '. \n\n' +
+        '   Both services use published images, so no local build is needed: \n' +
+        '   jeci/pristy-search-services and jeci/pristy-indexing-trackers. \n' +
+        '   Pick a version with JECI_SEARCH_TAG / JECI_TRACKERS_TAG \n' +
+        '   in .env. \n\n' +
+        '   Repository admin actions (SUMMARY / REPORT, used by OOTBee \n' +
+        '   Support Tools) need the optional solr9 Repository subsystem, \n' +
+        '   which this generator does not deploy. Search itself is unaffected. \n' +
+        '   https://gitlab.com/pristy-oss/pristy-search-services \n' +
         '   ---------------------------------------------------------------\n');
     }
     if (this.props.opensearchDashboards) {
@@ -794,7 +789,11 @@ export default class AppGenerator extends Generator {
         '   WARNING: You selected HTTPs communication for Alfresco-Solr. \n' +
         '   Default keystores have been provided in keystores folder. \n' +
         '   You may replace these certificates by your own. \n' +
-        '   Check https://github.com/Alfresco/alfresco-ssl-generator \n' +
+        (this.props.searchType === 'jeci'
+          ? '   They are PKCS12 stores signed by a development CA, with the \n' +
+            '   service names as SANs and "changeit" as password. \n' +
+            '   Check https://gitlab.com/pristy-oss/pristy-search-services \n'
+          : '   Check https://github.com/Alfresco/alfresco-ssl-generator \n') +
         '   ---------------------------------------------------------------\n');
     }
     if (this.props.addons.includes('alf-tengine-ocr')) {
@@ -923,9 +922,9 @@ function applyDerivedDefaults(props) {
     props.searchType = 'alfresco';
   }
 
-  // The Jeci fork (Solr 9 / standalone trackers) only supports shared-secret
-  // communication end to end, so force it regardless of any solrHttpMode input.
-  if (props.searchType === 'jeci') {
+  // The Jeci fork (Solr 9 / standalone trackers) supports shared secret and mTLS,
+  // but not plain http, so anything else falls back to 'secret'.
+  if (props.searchType === 'jeci' && props.solrHttpMode !== 'https') {
     props.solrHttpMode = 'secret';
   }
 
