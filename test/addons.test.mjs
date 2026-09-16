@@ -114,3 +114,36 @@ describe(`OCR Transformer wiring on ACS ${LATEST}`, () => {
     assert.doesNotMatch(compose, /localTransform\.ocr\.url/, 'unexpected OCR transform config');
   });
 });
+
+// The embedded ActiveMQ broker jar is only needed by the Repository up to ACS 7.3.
+// The version test guarding it used to be a raw string comparison, which made
+// '26.2' < '7.4' true and shipped the jar to every 23.x/25.x/26.x deployment.
+describe('embedded ActiveMQ broker jar', () => {
+  const JAR = 'alfresco/modules/jars/activemq-broker-5.18.3.jar';
+
+  async function brokerShipped(acsVersion, overrides = {}) {
+    const runResult = await runGenerator({
+      acsVersion,
+      searchType: acsVersion === LATEST ? 'jeci' : 'alfresco',
+      activemq: false,
+      ...overrides
+    });
+    return fs.existsSync(path.join(runResult.cwd, JAR));
+  }
+
+  test('ships on ACS versions below 7.4', async () => {
+    for (const version of ['6.2', '7.2', '7.3']) {
+      assert.equal(await brokerShipped(version), true, `broker jar missing on ACS ${version}`);
+    }
+  });
+
+  test('is left out from ACS 7.4 onwards', async () => {
+    for (const version of ['7.4', '23.1', '25.3', LATEST]) {
+      assert.equal(await brokerShipped(version), false, `unexpected broker jar on ACS ${version}`);
+    }
+  });
+
+  test('is left out whenever the Events service is deployed', async () => {
+    assert.equal(await brokerShipped('7.3', { activemq: true }), false);
+  });
+});

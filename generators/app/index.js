@@ -598,7 +598,7 @@ export default class AppGenerator extends Generator {
         );
       }
       // ActiveMQ
-      if (!this.props.activemq && this.props.acsVersion < '7.4') {
+      if (!this.props.activemq && compare(semver(this.props.acsVersion), '7.4', '<')) {
         this.fs.copy(
           this.templatePath('addons/jars/activemq-broker-*.jar'),
           this.destinationPath('alfresco/modules/jars')
