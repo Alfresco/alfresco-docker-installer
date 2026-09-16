@@ -14,6 +14,7 @@ rendering, file emission) and never drifts from the generator's behavior.
 - `opensearch-dashboards.test.mjs` - OpenSearch Dashboards gating (ACS 26.2 + opensearch backend only) and its wiring.
 - `jeci-mtls.test.mjs` - the Jeci fork with `solrHttpMode=https`: TLS wiring on Solr, both tracker
   legs, the tracker admin server and the Repository, plus the keystores emitted for each.
+- `repository-image.test.mjs` - the Repository image drops back to its unprivileged user.
 - `validator.test.mjs` - self-tests proving the `docker compose config` validator actually discriminates.
 - `build.test.mjs` - opt-in: builds real images for one representative combination per search backend.
 

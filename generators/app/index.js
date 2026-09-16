@@ -541,6 +541,7 @@ export default class AppGenerator extends Generator {
           ocr: (this.props.addons.includes('simple-ocr') ? 'true' : 'false'),
           ftp: (this.props.ftp ? 'true' : 'false'),
           acsVersion: this.props.acsVersion,
+          restoreUser: (compare(semver(this.props.acsVersion), '6.1', '>') ? 'true' : 'false'),
           repository: (this.props.arch && this.props.acsVersion === '7.3' ? 'angelborroy' : 'alfresco')
         }
       );
