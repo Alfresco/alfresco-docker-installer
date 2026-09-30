@@ -25,6 +25,7 @@ const HTTPS = [false, true];
 const DATABASES = ['postgres', 'mariadb'];
 const ACTIVEMQ = [false, true];
 const WINDOWS = [false, true];
+const SOLR_HTTP_MODES = ['secret', 'https'];
 
 function label(o) {
   return [
@@ -35,6 +36,7 @@ function label(o) {
     o.mariadb ? 'mariadb' : 'postgres',
     o.activemq ? 'amq' : 'noamq',
     o.windows ? 'winvol' : 'bindvol',
+    ...(o.searchType === 'opensearch' ? [] : [o.solrHttpMode]),
     ...(o.opensearchDashboards ? ['dashboards'] : [])
   ].join('-');
 }
@@ -57,21 +59,27 @@ export function buildCombinations() {
                 const dashboardsValues =
                   searchType === 'opensearch' ? [false, true] : [false];
 
+                const solrHttpModes =
+                  searchType === 'opensearch' ? ['secret'] : SOLR_HTTP_MODES;
+
                 for (const opensearchDashboards of dashboardsValues) {
-                  const overrides = {
-                    acsVersion,
-                    searchType,
-                    proxyType,
-                    https,
-                    port: https ? '443' : '80',
-                    mariadb,
-                    activemq,
-                    windows,
-                    // ACS 26.1+ ActiveMQ broker requires credentials.
-                    activeMqCredentials: activemq,
-                    opensearchDashboards
-                  };
-                  combos.push({ label: label(overrides), overrides });
+                  for (const solrHttpMode of solrHttpModes) {
+                    const overrides = {
+                      acsVersion,
+                      searchType,
+                      proxyType,
+                      https,
+                      port: https ? '443' : '80',
+                      mariadb,
+                      activemq,
+                      windows,
+                      // ACS 26.1+ ActiveMQ broker requires credentials.
+                      activeMqCredentials: activemq,
+                      opensearchDashboards,
+                      solrHttpMode
+                    };
+                    combos.push({ label: label(overrides), overrides });
+                  }
                 }
               }
             }
