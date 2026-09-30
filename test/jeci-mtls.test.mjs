@@ -52,7 +52,9 @@ describe('Jeci fork with mTLS (solrHttpMode=https)', () => {
     assert.match(compose, /CERT_ALIAS: alfresco/);
     assert.match(compose, /-Dssl-keystore\.aliases=alfresco/);
     assert.match(compose, /-Dssl-truststore\.aliases=jeci-ca/);
-    assert.match(compose, /-Dalfresco\.encryption\.ssl\.keystore\.type=PKCS12/);
+    assert.match(compose, /-Dencryption\.ssl\.keystore\.type=PKCS12/);
+    assert.match(compose, /-Dencryption\.ssl\.truststore\.type=PKCS12/);
+    assert.doesNotMatch(compose, /-Dalfresco\.encryption\.ssl\./);
   });
 
   test('every service gets the keystore it needs', async () => {

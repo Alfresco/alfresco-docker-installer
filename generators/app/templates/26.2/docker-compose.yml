@@ -82,8 +82,8 @@ services:
                 -Dindex.subsystem.name=solr6<% if (solrHttpMode == 'secret') { %>
                 -Dsolr.sharedSecret=<%=secretPassword%> <% } %> <% if (solrHttpMode == 'https') { %>
                 -Ddir.keystore=/usr/local/tomcat/keystore
-                -Dalfresco.encryption.ssl.keystore.type=<%=sslStoreType%>
-                -Dalfresco.encryption.ssl.truststore.type=<%=sslStoreType%> <% } %><% } %><% if (searchType == 'opensearch') { %>
+                -Dencryption.ssl.keystore.type=<%=sslStoreType%>
+                -Dencryption.ssl.truststore.type=<%=sslStoreType%> <% } %><% } %><% if (searchType == 'opensearch') { %>
                 -Dsolr.secureComms=secret
                 -Dsolr.sharedSecret=<%=secretPassword%>
                 -Dindex.subsystem.name=elasticsearch
