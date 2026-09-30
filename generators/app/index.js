@@ -439,7 +439,7 @@ export default class AppGenerator extends Generator {
         type: 'confirm',
         name: 'volumesscript',
         message: 'Do you want to get the script to create host volumes?',
-        default: false
+        default: true
       }
     ];
 

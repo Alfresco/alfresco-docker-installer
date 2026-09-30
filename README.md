@@ -409,10 +409,10 @@ Standard [Docker Volumes](https://docs.docker.com/storage/volumes/) can be used 
 The wrapper script for the docker-compose file allows nice features as a wait for alfresco to finish the boot and much more. Use "./start.sh -h" for more information.
 
 ```
-? Do you want to get the script to create host volumes? No
+? Do you want to get the script to create host volumes? Yes
 ```
 
-When using Linux as host, you can get the script `create_volumes.sh` in Docker Compose folder. The script should be run only once, and be the first one to be executed, before the docker-compose up command, to create the initial `data` and `logs` host folders with the expected permissions. 
+When using Linux as host, you can get the script `create_volumes.sh` in Docker Compose folder. The script should be run only once, as root, and be the first one to be executed, before the docker-compose up command, to create the initial `data` and `logs` host folders with the expected permissions. 
 
 
 ## Passing parameters from command line
@@ -920,7 +920,7 @@ yo alfresco-docker-installer --port=8080
 1. Use the `create_volumes.sh` script (if generated):
    ```bash
    chmod +x create_volumes.sh
-   ./create_volumes.sh
+   sudo ./create_volumes.sh
    ```
 
 2. Or manually set permissions (see [Docker Volumes](#docker-volumes) section for detailed UID instructions)
