@@ -354,7 +354,7 @@ When using `secret` option (only available from 7.1.0), Alfresco and SOLR commun
 
 In addition, when using `https` option, communication between SOLR and Alfresco is using Mutual TLS. This protocol includes client authentication using digital certificates, that may be also a safe alternative.
 
-With the **Jeci community fork**, `https` secures the four legs of the split search tier: Repository to Solr, trackers to Solr, trackers to Repository, and the trackers admin server on port 8085. The generated `keystores` folder then holds **PKCS12** stores (password `changeit`) signed by a development CA, whose certificates carry the compose service names (`solr`, `trackers`, `alfresco`) as subject alternative names - the trackers verify the host name, so replacing these certificates means keeping those SANs. Solr is reached over TLS only, so the Web Proxy no longer exposes `/solr`: use the client certificate in `keystores/client/browser.p12` to reach the Solr admin UI.
+With the **Jeci community fork**, `https` secures the four legs of the split search tier: Repository to Solr, trackers to Solr, trackers to Repository, and the trackers admin server on port 8085. The generated `keystores` folder then holds **PKCS12** stores (password `changeit`) signed by a development CA, whose certificates carry the compose service names (`solr`, `trackers`, `alfresco`) as subject alternative names - the trackers verify the host name, so replacing these certificates means keeping those SANs. Solr is reached over TLS only, so the Web Proxy no longer exposes `/solr`: publish port 8983 of the `solr` service and use the client certificate in `keystores/client/browser.p12` to reach the Solr admin UI.
 
 ```
 ? Do you want to use the Events service (ActiveMQ)? No
@@ -459,7 +459,7 @@ yo alfresco-docker-installer \
 * `--ram`: number of GB available for Docker
 * `--https`: true or false
 * `--proxyType`: nginx or traefik (only for ACS 26.1 and 26.2, defaults to nginx)
-* `--searchType`: opensearch or jeci
+* `--searchType`: alfresco, opensearch or jeci
 * `--opensearchDashboards`: true or false (only for ACS 26.2 with `--searchType=opensearch`, defaults to false; exposes OpenSearch Dashboards on port 5601)
 * `--serverName`: localhost default
 * `--password`: admin user default password
@@ -469,7 +469,6 @@ yo alfresco-docker-installer \
 * `--mariadb`: true or false
 * `--crossLocale`: true or false
 * `--enableContentIndexing`: true or false
-* `--searchType`: alfresco or jeci
 * `--solrHttpMode`: http, https or secret (`--searchType=jeci` accepts secret or https only)
 * `--activemq`: true or false (ACS 7.3+)
 * `--smtp`: true or false
@@ -608,7 +607,8 @@ Runtime bind-mount folders under `data/` and `logs/` are typically created after
 │   ├── alfresco
 │   ├── client
 │   │   └── browser.p12
-│   └── solr
+│   ├── solr
+│   └── trackers
 
 ├── logs                    > Runtime bind-mount logs
 │   ├── alfresco            > Alfresco Repository logs
