@@ -336,8 +336,8 @@ Notes when selecting the Jeci fork:
 
 * It is **community-maintained** and not affiliated with Hyland.
 * Communication with the Repository accepts **shared secret** (default) or **mTLS**; plain `http` is not supported and silently falls back to shared secret. See the `Alfresco-SOLR communication` question below.
-* Both services run from **published images** — [`jeci/pristy-search-services`](https://hub.docker.com/r/jeci/pristy-search-services) and `jeci/pristy-indexing-trackers` — so nothing is compiled locally. Pin the version with `JECI_SEARCH_TAG` / `JECI_TRACKERS_TAG` in the generated `.env`.
-* Repository **admin actions** (`SUMMARY`, `REPORT` — what the OOTBee Support Tools "Solr Tracking" page calls) require the fork's optional `solr9` Repository subsystem, which this generator does not deploy: the generated `.yml` keeps `-Dindex.subsystem.name=solr6`. Search queries, indexing and ACL filtering are unaffected.
+* Both services run from **published images** - [`jeci/pristy-search-services`](https://hub.docker.com/r/jeci/pristy-search-services) and `jeci/pristy-indexing-trackers` - so nothing is compiled locally. Pin the version with `JECI_SEARCH_TAG` / `JECI_TRACKERS_TAG` in the generated `.env`.
+* Repository **admin actions** (`SUMMARY`, `REPORT` - what the OOTBee Support Tools "Solr Tracking" page calls) require the fork's optional `solr9` Repository subsystem, which this generator does not deploy: the generated `.yml` keeps `-Dindex.subsystem.name=solr6`. Search queries, indexing and ACL filtering are unaffected.
 * A full re-index is required (Lucene 9 cannot read a Solr 6 index); start with empty cores and let the trackers rebuild from the Repository.
 * Only the index (`data/`) is persisted. `solrhome` holds the core configuration and the baked-in rerank templates that `solr-init-core.sh` copies on first boot; mounting a volume over it would mask those templates and the cores would fail to load.
 
@@ -354,7 +354,7 @@ When using `secret` option (only available from 7.1.0), Alfresco and SOLR commun
 
 In addition, when using `https` option, communication between SOLR and Alfresco is using Mutual TLS. This protocol includes client authentication using digital certificates, that may be also a safe alternative.
 
-With the **Jeci community fork**, `https` secures the four legs of the split search tier: Repository to Solr, trackers to Solr, trackers to Repository, and the trackers admin server on port 8085. The generated `keystores` folder then holds **PKCS12** stores (password `changeit`) signed by a development CA, whose certificates carry the compose service names (`solr`, `trackers`, `alfresco`) as subject alternative names — the trackers verify the host name, so replacing these certificates means keeping those SANs. Solr is reached over TLS only, so the Web Proxy no longer exposes `/solr`: use the client certificate in `keystores/client/browser.p12` to reach the Solr admin UI.
+With the **Jeci community fork**, `https` secures the four legs of the split search tier: Repository to Solr, trackers to Solr, trackers to Repository, and the trackers admin server on port 8085. The generated `keystores` folder then holds **PKCS12** stores (password `changeit`) signed by a development CA, whose certificates carry the compose service names (`solr`, `trackers`, `alfresco`) as subject alternative names - the trackers verify the host name, so replacing these certificates means keeping those SANs. Solr is reached over TLS only, so the Web Proxy no longer exposes `/solr`: use the client certificate in `keystores/client/browser.p12` to reach the Solr admin UI.
 
 ```
 ? Do you want to use the Events service (ActiveMQ)? No
