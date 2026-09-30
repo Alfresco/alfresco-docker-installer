@@ -299,7 +299,7 @@ services:
 <% if (searchType == 'jeci') { %>
     # Jeci community fork of Alfresco Search Services: vanilla Apache Solr 9 / Java 17.
     # Solr only serves queries and stores the index; the indexing trackers run as a
-    # separate service (see "trackers" below). Communication uses shared secret only.
+    # separate service (see "trackers" below). Communication uses shared secret or mTLS.
     # Project: https://gitlab.com/pristy-oss/pristy-search-services
     solr:
         image: jeci/pristy-search-services:${JECI_SEARCH_TAG}
