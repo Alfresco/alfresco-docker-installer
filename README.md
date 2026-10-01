@@ -256,7 +256,7 @@ Both proxies support HTTP and HTTPS protocols with equivalent functionality. Cho
 > **Note**: This prompt only appears when deploying ACS 26.2. Stock Alfresco Search Services (Solr 6) is not available for ACS 26.2.
 
 - **OpenSearch + batch-indexer** (Default): Deploys OpenSearch instead of Solr, with the `alfresco-elasticsearch-batch-indexer` service handling continuous indexing. The ACS subsystem name remains `elasticsearch` as required by Alfresco internals. Only supported with PostgreSQL.
-- **Jeci community fork**: Community-maintained Solr 9 / Java 17 fork with standalone trackers.
+- **Jeci community fork**: Community-maintained Solr 9 / Java 17 fork with standalone trackers, published as ready-to-run images.
 
 ```
 ? Do you want to use OpenSearch Dashboards (port 5601)? No
@@ -330,14 +330,16 @@ By default, Alfresco is indexing the content of a document (in addition to the m
 
 This question is **only available for ACS 26.1**. By default the stock **Alfresco Search Services** image (Apache Solr 6) is used.
 
-The **Jeci community fork** ([jecicorp/AlfrescoSearchServices](https://github.com/jecicorp/AlfrescoSearchServices)) runs search on **vanilla Apache Solr 9 / Java 17** and splits the search tier into **two services**: `solr6` (query serving + index storage) and `trackers` (the indexing trackers, externalized into a standalone Spring Boot service). The trackers can be re-tuned live through `ALFRESCO_TRACKER_*` environment variables without rebuilding any image.
+The **Jeci community fork** ([pristy-oss/pristy-search-services](https://gitlab.com/pristy-oss/pristy-search-services)) runs search on **vanilla Apache Solr 9 / Java 17** and splits the search tier into **two services**: `solr` (query serving + index storage) and `trackers` (the indexing trackers, externalized into a standalone Spring Boot service). The trackers can be re-tuned live through `ALFRESCO_TRACKER_*` environment variables without rebuilding any image.
 
 Notes when selecting the Jeci fork:
 
-* It is a **beta**, community-maintained fork - not affiliated with Hyland and not recommended for production yet.
-* Communication with the Repository is forced to **shared secret** (the `Alfresco-SOLR communication` question below is skipped); the fork does not yet support mTLS on the trackers -> Solr leg.
-* The images are **not published to a public registry** yet, so the generated `search/` Dockerfile compiles the fork from source during `docker compose build` (no local JDK/Maven or manual clone needed). Pick a different fork, branch, tag or commit with `JECI_REPO` / `JECI_REF` in the generated `.env`.
+* It is **community-maintained** and not affiliated with Hyland.
+* Communication with the Repository accepts **shared secret** (default) or **mTLS**; plain `http` is not supported and silently falls back to shared secret. See the `Alfresco-SOLR communication` question below.
+* Both services run from **published images** - [`jeci/pristy-search-services`](https://hub.docker.com/r/jeci/pristy-search-services) and `jeci/pristy-indexing-trackers` - so nothing is compiled locally. Pin the version with `JECI_SEARCH_TAG` / `JECI_TRACKERS_TAG` in the generated `.env`.
+* Repository **admin actions** (`SUMMARY`, `REPORT` - what the OOTBee Support Tools "Solr Tracking" page calls) require the fork's optional `solr9` Repository subsystem, which this generator does not deploy: the generated `.yml` keeps `-Dindex.subsystem.name=solr6`. Search queries, indexing and ACL filtering are unaffected.
 * A full re-index is required (Lucene 9 cannot read a Solr 6 index); start with empty cores and let the trackers rebuild from the Repository.
+* Only the index (`data/`) is persisted. `solrhome` holds the core configuration and the baked-in rerank templates that `solr-init-core.sh` copies on first boot; mounting a volume over it would mask those templates and the cores would fail to load.
 
 ```
 ? Would you like to use HTTP or Shared Secret for Alfresco-SOLR communication?
@@ -351,6 +353,8 @@ By default, communication between Alfresco and SOLR happens in plain `http`. Sin
 When using `secret` option (only available from 7.1.0), Alfresco and SOLR communication is happening in plain HTTP but including a shared secret word in HTTP Header. This should be a safer approach for open environments.
 
 In addition, when using `https` option, communication between SOLR and Alfresco is using Mutual TLS. This protocol includes client authentication using digital certificates, that may be also a safe alternative.
+
+With the **Jeci community fork**, `https` secures the four legs of the split search tier: Repository to Solr, trackers to Solr, trackers to Repository, and the trackers admin server on port 8085. The generated `keystores` folder then holds **PKCS12** stores (password `changeit`) signed by a development CA, whose certificates carry the compose service names (`solr`, `trackers`, `alfresco`) as subject alternative names - the trackers verify the host name, so replacing these certificates means keeping those SANs. Solr is reached over TLS only, so the Web Proxy no longer exposes `/solr`: publish port 8983 of the `solr` service and use the client certificate in `keystores/client/browser.p12` to reach the Solr admin UI.
 
 ```
 ? Do you want to use the Events service (ActiveMQ)? No
@@ -405,10 +409,10 @@ Standard [Docker Volumes](https://docs.docker.com/storage/volumes/) can be used 
 The wrapper script for the docker-compose file allows nice features as a wait for alfresco to finish the boot and much more. Use "./start.sh -h" for more information.
 
 ```
-? Do you want to get the script to create host volumes? No
+? Do you want to get the script to create host volumes? Yes
 ```
 
-When using Linux as host, you can get the script `create_volumes.sh` in Docker Compose folder. The script should be run only once, and be the first one to be executed, before the docker-compose up command, to create the initial `data` and `logs` host folders with the expected permissions. 
+When using Linux as host, you can get the script `create_volumes.sh` in Docker Compose folder. The script should be run only once, as root, and be the first one to be executed, before the docker-compose up command, to create the initial `data` and `logs` host folders with the expected permissions. 
 
 
 ## Passing parameters from command line
@@ -455,7 +459,7 @@ yo alfresco-docker-installer \
 * `--ram`: number of GB available for Docker
 * `--https`: true or false
 * `--proxyType`: nginx or traefik (only for ACS 26.1 and 26.2, defaults to nginx)
-* `--searchType`: opensearch or jeci (only for ACS 26.2, defaults to opensearch; stock Solr is not available for 26.2)
+* `--searchType`: alfresco, opensearch or jeci
 * `--opensearchDashboards`: true or false (only for ACS 26.2 with `--searchType=opensearch`, defaults to false; exposes OpenSearch Dashboards on port 5601)
 * `--serverName`: localhost default
 * `--password`: admin user default password
@@ -465,8 +469,7 @@ yo alfresco-docker-installer \
 * `--mariadb`: true or false
 * `--crossLocale`: true or false
 * `--enableContentIndexing`: true or false
-* `--searchType`: alfresco or jeci (only for ACS 26.1, defaults to alfresco; `jeci` forces `--solrHttpMode=secret`)
-* `--solrHttpMode`: http, https or secret
+* `--solrHttpMode`: http, https or secret (`--searchType=jeci` accepts secret or https only)
 * `--activemq`: true or false (ACS 7.3+)
 * `--smtp`: true or false
 * `--ldap`: true or false
@@ -486,7 +489,7 @@ yo alfresco-docker-installer \
   --port=443
 ```
 
-**Example with the Jeci Solr 9 community fork (ACS 26.1 and 26.2):**
+**Example with Jeci community fork (ACS 26.1 and 26.2):**
 
 ```bash
 yo alfresco-docker-installer \
@@ -497,13 +500,13 @@ yo alfresco-docker-installer \
   --port=80
 ```
 
-The fork's images are not published to a public registry yet, so the generated `search/` Dockerfile compiles them from source. Just run:
+Both search services run from published images, so no local build is involved:
 
 ```bash
-docker compose up --build
+docker compose up
 ```
 
-The first build clones the fork (see `JECI_REPO` / `JECI_REF` in the generated `.env`) and compiles it with Java 17, so it may take a while; later builds are cached. Override `JECI_REPO` / `JECI_REF` in `.env` to build a different fork, branch, tag or commit.
+The versions come from `JECI_SEARCH_TAG` and `JECI_TRACKERS_TAG` in the generated `.env`; change them there to pin a different release of the Jeci community fork.
 
 **Note on boolean flags**: Yeoman treats boolean flags as true when present. To set a flag to true, include it (e.g., `--https`). To set it to false, omit the flag entirely. Do NOT use `--flag=false` syntax as it will be interpreted as true.
 
@@ -604,7 +607,8 @@ Runtime bind-mount folders under `data/` and `logs/` are typically created after
 │   ├── alfresco
 │   ├── client
 │   │   └── browser.p12
-│   └── solr
+│   ├── solr
+│   └── trackers
 
 ├── logs                    > Runtime bind-mount logs
 │   ├── alfresco            > Alfresco Repository logs
@@ -615,8 +619,8 @@ Runtime bind-mount folders under `data/` and `logs/` are typically created after
 │   ├── Dockerfile          > Docker image for ocrmypdf
 │   └── assets              > OCR service configuration assets
 
-├── search                  > Search image build context (omitted when searchType=opensearch; for searchType=jeci it compiles the Solr 9 fork from source)
-│   └── Dockerfile          > Docker image for Search (stock Solr, or the Jeci Solr 9 fork)
+├── search                  > Search image build context (only for the stock Search Services backend; omitted when searchType=opensearch or searchType=jeci, which use published images)
+│   └── Dockerfile          > Docker image for Search
 
 ├── share                   > Share image build context
 │   ├── Dockerfile          > Docker image for Share
@@ -789,6 +793,8 @@ $ docker volume rm $(docker volume ls -q --filter name=tmp_)
 * [alfresco-content-repository-community](https://hub.docker.com/r/alfresco/alfresco-content-repository-community)
 * [alfresco-share](https://hub.docker.com/r/alfresco/alfresco-share)
 * [alfresco-search-services](https://hub.docker.com/r/alfresco/alfresco-search-services)
+* [jeci/pristy-search-services](https://hub.docker.com/r/jeci/pristy-search-services) - Jeci community fork, Solr 9 (ACS 26.1 and 26.2, `--searchType=jeci`)
+* [jeci/pristy-indexing-trackers](https://hub.docker.com/r/jeci/pristy-indexing-trackers) - Standalone indexing trackers (ACS 26.1 and 26.2, `--searchType=jeci`)
 * [opensearchproject/opensearch](https://hub.docker.com/r/opensearchproject/opensearch) - Search engine (ACS 26.2)
 * [alfresco-elasticsearch-batch-indexing](https://hub.docker.com/r/alfresco/alfresco-elasticsearch-batch-indexing) - Batch indexer for OpenSearch (ACS 26.2)
 * [opensearchproject/opensearch-dashboards](https://hub.docker.com/r/opensearchproject/opensearch-dashboards) - Optional OpenSearch UI (ACS 26.2)
@@ -914,7 +920,7 @@ yo alfresco-docker-installer --port=8080
 1. Use the `create_volumes.sh` script (if generated):
    ```bash
    chmod +x create_volumes.sh
-   ./create_volumes.sh
+   sudo ./create_volumes.sh
    ```
 
 2. Or manually set permissions (see [Docker Volumes](#docker-volumes) section for detailed UID instructions)

@@ -117,7 +117,7 @@ RUN if [ "$SOLR_COMMS" == "https" ] ; then \
 EXPOSE 2121 2433 2434
 <% } %>
 
-<%if (acsVersion > '6.1') { %>
+<%if (restoreUser == 'true') { %>
 # Restore original user
 RUN chown -R ${IMAGEUSERNAME} $TOMCAT_DIR
 USER ${IMAGEUSERNAME}

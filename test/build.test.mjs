@@ -7,15 +7,16 @@ import path from 'node:path';
 import { runGenerator } from './helpers/run-generator.mjs';
 import { dockerComposeAvailable, composeBuild } from './helpers/docker.mjs';
 
-// Opt-in only: this builds real images (jeci compiles the Solr 9 fork from
-// source), so it pulls from registries and can take many minutes. Enable with
-// ADI_DEEP_BUILD=1. Without it, the whole describe block is skipped.
+// Opt-in only: this builds real images, so it pulls from registries and can take
+// many minutes. Enable with ADI_DEEP_BUILD=1. Without it, the whole describe
+// block is skipped.
 const OPTED_IN = process.env.ADI_DEEP_BUILD === '1';
 const TIMEOUT_MS = Number(process.env.ADI_BUILD_TIMEOUT_MS || 20 * 60 * 1000);
 
 // One representative combination per search backend. Repo + Share + proxy build
 // contexts are common to every combination, so these four cover all Dockerfiles
-// the generator can emit (stock search, jeci multi-stage, opensearch/no-search).
+// the generator can emit (stock search, and the backends that ship no Dockerfile
+// of their own: jeci and opensearch).
 const REPRESENTATIVES = [
   { label: 'acs26.1-alfresco', overrides: { acsVersion: '26.1', searchType: 'alfresco', proxyType: 'nginx' } },
   { label: 'acs26.1-jeci', overrides: { acsVersion: '26.1', searchType: 'jeci', proxyType: 'nginx' } },

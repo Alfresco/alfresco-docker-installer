@@ -12,6 +12,9 @@ rendering, file emission) and never drifts from the generator's behavior.
 - `combinations.test.mjs` - generates all combinations and validates the produced Docker assets.
 - `addons.test.mjs` - addon availability per ACS version, plus OCR Transformer wiring on the latest version.
 - `opensearch-dashboards.test.mjs` - OpenSearch Dashboards gating (ACS 26.2 + opensearch backend only) and its wiring.
+- `jeci-mtls.test.mjs` - the Jeci fork with `solrHttpMode=https`: TLS wiring on Solr, both tracker
+  legs, the tracker admin server and the Repository, plus the keystores emitted for each.
+- `repository-image.test.mjs` - the Repository image drops back to its unprivileged user.
 - `validator.test.mjs` - self-tests proving the `docker compose config` validator actually discriminates.
 - `build.test.mjs` - opt-in: builds real images for one representative combination per search backend.
 
@@ -35,8 +38,8 @@ assertions; the syntactic validation is skipped with a warning.
 
 ### Deep build (opt-in, slow)
 
-Actually builds the generated images. For `jeci` this compiles the Solr 9
-community fork from source, so it pulls base images and can take several minutes:
+Actually builds the generated images. It pulls base images and can take several
+minutes:
 
 ```bash
 ADI_DEEP_BUILD=1 npm test
