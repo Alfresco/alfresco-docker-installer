@@ -414,6 +414,8 @@ The wrapper script for the docker-compose file allows nice features as a wait fo
 
 When using Linux as host, you can get the script `create_volumes.sh` in Docker Compose folder. The script should be run only once, as root, and be the first one to be executed, before the docker-compose up command, to create the initial `data` and `logs` host folders with the expected permissions. 
 
+>> For ACS 23.x and later, the Repository runs as uid 33000. On Linux, run `sudo ./create_volumes.sh` again after upgrading an existing deployment.
+
 
 ## Passing parameters from command line
 
