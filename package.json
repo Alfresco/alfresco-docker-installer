@@ -20,7 +20,7 @@
     "compare-versions": "^6.1.0",
     "hash-wasm": "^4.11.0",
     "lodash": "^4.17.21",
-    "yeoman-generator": "^8.2.2"
+    "yeoman-generator": "^10.0.1"
   },
   "devDependencies": {
     "yeoman-environment": "^6.1.0",
