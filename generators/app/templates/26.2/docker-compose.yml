@@ -1,3 +1,5 @@
+# -XX:-UseBASE64Intrinsics is set on every Java service to mitigate CVE-2026-114938 (Java4Shell).
+# Remove it when all images ship a patched Java runtime.
 services:
     alfresco:
         build:
@@ -66,6 +68,7 @@ services:
                 -Dssl-truststore.ssl-repo-client.password=truststore<% } %>
                 "
             JAVA_OPTS : '
+                -XX:-UseBASE64Intrinsics
                 -Ddb.username=alfresco
                 -Ddb.password=alfresco<% if (db == "postgres") { %>
                 -Ddb.driver=org.postgresql.Driver
@@ -177,6 +180,7 @@ services:
                     memory: 2048m
         environment:
             JAVA_OPTS: "
+              -XX:-UseBASE64Intrinsics
               -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
               -Dserver.tomcat.threads.max=12
               -Dserver.tomcat.threads.min=4
@@ -209,6 +213,7 @@ services:
             CSRF_FILTER_REFERER: "http<% if (https == 'true') { %>s<%}%>://<%=serverName%>:<%=port%>/.*"
             CSRF_FILTER_ORIGIN: "http<% if (https == 'true') { %>s<%}%>://<%=serverName%>:<%=port%>"
             JAVA_OPTS: "
+                -XX:-UseBASE64Intrinsics
                 -Dalfresco.context=alfresco
                 -Dalfresco.protocol=http<% if (https == 'true') { %>s<%}%>
                 -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
@@ -321,7 +326,8 @@ services:
             #Create the default alfresco and archive cores
             SOLR_CREATE_ALFRESCO_DEFAULTS: "alfresco,archive"
             ALFRESCO_SECURE_COMMS: "<%=solrHttpMode%>"<% if (solrHttpMode == 'secret') { %>
-            JAVA_TOOL_OPTIONS: "-Dalfresco.secureComms.secret=<%=secretPassword%>"<% } else { %>
+            JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics -Dalfresco.secureComms.secret=<%=secretPassword%>"<% } else { %>
+            JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
             SOLR_SSL_ENABLED: "true"
             SOLR_SSL_KEY_STORE: "/opt/pristy-search-services/keystore/solr.p12"
             SOLR_SSL_KEY_STORE_PASSWORD: "<%=sslKeystorePassword%>"
@@ -358,7 +364,8 @@ services:
             resources:
                 limits:
                     memory: 512m
-        environment:<% if (solrHttpMode == 'secret') { %>
+        environment:
+            JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"<% if (solrHttpMode == 'secret') { %>
             ALFRESCO_TRACKER_SOLR_URL: "http://solr:8983/solr"
             ALFRESCO_TRACKER_SOLR_COLLECTIONS: "alfresco,archive"
             ALFRESCO_TRACKER_SOLR_SECURECOMMS: "secret"
@@ -407,6 +414,7 @@ services:
         environment:
             - discovery.type=single-node
             - DISABLE_SECURITY_PLUGIN=true
+            - OPENSEARCH_JAVA_OPTS=-XX:-UseBASE64Intrinsics
         healthcheck:
             test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
             interval: 30s
@@ -424,6 +432,7 @@ services:
                 limits:
                     memory: 1g
         environment:
+            JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
             SPRING_ELASTICSEARCH_REST_URIS: http://opensearch:9200
             SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/alfresco
             SPRING_DATASOURCE_USERNAME: alfresco
@@ -467,8 +476,9 @@ services:
         deploy:
             resources:
                 limits:
-                    memory: 1g<% if (activeMqCredentials == 'true') { %>
+                    memory: 1g
         environment:
+            JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"<% if (activeMqCredentials == 'true') { %>
             ACTIVEMQ_ADMIN_LOGIN: "<%=activeMqUser%>"
             ACTIVEMQ_ADMIN_PASSWORD: "<%=activeMqPassword%>" <% } %>
         volumes: <% if (windows == 'false') { %>
@@ -632,6 +642,7 @@ services:
                     memory: 1536m
         environment:
           JAVA_OPTS: "
+              -XX:-UseBASE64Intrinsics
               -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
               -Dserver.tomcat.threads.max=4
               -Dserver.tomcat.threads.min=1

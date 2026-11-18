@@ -139,6 +139,7 @@ Operating System
 - **Docker Resources**: Ensure Docker has access to sufficient memory (16GB+) in Docker Desktop settings (macOS/Windows).
 - **Linux Users**: You may need to adjust folder permissions for Docker volumes (see [Docker Volumes](#docker-volumes) section).
 - **Windows Users**: Using Docker volumes (not bind mounts) is recommended for better compatibility.
+- **Java4Shell (CVE-2026-114938)**: For ACS 25.x and 26.x, every Java service runs with `-XX:-UseBASE64Intrinsics` as an interim mitigation. Projects generated with an earlier version of this generator do not include it; see [Java4Shell: What Alfresco Developers Need to Know](https://community.hyland.com/discussion/501645/java4shell-cve-2026-114938-what-alfresco-developers-need-to-know).
 
 ## Installation
 

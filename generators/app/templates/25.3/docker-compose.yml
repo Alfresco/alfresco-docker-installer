@@ -1,3 +1,5 @@
+# -XX:-UseBASE64Intrinsics is set on every Java service to mitigate CVE-2026-114938 (Java4Shell).
+# Remove it when all images ship a patched Java runtime.
 services:
     alfresco:
         build:
@@ -39,6 +41,7 @@ services:
                 -Dssl-truststore.ssl-repo-client.password=truststore<% } %>
                 "
             JAVA_OPTS : '
+                -XX:-UseBASE64Intrinsics
                 -Ddb.username=alfresco
                 -Ddb.password=alfresco<% if (db == "postgres") { %>
                 -Ddb.driver=org.postgresql.Driver
@@ -141,6 +144,7 @@ services:
         mem_limit: 2048m
         environment:
             JAVA_OPTS: "
+              -XX:-UseBASE64Intrinsics
               -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
               -Dserver.tomcat.threads.max=12
               -Dserver.tomcat.threads.min=4
@@ -170,6 +174,7 @@ services:
             CSRF_FILTER_REFERER: "http<% if (https == 'true') { %>s<%}%>://<%=serverName%>:<%=port%>/.*"
             CSRF_FILTER_ORIGIN: "http<% if (https == 'true') { %>s<%}%>://<%=serverName%>:<%=port%>"
             JAVA_OPTS: "
+                -XX:-UseBASE64Intrinsics
                 -Dalfresco.context=alfresco
                 -Dalfresco.protocol=http<% if (https == 'true') { %>s<%}%>
                 -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
@@ -278,7 +283,8 @@ services:
                 -Dssl-truststore.ssl-repo-client.password=truststore
             " <% } %>
             SOLR_OPTS: "
-                -XX:-UseLargePages<% if (solrHttpMode == 'secret') { %>
+                -XX:-UseLargePages
+                -XX:-UseBASE64Intrinsics<% if (solrHttpMode == 'secret') { %>
                 -Dalfresco.secureComms.secret=<%=secretPassword%><% } %> <% if (solrHttpMode == 'https') { %>
                 -Dsolr.ssl.checkPeerName=false
                 -Dsolr.allow.unsafe.resourceloading=true <% } %>
@@ -294,8 +300,9 @@ services:
     <% if (activemq == 'true') { %>
     activemq:
         image: alfresco/alfresco-activemq:${ACTIVEMQ_TAG}
-        mem_limit: 1g<% if (activeMqCredentials == 'true') { %>
+        mem_limit: 1g
         environment:
+            JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"<% if (activeMqCredentials == 'true') { %>
             ACTIVEMQ_ADMIN_LOGIN: "<%=activeMqUser%>"
             ACTIVEMQ_ADMIN_PASSWORD: "<%=activeMqPassword%>" <% } %>
         volumes: <% if (windows == 'false') { %>
@@ -382,6 +389,7 @@ services:
         mem_limit: 1536m
         environment:
           JAVA_OPTS: "
+              -XX:-UseBASE64Intrinsics
               -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80
               -Dserver.tomcat.threads.max=4
               -Dserver.tomcat.threads.min=1
